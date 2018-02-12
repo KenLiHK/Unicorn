@@ -1,0 +1,65 @@
+/******** [START] Account registration style ********/
+label.reg_label {
+	text-align: right;
+	margin-right: 0.5em;
+	font-weight:bold;
+}
+
+label.reg_label2 {
+	text-align: right;
+	margin-right: 0.5em;
+}
+
+input.reg_input[type=text] {
+	display: inline-block;	
+	width: 30%;
+	text-align: left;
+}
+
+input.reg_input2[type=text] {
+	display: inline-block;
+	width: 50%;
+	text-align: left;
+}
+
+span.reg_err {
+	color: red;
+}
+
+span.reg_info {
+	color: green;
+}
+
+input.reg_input3[type=checkbox] {
+	zoom: 1.5;
+	vertical-align: text-bottom;
+}
+
+input.reg_input4[type=reset] {
+	width: 20%;
+	margin-right: 2.5em;
+	margin-bottom: 2.5em;
+}
+
+input.reg_input5[type=submit] {
+	width: 20%;
+	margin-bottom: 2.5em;
+}
+
+h5.reg_success {
+	margin-bottom: 10.5em;
+}
+
+h5.reg_failure {
+	margin-bottom: 10.5em;
+	color:red;
+}
+
+label.mandatory_field {
+	color:red;
+	font-size:15px;
+}
+/******** [END] Account registration style ********/
+
+
+

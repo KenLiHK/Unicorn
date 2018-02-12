@@ -1,0 +1,36 @@
+@charset "UTF-8";
+
+/******** [START] Login style ********/
+label.login_label {
+	text-align: right;
+	margin-right: 0.5em;
+	font-weight:bold;
+}
+
+input.login_input[type=text] {
+	display: inline-block;	
+	width: 30%;
+	text-align: left;
+}
+
+span.login_err {
+	color: red;
+}
+
+input.login_input4[type=reset] {
+	width: 20%;
+	margin-right: 2.5em;
+	margin-bottom: 2.5em;
+}
+
+input.login_input5[type=submit] {
+	width: 20%;
+	margin-bottom: 2.5em;
+}
+
+label.mandatory_field {
+	color:red;
+	font-size:15px;
+}
+/******** [END] Login style ********/
+
