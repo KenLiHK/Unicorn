@@ -1,0 +1,589 @@
+<?php
+
+	//[START] Database table entity class
+	class User {    
+		private $userID;
+		private $sex;
+		private $engSurname;
+		private $engMidName;
+		private $engName;
+		private $email;
+		private $tel;
+		private $address1;
+		private $address2;
+		private $address3;
+		private $address4;
+		private $encrypttedPassword;
+		private $regToken;
+				
+		public function __construct($userID, $sex, $engSurname, $engMidName, $engName, 
+									$email, $tel, $address1, $address2, $address3, $address4, $encrypttedPassword, $regToken)
+		{
+			$this->userID 				= $userID;
+			$this->sex 					= $sex;
+			$this->engSurname 			= $engSurname;
+			$this->engMidName 			= $engMidName;
+			$this->engName 				= $engName;
+			$this->email 				= $email;
+			$this->tel 					= $tel;
+			$this->address1 			= $address1;
+			$this->address2 			= $address2;
+			$this->address3 			= $address3;
+			$this->address4 			= $address4;
+			$this->encrypttedPassword 	= $encrypttedPassword;
+			$this->regToken 			= $regToken;
+		}
+
+		public function getUserID() { 
+			return $this->userID; 
+		}
+
+		public function getSex() { 
+			return $this->sex; 
+		}
+
+		public function getEngSurname() { 
+			return $this->engSurname; 
+		}
+
+		public function getEngMidName() { 
+			return $this->engMidName; 
+		}
+
+		public function getEngName() { 
+			return $this->engName; 
+		}
+
+		public function getEmail() { 
+			return $this->email; 
+		}
+
+		public function getTel() { 
+			return $this->tel; 
+		}
+
+		public function getAddress1() { 
+			return $this->address1; 
+		}
+
+		public function getAddress2() { 
+			return $this->address2; 
+		}
+
+		public function getAddress3() { 
+			return $this->address3; 
+		}
+
+		public function getAddress4() { 
+			return $this->address4; 
+		}
+
+		public function getEncrypttedPassword() { 
+			return $this->encrypttedPassword; 
+		}
+
+		public function getRegToken() { 
+			return $this->regToken; 
+		}	
+	}
+	
+	class Order {    
+		private $orderID; //Increased automatically by MySQL database, no need to set this value when insert new record in Order table
+		private $userID;
+		private $status;
+		private $orderEffectDate;
+		private $orderExpiryDate;
+		private $totalPaymentAmt;
+		private $totalDiscountAmt;
+		private $paymentDate;
+		private $paumentChannel;
+		private $creditCardType;
+		private $creditCardNo;
+		private $creditCardSecurityCode;
+		private $creditCardHolderName;
+		private $creditCardExpiryDate;
+		private $chequeNo;
+		private $remark;
+		private $createDate;
+		private $updateDate;
+				
+		public function __construct($orderID, $userID, $status, $orderEffectDate, $orderExpiryDate, $totalPaymentAmt, $totalDiscountAmt, 
+		    $paymentDate, $paumentChannel, $creditCardType, $creditCardNo, $creditCardSecurityCode, $creditCardHolderName, 
+		    $creditCardExpiryDate, $chequeNo, $remark, $createDate, $updateDate)
+		{
+		    $this->orderID				  = $orderID;
+		    $this->userID                     = $userID;
+		    $this->status                     = $status;
+		    $this->orderEffectDate            = $orderEffectDate;
+		    $this->orderExpiryDate            = $orderExpiryDate;
+		    $this->totalPaymentAmt            = $totalPaymentAmt;
+		    $this->totalDiscountAmt           = $totalDiscountAmt;
+		    $this->paymentDate                = $paymentDate;
+		    $this->paumentChannel             = $paumentChannel;
+		    $this->creditCardType             = $creditCardType;
+		    $this->creditCardNo               = $creditCardNo;
+		    $this->creditCardSecurityCode     = $creditCardSecurityCode;
+		    $this->creditCardHolderName       = $creditCardHolderName;
+		    $this->creditCardExpiryDate       = $creditCardExpiryDate;
+		    $this->chequeNo                   = $chequeNo;
+		    $this->remark                     = $remark;
+		    $this->createDate                 = $createDate;
+		    $this->updateDate                 = $updateDate;
+		}
+
+		public function getOrderID() {
+		    return $this->orderID;
+		}
+		
+		public function getUserID() { 
+			return $this->userID; 
+		}
+
+		public function getStatus() { 
+		    return $this->status; 
+		}
+
+		public function getOrderEffectDate() { 
+		    return $this->orderEffectDate; 
+		}
+
+		public function getOrderExpiryDate() { 
+		    return $this->orderExpiryDate; 
+		}
+
+		public function getTotalPaymentAmt() { 
+		    return $this->totalPaymentAmt; 
+		}
+
+		public function getTotalDiscountAmt() { 
+		    return $this->totalDiscountAmt; 
+		}
+
+		public function getPaymentDate() { 
+		    return $this->paymentDate; 
+		}
+
+		public function getPaumentChannel() { 
+		    return $this->paumentChannel; 
+		}
+
+		public function getCreditCardType() { 
+		    return $this->creditCardType; 
+		}
+
+		public function getCreditCardNo() { 
+		    return $this->creditCardNo; 
+		}
+
+		public function getCreditCardSecurityCode() { 
+		    return $this->creditCardSecurityCode; 
+		}
+
+		public function getCreditCardHolderName() { 
+		    return $this->creditCardHolderName; 
+		}
+
+		public function getCreditCardExpiryDate() { 
+		    return $this->creditCardExpiryDate; 
+		}
+
+		public function getChequeNo() {
+		    return $this->chequeNo;
+		}	
+		
+		public function getRemark() {
+		    return $this->remark;
+		}	
+		
+		public function getCreateDate() {
+		    return $this->createDate;
+		}	
+		
+		public function getUpdateDate() {
+		    return $this->updateDate;
+		}	
+	}
+	
+	class OrderDetail {
+	    private $orderID;
+	    private $foodID;
+	    private $qty;
+	    private $paymentAmt;
+	    private $discountAmt;	   
+	    private $createDate;
+	    private $updateDate;
+	    
+	    public function __construct($orderID, $foodID, $qty, $paymentAmt, $discountAmt, $createDate, $updateDate)
+	    {
+	        $this->orderID 					  = $orderID;
+	        $this->foodID                     = $foodID;
+	        $this->qty                        = $qty;
+	        $this->paymentAmt                 = $paymentAmt;
+	        $this->discountAmt                = $discountAmt;
+	        $this->createDate                 = $createDate;
+	        $this->updateDate                 = $updateDate;	       
+	    }
+	    
+	    public function getOrderID() {
+	       return $this->orderID;
+	    }
+	    
+	    public function getFoodID() {
+	        return $this->foodID;
+	    }
+	    
+	    public function getQty() {
+	        return $this->qty;
+	    }
+	    
+	    public function getPaymentAmt() {
+	        return $this->paymentAmt;
+	    }
+	    
+	    public function getDiscountAmt() {
+	        return $this->discountAmt;
+	    }	    	    
+	    
+	    public function getCreateDate() {
+	        return $this->createDate;
+	    }
+	    
+	    public function getUpdateDate() {
+	        return $this->updateDate;
+	    }
+	}
+	
+	class OrderDetail4Display {
+	    private $orderID;
+	    private $foodID;
+	    private $foodCategory;
+	    private $foodName;
+	    private $price;
+	    private $qty;
+	    private $subtotal;
+	    
+	    public function __construct($orderID, $foodID, $foodCategory, $foodName, $price, $qty, $subtotal)
+	    {
+	        $this->orderID 					  = $orderID;
+	        $this->foodID                     = $foodID;
+	        $this->foodCategory               = $foodCategory;
+	        $this->foodName                   = $foodName;
+	        $this->price                      = $price;
+	        $this->qty                        = $qty;
+	        $this->subtotal                   = $subtotal;
+	    }
+	    
+	    public function getOrderID() {
+	        return $this->orderID;
+	    }
+	    
+	    public function getFoodID() {
+	        return $this->foodID;
+	    }
+	    
+	    public function getFoodCategory() {
+	        return $this->foodCategory;
+	    }
+	    
+	    public function getFoodName() {
+	        return $this->foodName;
+	    }
+	    
+	    public function getPrice() {
+	        return $this->price;
+	    }
+	    
+	    public function getQty() {
+	        return $this->qty;
+	    }
+	    
+	    public function getSubtotal() {
+	        return $this->subtotal;
+	    }
+	    
+	    public function setOrderID($orderID) {
+	    	$this->orderID= $orderID;
+	    }
+	    
+	    public function setFoodID($foodID) {
+	    	$this->foodID= $foodID;
+	    }
+	    
+	    public function setFoodCategory($foodCategory) {
+	    	$this->foodCategory= $foodCategory;
+	    }
+	    
+	    public function setFoodName($foodName) {
+	    	$this->foodName= $foodName;
+	    }
+	    
+	    public function setPrice($price) {
+	    	$this->price= $price;
+	    }
+	    
+	    public function setQty($qty) {
+	    	$this->qty= $qty;
+	    }
+	    
+	    public function setSubtotal($subtotal) {
+	    	$this->subtotal= $subtotal;
+	    }
+	}
+	
+	class Food {
+	    private $foodID;
+	    private $foodCategory;
+	    private $foodName;
+	    private $available;
+	    private $price;
+	    private $discount;
+	    private $discountEffectDate;
+	    private $discountExpiryDate;
+	    private $imgPath;
+	    private $remark;
+	    private $createDate;
+	    private $updateDate;
+	    
+	    public function __construct($foodID, $foodCategory, $foodName, $available, $price, $discount, $discountEffectDate, $discountExpiryDate, 
+	        $imgPath, $remark, $createDate, $updateDate)
+	    {
+	        $this->foodID 					  = $foodID;
+	        $this->foodCategory               = $foodCategory;
+	        $this->foodName                   = $foodName;
+	        $this->available                  = $available;
+	        $this->price                      = $price;
+	        $this->discount                   = $discount;
+	        $this->discountEffectDate 		  = $discountEffectDate;
+	        $this->discountExpiryDate         = $discountExpiryDate;
+	        $this->imgPath                    = $imgPath;
+	        $this->remark                     = $remark;
+	        $this->createDate                 = $createDate;
+	        $this->updateDate                 = $updateDate;
+	    }
+	    	    
+	    public function getFoodID() {
+	        return $this->foodID;
+	    }
+	    
+	    public function getFoodCategory() {
+	        return $this->foodCategory;
+	    }
+	    
+	    public function getFoodName() {
+	        return $this->foodName;
+	    }
+	    
+	    public function getAvailable() {
+	        return $this->available;
+	    }
+	    
+	    public function getPrice() {
+	        return $this->price;
+	    }
+
+	    public function getDiscount() {
+	        return $this->discount;
+	    }
+	    
+	    public function getDiscountEffectDate() {
+	        return $this->discountEffectDate;
+	    }
+	    
+	    public function getDiscountExpiryDate() {
+	        return $this->discountExpiryDate;
+	    }
+	    
+	    public function getImgPath() {
+	        return $this->imgPath;
+	    }
+	    
+	    public function getRemark() {
+	        return $this->remark;
+	    }
+	    
+	    public function getCreateDate() {
+	        return $this->createDate;
+	    }
+	    
+	    public function getUpdateDate() {
+	        return $this->updateDate;
+	    }
+	}
+	//[END] Database table entity class
+	
+	//[START] Registration function
+	function sendEmail($Receiver, $Subject, $Content)
+	{
+		$Sender = "From: cs5281unicorn_admin@unicorn.com";
+
+		try{
+			mail($Receiver, $Subject, $Content, $Sender);
+			//echo "Send email success!!";
+		} catch(Exception $e){
+			echo "Send email failed: " . $e->getMessage();
+		}
+	}
+
+	function optimizateInput($data) {
+		if(isset($data)){
+			$data = trim($data);
+			//$data = stripslashes($data);
+			//$data = htmlspecialchars($data);		
+		}
+		return $data;
+	}
+	
+	//This function will be called by Registration function email validation link
+	function login_after_activation($email, $regToken) {
+		$_updated_row_count = db_update_user_lastLoginTime($email, $regToken);
+		
+		if(isset($_updated_row_count)){
+			return true;	//login success
+		}else{
+			return false;	//login failure
+		}		
+	}
+	//[END] Registration function
+	
+	//[START] Login and Logout function
+	function login_by_userId_or_email_password($userIdOrEmail, $password) {
+		$_user_in_db = array();
+		$_user_in_db = db_select_user_by_UserID_or_Email_Password($userIdOrEmail, $password);
+		$userID = $_user_in_db[0];
+		$email = $_user_in_db[1];
+		
+		if(isset($_user_in_db)){
+			$_updated_row_count = db_update_user_lastLoginTime_by_Email($email);
+			
+			if(isset($_updated_row_count) && $_updated_row_count > 0){
+				prepare_login_session($userID, $email);
+				return "true";	//login success
+			}else{
+				return "false";	//login failure
+			}		
+		}else{
+			return "false";
+		}
+	}
+
+	function prepare_login_session($userID, $email) {
+		session_start();
+		// Store Session Data
+		$_SESSION['login_user_id']= $userID;
+		$_SESSION['login_user_email']= $email;	
+		$_SESSION['login_date_time']= time(); //Current date time in second format
+		$_SESSION['last_request_time']= time();
+	}
+
+	function check_session_timeout() {
+		$timeout = 1800;  //30 mins
+		if (isset($_SESSION['last_request_time']) && (time() - $_SESSION['last_request_time'] > $timeout)) {
+			// When last request time was more than 30 minutes ago, clear all session variables and destroy all sessions.
+			session_unset();
+			session_destroy();
+		}else{
+			$_SESSION['last_request_time'] = time(); // update last activity time stamp
+		}		
+	}
+
+	function refresh_session() {
+		if (isset($_SESSION['last_request_time'])) {
+			$_SESSION['last_request_time'] = time(); // refresh session with current time
+		}
+	}
+
+	function logout() {
+			session_unset(); // clear all session variables
+			session_destroy();
+	}		
+	//[END] Login and Logout function
+	
+	//[START] Place order function
+	function prepare_order_detail_for_display($selectedFoodMapParam) {
+		if (session_status() == PHP_SESSION_NONE) {
+	    	session_start();
+		}
+		
+	    /*
+	    //Double check if user logon
+	    $userID = $_SESSION['login_user_id'];
+	    if(!isset($userID)){
+	        return "";
+	    }
+	    */
+	    
+	    /*
+	    $selectedFoodMap store the ID of food and corresponding quantity selected by customer
+	    It is a 2 dimensional array,
+	    [arrayIndex][foodID][Qty] 
+	    e.g. 
+	    [0][foodID->11][qty->3] 
+	    [1][foodID->13][qty->2]
+	    [2][foodID->21][qty->1]
+	    */
+	    //$selectedFoodMap = $_SESSION['selected_food_map'];
+		$selectedFoodMap = $selectedFoodMapParam;
+		
+	    /*
+	    //START: For testing
+	    $selectedFood1 = array("F1",2);
+	    $selectedFood2 = array("F2",7);
+	    $selectedFood3 = array("F3",6);
+	    
+	    $selectedFoodMap = array($selectedFood1, $selectedFood2, $selectedFood3);
+	    //END: For testing
+	    */
+	    
+	    if(!isset($selectedFoodMap)){
+	        return ""; //Customer has no selected food
+	    }
+
+	    $orderDetailInSession_array = [];  
+	    
+	    for ($row = 0; $row < count($selectedFoodMap); $row++) {
+	    	//for ($col = 0; $col < 2; $col++) {
+	    	$foodID = $selectedFoodMap[$row]["foodID"];
+	    	$qty = $selectedFoodMap[$row]["qty"];
+	    	$orderDetail4Display = new OrderDetail4Display("", $foodID, "", "", "", $qty, "");
+	    	//echo "aa:".$orderDetail4Display->getFoodID();
+	    	$orderDetailInSession_array[] = $orderDetail4Display;
+	    	//}
+	    }
+	    
+	    /*
+	     for ($col = 0; $col < count($orderDetail4Display_array, 1); $col++) {
+	     $orderDetail4Display = $orderDetail4Display_array[$col];
+	     echo "a:".($orderDetail4Display->getFoodID());
+	     echo "b:".($orderDetail4Display->getQty());
+	     }
+	     */
+	    
+	    $orderDetail4Display_array = [];
+	    //select food category, food name and food price to display on screen for user verification
+	    $orderDetail4Display_array = db_select_food_by_FoodID($orderDetailInSession_array);
+	    unset($orderDetailInSession_array);
+	    return $orderDetail4Display_array;
+	}
+	//[END] Place order function
+	
+	
+	/*
+	test_smtp();
+
+	function test_smtp()
+	{
+		$to = "customer1@gmail.com";
+		$subject = "Food order 1";
+		$txt = "Total: $1,500";
+		$headers = "From: cs5281unicorn_admin@unicorn.com";
+
+		try{
+			mail($to,$subject,$txt,$headers);
+			echo "Success!";
+		} catch(Exception $e){
+			echo "Fail :(";
+		}
+	}
+	*/
+
+?>

@@ -1,0 +1,296 @@
+/******** [START] Place order JavaScript ********/
+/*
+$("button").click(function(){
+	var num;
+	if($(this).text() == "-"){
+		var $num = $(this).next();
+		num = parseInt($num.text());
+		num--;
+		if(num <= 0){
+			$num.text(0);
+		}else{
+			$num.text(num);
+		}
+	}else{
+		var $num = $(this).prev();
+		num = parseInt($num.text());
+		num++;
+		$num.text(num);
+	}
+
+	var price = parseInt($(this).parent().prev().children("span").text());
+	$(this).parent().next().children("span").text(price*num);
+
+	var $span = $("tbody>tr>td:last-child>span");
+	var totalNum = 0;
+	for(var i=0;i<$span.length;i++){
+		var total = parseInt($($span[i]).text());
+		totalNum += total;
+	}
+	$("tfoot>tr>td:last>span").text(totalNum);
+});
+*/
+
+$(document).ready( 
+	function(){
+	    //document.getElementById('SubmitBtn').style.display = '';
+	    //document.getElementById('ConfirmBtn').style.display = 'none';
+	}
+);
+
+function updateSubtotal(qtyID, price, subtotalID){
+	var _qty = document.getElementById(qtyID).value;
+	var _price = price;
+	
+	document.getElementById(subtotalID).innerHTML = _qty * _price;
+	
+	var _qtyList = $('[id^="qtyID"]');
+	var _totalQty = 0;
+	for(var i=0;i<_qtyList.length;i++){
+		if(!isNaN(_qtyList[i].value)){
+			_totalQty = _totalQty + parseInt(_qtyList[i].value);
+		}
+	}
+	
+	var _subtotalList = $('[id^="subtotalID"]');
+	var _totalPrice = 0;
+	for(var i=0;i<_subtotalList.length;i++){
+		if(!isNaN(_subtotalList[i].innerText)){
+			_totalPrice = _totalPrice + parseInt(_subtotalList[i].innerText);
+		}
+	}
+	
+	document.getElementById("totalQty").innerHTML = _totalQty;
+	document.getElementById("totalPrice").innerHTML = _totalPrice;
+	document.getElementById("confirmedTotalPrice").innerHTML = _totalPrice;
+	document.getElementById("totalPayAmt").value = _totalPrice;
+}
+
+function formSubmit(){
+	resetErrMsg();
+
+	if(!cartFormValidate()){
+		return false;
+	}
+}
+
+/*
+function clickSubmit(){
+	resetErrMsg();
+
+	if(!cartFormValidate()){
+		document.getElementById('SubmitBtn').disabled = false;
+		document.getElementById('ConfirmBtn').disabled = true;
+		document.getElementById('CancelBtn').disabled = true;
+		
+		var _qtyList = $('[id^="qtyID"]');		
+		for(var i=0;i<_qtyList.length;i++){
+			_qtyList[i].disabled = false;					
+		}
+		
+		document.getElementById("deliveryTimeslot").disabled = false;
+		
+		var paymentMethodList = document.getElementsByName('paymentMethod');
+		var _paymentMethod;
+		for(var i = 0; i < paymentMethodList.length; i++){
+		    if(paymentMethodList[i].checked){
+		    	_paymentMethod = paymentMethodList[i].value;
+		    }
+		}
+				
+	    if (_paymentMethod == "CR") {
+			document.getElementById("creditCardNo").disabled = false;
+			document.getElementById("chequeNo").disabled = true;
+	    }else if(_paymentMethod == "CH") {
+			document.getElementById("creditCardNo").disabled = true;
+			document.getElementById("chequeNo").disabled = false;
+	    }else {
+			document.getElementById("creditCardNo").disabled = true;
+			document.getElementById("chequeNo").disabled = true;
+	    }
+	}else{
+		document.getElementById('SubmitBtn').disabled = true;
+		document.getElementById('ConfirmBtn').disabled = false;
+		document.getElementById('CancelBtn').disabled = false;
+		
+		var _qtyList = $('[id^="qtyID"]');		
+		for(var i=0;i<_qtyList.length;i++){
+			_qtyList[i].disabled = true;					
+		}
+		
+		document.getElementById("deliveryTimeslot").disabled = true;
+		document.getElementById("creditCardNo").disabled = true;
+		document.getElementById("chequeNo").disabled = true;
+	}	
+	return false;
+}
+*/
+
+function clickCancel(){	
+	document.getElementById('SubmitBtn').disabled = false;
+	document.getElementById('ConfirmBtn').disabled = true;
+	document.getElementById('CancelBtn').disabled = true;
+	
+	var _qtyList = $('[id^="qtyID"]');		
+	for(var i=0;i<_qtyList.length;i++){
+		_qtyList[i].disabled = false;					
+	}
+	
+	document.getElementById("deliveryTimeslot").disabled = false;
+	
+	var paymentMethodList = document.getElementsByName('paymentMethod');
+	var _paymentMethod;
+	for(var i = 0; i < paymentMethodList.length; i++){
+	    if(paymentMethodList[i].checked){
+	    	_paymentMethod = paymentMethodList[i].value;
+	    }
+	}
+	
+    if (_paymentMethod == "CR") {
+		document.getElementById("creditCardNo").disabled = false;
+		document.getElementById("chequeNo").disabled = true;
+    }else if(_paymentMethod == "CH") {
+		document.getElementById("creditCardNo").disabled = true;
+		document.getElementById("chequeNo").disabled = false;
+    }else {
+		document.getElementById("creditCardNo").disabled = true;
+		document.getElementById("chequeNo").disabled = true;
+    }
+}
+
+function resetErrMsg(){
+	document.getElementById("cartInfoMsg").innerHTML = "";
+	document.getElementById("cartMsg").innerHTML = "";
+	document.getElementById("creditCardNoMsg").innerHTML = "";
+	document.getElementById("chequeNoMsg").innerHTML = "";
+}
+
+/* 
+Automatic HTML form validation does not work in Internet Explorer 9 or earlier.
+We have to implement javaScript client side validation in cartFormValidation() function.
+*/
+function cartFormValidate(isConfirm){
+	var isValid = true;
+	
+	// ******** [START] Quantity validation ********
+	var _qtyList = $('[id^="qtyID"]');		
+	for(var i=0;i<_qtyList.length;i++){
+		if(_qtyList[i].value > 100){
+			document.getElementById("cartMsg").innerHTML = "[E201] Quantity of a food must be less than or equal to 100!";	
+			isValid = false;
+		}					
+	}
+	// ******** [END] Quantity validation ********
+	
+	// ******** [START] Total price validation ********
+	var _totalPrice = document.getElementById("totalPrice").innerText;		
+	
+    if (isValid && (_totalPrice == "" || _totalPrice == 0)) {
+		document.getElementById("cartMsg").innerHTML = "[E202] Total payment amount must be greater than 0!";	
+		isValid = false;
+    }
+    // ******** [END] Total price validation ********
+    
+    // ******** [START] Payment method, credit card no. and cheque no. validation ********
+	var paymentMethodList = document.getElementsByName('paymentMethod');
+	var _creditCardNo = creditCardUnformatting(document.getElementById("creditCardNo").value);
+	var _chequeNo = document.getElementById("chequeNo").value;
+	
+	var _paymentMethod;
+	for(var i = 0; i < paymentMethodList.length; i++){
+	    if(paymentMethodList[i].checked){
+	    	_paymentMethod = paymentMethodList[i].value;
+	    }
+	}
+
+    if (_paymentMethod == "CR") {
+    	if(_creditCardNo == ""){
+			document.getElementById("creditCardNoMsg").innerHTML = "[E203] Credit card no. must be input!";
+			document.getElementById("creditCardNo").focus();
+	        isValid = false;
+    	}else {    		 
+    		var _creditCardNoDigitOnly = _creditCardNo.trim().replace(/\D/g, ""); //replace all characters except numeric characters
+    		var regularExpress4CreditCardNo = /^\d+$/;		
+    		var isValidCreditCardNo = regularExpress4CreditCardNo.test(_creditCardNoDigitOnly);
+      
+    		if(!isValidCreditCardNo){
+	    		document.getElementById("creditCardNoMsg").innerHTML = "[E205] Credit card no. must be numeric!";				
+		   		document.getElementById("creditCardNo").focus();
+	            isValid = false;
+    		}else if(_creditCardNo.length != 16){
+        		document.getElementById("creditCardNoMsg").innerHTML = "[E204] Credit card no. length must be 16 digits!";
+        		document.getElementById("creditCardNo").focus();
+                isValid = false;
+        	}
+    	}
+    } else if(_paymentMethod == "CH") {
+       	if(_chequeNo == ""){
+			document.getElementById("chequeNoMsg").innerHTML = "[E206] Cheque no. must be input!";
+			document.getElementById("chequeNo").focus();
+	        isValid = false;
+    	}else {
+    		var _chequeNoDigitOnly = _chequeNo.trim().replace(/\D/g, ""); //replace all characters except numeric characters
+    		var regularExpress4ChequeNo = /^\d+$/;		
+    		var isValidChequeNo = regularExpress4ChequeNo.test(_chequeNoDigitOnly);
+      
+    		if(!isValidChequeNo){
+	    		document.getElementById("chequeNoMsg").innerHTML = "[E208] Cheque no. must be numeric!";				
+		   		document.getElementById("chequeNo").focus();
+	            isValid = false;
+    		}else if(_chequeNo.length != 10){
+        		document.getElementById("chequeNoMsg").innerHTML = "[E207] Cheque no. length must be 10 digits!";
+        		document.getElementById("chequeNo").focus();
+                isValid = false;
+        	}
+    	}
+    }
+    // ******** [END] Payment method, credit card no. and cheque no. validation ********
+    
+    return isValid;
+}
+
+function creditCardFormatting(){
+	var _creditCardNo = document.getElementById("creditCardNo").value;
+    var v = _creditCardNo.replace(/\s+/g, '').replace(/[^0-9]/gi, '')
+    var matches = v.match(/\d{4,16}/g);
+    var match = matches && matches[0] || ''
+    var parts = []
+
+    for (i=0, len=match.length; i<len; i+=4) {
+        parts.push(match.substring(i, i+4))
+    }
+
+    if (parts.length) {
+    	document.getElementById("creditCardNo").value = parts.join('-');
+    } else {
+    	document.getElementById("creditCardNo").value = _creditCardNo;
+    }
+}
+
+function creditCardUnformatting(creditCardNo){
+	var _creditCardNo = creditCardNo.trim().replace(/-/g, "");
+	return _creditCardNo;
+}
+
+function clickCreditCard(){	
+	document.getElementById("chequeNo").value = "";
+    document.getElementById('creditCardNo').disabled = false;
+    document.getElementById('chequeNo').disabled = true;
+    
+}
+
+function clickCash(){
+    document.getElementById("creditCardNo").value = "";
+    document.getElementById("chequeNo").value = "";
+	document.getElementById('creditCardNo').disabled = true;
+    document.getElementById('chequeNo').disabled = true;
+}
+
+function clickCheque(){	
+	document.getElementById("creditCardNo").value = "";
+	document.getElementById('creditCardNo').disabled = true;
+    document.getElementById('chequeNo').disabled = false;
+
+}
+/******** [END] Place order JavaScript ********/
+

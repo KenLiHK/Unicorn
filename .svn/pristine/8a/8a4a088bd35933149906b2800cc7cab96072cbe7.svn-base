@@ -1,0 +1,32 @@
+{
+  "data": {
+    "recommendList": [
+      {
+        "foodId": "d001",
+        "foodImg": "http://img.dongqiudi.com/uploads/avatar/2014/10/20/8MCTb0WBFG_thumb_1413805282863.jpg",
+        "foodName": "Marinated Vegetarian Snacks",
+        "originPrice": "36.0",
+        "discountPrice": "30.0",
+        "isAvailable": "Y"
+      },
+      {
+        "foodId": "d001",
+        "foodImg": "http://img.dongqiudi.com/uploads/avatar/2014/10/20/8MCTb0WBFG_thumb_1413805282863.jpg",
+        "foodName": "Spicy Veggie Chicken Slices",
+        "originPrice": "90.0",
+        "discountPrice": "80.0",
+        "isAvailable": "Y"
+      },
+      {
+        "foodId": "d001",
+        "foodImg": "http://img.dongqiudi.com/uploads/avatar/2014/10/20/8MCTb0WBFG_thumb_1413805282863.jpg",
+        "foodName": "Baked Curry Chicken Rice",
+        "originPrice": "56.0",
+        "discountPrice": "48.0",
+        "isAvailable": "Y"
+      }
+    ]
+  },
+  "info": "Here is the message which, commonly used in popup window",
+  "code": 0
+}

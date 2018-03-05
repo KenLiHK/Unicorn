@@ -1,0 +1,382 @@
+<?php
+
+include_once("../common/database.php");
+include_once("../common/functions.php");
+
+$cartInfoMsg_php = "";
+$cartMsg_php = "";
+$creditCardNoMsg_php = "";
+$chequeNoMsg_php = "";
+
+$_selectedFoodMap = [];
+$orderDetail4Display_array = [];
+$_address = "";
+$_tel = "";
+$_deliveryTimeslot = "";
+$_paymentMethod = "";
+$_creditCardNo = "";
+$_chequeNo = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    //$_selectedFoodMap
+    
+    $_selectedFood = $_POST['selectedFood'];
+    foreach( $_selectedFood as $v ) {
+        $i = 0;
+        $string_array = explode(",",$v);       
+        echo "aa".$string_array[0]." ".$string_array[1];
+        
+        $selectedFood = array("foodID" => $string_array[0], "qty" => $string_array[1]);        
+        array_push($_selectedFoodMap,$selectedFood);
+        
+    }
+    
+
+        
+    echo "foodID:".$_selectedFoodMap[0]["foodID"]."\t";
+    echo "qty:".$_selectedFoodMap[0]["qty"]."\t";        
+    echo "foodID1:".$_selectedFoodMap[1]["foodID"]."\t";
+    echo "qty1:".$_selectedFoodMap[1]["qty"]."\t";    
+    echo "foodID2:".$_selectedFoodMap[2]["foodID"]."\t";
+    echo "qty2:".$_selectedFoodMap[2]["qty"]."\t";    
+    
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+    $_SESSION['selected_food_map'] = $_selectedFoodMap;
+    $orderDetail4Display_array = prepare_order_detail_for_display();
+    
+    //Retrieve user contact information (address and contact no.)
+    $userID = $_SESSION['login_user_id'];
+    retrieveUserContactInfo($userID);
+    
+    //$_address = optimizateInput($_POST["userID"]);
+    //$_tel = optimizateInput($_POST["userID"]);
+    
+    //$_deliveryTimeslot = optimizateInput($_POST["deliveryTimeslot"]);
+    $_paymentMethod = optimizateInput($_POST["paymentMethod"]);
+    //$_creditCardNo = optimizateInput($_POST["creditCardNo"]);
+    //$_chequeNo = optimizateInput($_POST["chequeNo"]);
+    echo "11";
+}else{
+    echo "22";
+    /*
+     $_selectedFoodMap store the ID of food and corresponding quantity selected by customer
+     It is a 2 dimensional array,
+     [arrayIndex][foodID][Qty]
+     e.g.
+     [0][11][3]
+     [1][13][2]
+     [2][21][1]
+     */
+    //$_selectedFoodMap = $_SESSION['selected_food_map'];
+    
+    //START: For testing
+    //$selectedFood1 = array("F1", "2");
+    //$selectedFood2 = array("F1", "6");
+    //$selectedFood3 = array("F1", "8");
+    $selectedFood1 = array("foodID" => "1", "qty" => "2");
+    $selectedFood2 = array("foodID" => "2", "qty" => "6");
+    $selectedFood3 = array("foodID" => "3", "qty" => "8");
+    
+    $_selectedFoodMap = array($selectedFood1, $selectedFood2, $selectedFood3);
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+    $_SESSION['selected_food_map'] = $_selectedFoodMap;
+    
+    echo "a-foodID:".$_selectedFoodMap[0]["foodID"]."\t";
+    echo "a-qty:".$_selectedFoodMap[0]["qty"]."\t";
+    echo "a-foodID1:".$_selectedFoodMap[1]["foodID"]."\t";
+    echo "a-qty1:".$_selectedFoodMap[1]["qty"]."\t";
+    echo "a-foodID2:".$_selectedFoodMap[2]["foodID"]."\t";
+    echo "a-qty2:".$_selectedFoodMap[2]["qty"]."\t";    
+    
+    //$orderDetail4Display_array = [];
+    $orderDetail4Display_array = prepare_order_detail_for_display();
+    
+    for ($row = 0; $row < count($orderDetail4Display_array); $row++) {
+        $orderDetail4Display = $orderDetail4Display_array[$row];
+        
+        //echo "foodID:".$orderDetail4Display->getFoodID()."\t";
+        //echo "foodCategory:".$orderDetail4Display->getFoodCategory()."\t";
+        //echo "foodName:".$orderDetail4Display->getFoodName()."\t";
+        //echo "foodPrice:".$orderDetail4Display->getPrice()."\n<br>";
+    }
+    $_SESSION['login_user_id'] = "kenli";
+    
+    //END: For testing
+    
+    //Retrieve user contact information (address and contact no.)
+    $userID = $_SESSION['login_user_id'];
+    retrieveUserContactInfo($userID);
+}
+
+function retrieveUserContactInfo($userIDParam){
+    if(isset($userIDParam)){
+        $_result = array();
+        $_result = get_user_address_contactNo_by_userId($userIDParam);
+        
+        if(isset($_result)){
+            $_address = $_result[0];
+            $_tel = $_result[1];
+        }else{
+            return null;
+        }
+    }
+}
+
+?>
+
+<html>
+	<head>
+		<meta charset="utf-8">
+		
+		<title>Unicorn Restaurant - Shopping Cart</title>
+		
+		<!-- Using Icon library and refer to https://www.w3schools.com/w3css/w3css_icons.asp -->
+		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="../unicorn.css">
+		<link rel="stylesheet" href="./placeOrder.css">
+		
+		<!-- include jQuery for Ajax call -->
+		<script type="text/javascript" src="../jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="../unicorn.js"></script>
+		<script type="text/javascript" src="./placeOrder.js"></script>
+	</head>
+
+	<body>	
+		<form name="cartForm" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+			<div id="app">
+				<div>
+				
+					<!-- ******** [START] Left panel ******** -->
+					<aside id="left-panel" class="left-panel">
+						<nav class="navbar navbar-expand-lg">
+						
+							<!-- ******** [START] Logo ******** -->
+							<div class="navbar-header">
+								<a href="#/" class="navbar-brand">
+									<img src="../resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
+								</a> 
+							</div>
+							<!-- ******** [END] Logo ******** -->
+							
+							
+							<!-- ******** [START] Left function menu ******** -->
+							<div id="main-menu" class="navbar-collapse">
+								<ul class="navbar-nav">
+									<h3 class="menu-title"> Unicorn Restaurant </h3>
+									
+									<li class="nav-item">
+										<a href="#/components/tables" class="">
+											<i class="menu-icon fa fa-search"></i>
+											<span class="menu-title-text"> Search Dish </span>
+										</a>
+									</li>				
+		
+									<li class="nav-item mt-auto">
+										<a>
+											<i class="menu-icon fa fa-shopping-cart"></i>
+											<span class="menu-title-text"> Place Order </span>
+										</a>
+									</li>
+											
+									<li class="nav-item">
+										<a href="#/components/icons" class="">
+											<i class="menu-icon fa fa-star"></i>
+											<span class="menu-title-text">Map</span>
+										</a>
+									</li>
+									
+								</ul>
+							</div>
+							<!-- ******** [END] Left function menul ******** -->
+							
+							
+							
+						</nav>
+						
+						<div></div>
+					</aside>
+					<!-- ******** [END] Left panel ******** -->
+					
+					
+					
+					<!-- ******** [START] Right panel ******** -->
+					<div id="right-panel" class="right-panel">
+						
+						
+						
+						<!-- ******** [START] Navigation Header Bar ******** -->			
+						<header id="header" class="header">
+							<div>							
+								<div class="header-right">
+									<div>
+										<a href="#"><i class="fa fa-power-off"></i> Logout </a> <span>&nbsp;</span>
+									</div>								
+								</div>						
+							</div>
+						</header>
+						<!-- ******** [START] Navigation Header Bar ******** -->
+						
+						
+						
+						
+						<!-- ******** [START] Navigation Body ******** -->
+						<div>
+							<div>
+							
+								<!-- ******** [START] Alert Message Display ******** -->
+								<div class="alert mt-4 alert-success">
+									<span class="cart_info" id="cartInfoMsg" ><?php if(isset($cartInfoMsg_php)){echo $cartInfoMsg_php;} ?></span>
+									<span class="cart_err" id="cartMsg" ><?php if(isset($cartMsg_php)){echo $cartMsg_php;} ?></span>
+								</div>
+								<!-- ******** [END] Alert Message Display ******** -->
+								
+								
+								
+								<!-- ******** [START] Shopping Cart Division ******** -->
+								<!-- ******** Confirm Order Details ******** -->
+								<h5>Order Details</h5>
+                				<div class="orderTable">
+                    				<div class="orderTableHeading">
+                    					<div class="orderTableHead"><strong>Food Category</strong></div>
+                        				<div class="orderTableHead"><strong>Food Name</strong></div>
+                        				<div class="orderTableCellAmt">Price</div>
+                        				<div class="orderTableHead">Quantity</div>
+                        				<div class="orderTableCellAmt">Sub-total</div>
+                    				</div>
+                    				<?php
+                    				$_totalPrice = 0;
+                    				$_totalQty = 0;
+                    				
+                    				for ($row = 0; $row < count($orderDetail4Display_array); $row++) {
+                    					$orderDetail4Display = $orderDetail4Display_array[$row];
+
+                    					$_foodID = $orderDetail4Display->getFoodID();
+                    					$_foodCategory = $orderDetail4Display->getFoodCategory();
+                    					$_foodName = $orderDetail4Display->getFoodName();
+                    					$_price = $orderDetail4Display->getPrice();
+                    					$_qty = $orderDetail4Display->getQty();
+                    					$_subtotal = $_price * $_qty;
+                    					
+                    					$_totalPrice = $_totalPrice+ $_subtotal;
+                    					$_totalQty = $_totalQty + $_qty;
+                    					
+                    					echo "<div class='orderTableRow'>";
+                    					echo "<div class='orderTableCell'>".$_foodCategory."</div>";
+                    					echo "<div class='orderTableCell'>".$_foodName."</div>";
+                    					echo "<div class='orderTableCellAmt'>$".$_price."</div>";
+                    					echo "<div class='orderTableCell'><input type='hidden' id='selectedFood[]' name='selectedFood[]' value='".$_foodID.",".$_qty."'><input type='number' id='qtyID".$_foodID."' name='qtyID".$_foodID."' maxlength='3' value='".$_qty."' min='0' max='100' onchange='updateSubtotal(\"qtyID".$_foodID."\", \"".$_price."\", \"subtotalID".$_foodID."\")'></div>";
+                    					echo "<div class='orderTableCellAmt'>$<span id='subtotalID".$_foodID."'>".$_subtotal."</span></div>";
+                    					echo "</div>";
+                    				}
+                    				
+                    				echo "<div class='orderTableFoot'>";
+                    					echo "<div class='orderTableCell'></div>";
+                        				echo "<div class='orderTableCell'></div>";
+                        				echo "<div class='orderTableCellAmt'>Total:</div>";
+                        				echo "<div class='orderTableCell'><span id='totalQty'>".$_totalQty."</span></div>";
+                        				echo "<div class='orderTableCellAmt'>$<span id='totalPrice'>".$_totalPrice."</span></div>";
+                    				echo "</div>";
+                    				?>
+                				  </div>
+				
+								  <hr>
+								  <!-- ******** Confirm Delivery Address, Contact Phone No. and Delivery Timeslot ******** -->
+                                  <div class="info">
+                                  	<div>
+                                  		<label class="cart_label">Delivery Address : </label>
+                                		<label class="cart_label2"><?php if(isset($_address)){echo $_address;} ?></label> <a href="#"><label class="cart_label3"> Go to update contact information.</label></a><br>
+                                		
+                                		<label class="cart_label">Contact Phone No. : </label>
+                                		<label class="cart_label2"><?php if(isset($_tel)){echo $_tel;} ?></label><br>
+                                		
+                                		<label class="cart_label">Delivery Timeslot : </label>
+                                    	<select id="deliveryTimeslot" name="deliveryTimeslot">
+                                    		<option value="DT01">Immediately</option>
+                                     		<option value="DT11">After 1 hour</option>
+                                     		<option value="DT21">After 2 hours</option>
+                                    	</select> 
+                                	</div>
+                                	
+                                	<hr>
+                                	<!-- ******** Confirm Payment Method and Payment Information ******** -->
+                                    <div>
+                                    	<label class="cart_label">Total Payment Amount : </label>
+                                    	<label class="cart_label2">$<span id="confirmedTotalPrice"><?php if(isset($_totalPrice)){echo $_totalPrice;} ?></span></label><br>
+                                    	<label class="cart_label">Payment Method : </label>
+                                        <div>
+                                            <input type="radio" id="paymentMethod1" name="paymentMethod" value="CR" onclick="clickCreditCard()" checked>Credit Card <input class="cart_input" type="text" id="creditCardNo" name="creditCardNo" placeholder="Credit Card No." maxlength="19" onblur="creditCardFormatting()"><span class="cart_err" id="creditCardNoMsg" ><?php if(isset($creditCardNoMsg_php)){echo $creditCardNoMsg_php;} ?></span><br>                                				
+                                            <input type="radio" id="paymentMethod2" name="paymentMethod" value="CA" onclick="clickCash()">Cash <br>
+                                            <input type="radio" id="paymentMethod3" name="paymentMethod" value="CH" onclick="clickCheque()">Cheque <input class="cart_input" type="text" id="chequeNo" name="chequeNo" placeholder="Cheque No." maxlength="10" disabled="true"><span class="cart_err" id="chequeNoMsg" ><?php if(isset($chequeNoMsg_php)){echo $chequeNoMsg_php;} ?></span><br>
+                                        </div>
+                                    </div>                  
+                                  </div>
+                                  
+								  <div>								  	  
+									  <input class="cart_input" type="submit" id="SubmitBtn" name="SubmitBtn" value="Submit" onclick="return formSubmit()">
+									  <input class="cart_input" type="submit" id="ConfirmBtn" name="ConfirmBtn" value="Confirm Payment" onclick="return formConfirm()" disabled="true">
+									  <input class="cart_input" type="submit" id="CancelBtn" name="CancelBtn" value="Cancel" onclick="return formCancel()" disabled="true">
+								   </div>				
+								</div>
+								<!-- ******** [END] User Registration Division ******** -->
+								
+								<!-- ******** [START] Footer ******** -->						
+									<div class="col-md-12">
+										<div class="card">						
+											<div class="card-footer">
+												<ul>									
+													<li>
+														<div class="text-muted">Email</div>
+														<strong>cs5281unicorn@unicorn.com</strong>											
+													</li>
+													<li class="hidden-sm-down">
+														<div class="text-muted">Tel</div>
+														<strong>+852 5281-2018</strong>
+													</li>
+													<li class="hidden-sm-down">
+														<div class="text-muted">Fax</div>
+														<strong>+852 5281-2019</strong>
+													</li>												
+												</ul>
+												
+											</div>
+											
+											<div class="card-footer">										
+												<ul>
+													<li>
+														<div class="text-muted">Service Hour</div>
+														<strong>Monday - Sunday 09:00-23:00</strong>
+													</li>										
+													<li>
+														<div class="text-muted">Address</div>
+														<strong>Li Dak Sum Yip Yio Chin A Bldg 5606, Hong Kong</strong>
+													</li>
+												</ul>										
+											</div>
+											
+											
+										</div>
+									</div>
+								<!-- ******** [END] Footer ******** -->
+								
+								
+								
+							</div>
+						</div>
+						<!-- ******** [END] Navigation Body ******** -->
+						
+						
+						
+					</div>
+					<!-- ******** [END] Right panel ******** -->
+					
+					
+				</div>
+			</div>
+		</form>
+	</body>
+</html>

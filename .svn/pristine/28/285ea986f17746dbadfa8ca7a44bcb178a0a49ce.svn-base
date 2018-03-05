@@ -1,0 +1,4 @@
+.recList{
+    float: left;
+    margin: 15px 0;
+}

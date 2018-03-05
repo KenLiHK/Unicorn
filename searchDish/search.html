@@ -1,0 +1,130 @@
+<html>
+<head>
+	<title>This is a SearchBox</title>
+	<meta charset="utf-8" http-equiv="X-UA-Compatible" content="IE-edge"> <!--解决浏览器兼容性问题-->
+	<link type="text/css" rel="stylesheet" href="search.css" media="all"/>
+</head>
+
+<body>
+
+	<!--20180228 搜索容器静态部分-->
+	<div class="search_container">
+
+		<!--20180228 搜索列表 categories 数据库调用或静态-->
+		<div id="sb_list"class="search_list">
+			<ul>
+				<li id="cat_1" class="sb_selected">
+					<a href="#">Category 1</a>
+				</li>
+				<li id="cat_2">
+					<a href="#">Category 2</a>
+				</li>
+				<li id="cat_3">
+					<a href="#">Category 3</a>
+				</li>
+				<li id="cat_4">
+					<a href="#">Category 4</a>
+				</li>
+			</ul>
+		</div>
+
+		<!--20180228 搜索框和按钮-->
+		<div>
+			<form id="search_form" action="search.php" method="POST">
+				<input class="search_text" id="search_input" type="text" name="search_text" value="" onkeypress="search()">
+				<input class="search_button" type="submit" value="">
+			</form>
+		</div>
+		
+		<!--20180228 搜索提示菜单提示——静态-->
+		<div class="suggest" id="search_suggest">
+			<ul id="search_result">
+				<li>dish</li>
+				<li>category</li>
+				<li>menu</li>
+				<li>pork</li>
+				<li>beef</li>
+				<li>mutton</li>
+				<li>soup</li>
+				<li>cabbage</li>
+			</ul>
+		</div>
+	</div>
+
+	<!--20180303 搜索结果-->
+	<div class="search_result">
+		<div class="search_resultUnit">
+			
+		</div>
+	</div>
+
+	<!--20180228 js引用-->
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js">
+	</script>
+
+	<!--20180228 -->
+	<script>
+
+		/* category list选择 */
+		/*  */
+		/* 通过DOM获取元素 */
+		var getDOM = function(id){
+			return document.getElementById(id);
+		}
+
+		/* 绑定元素事件 */
+		var addEvent = function(id, event, fn){
+			var el = getDOM(id)||document;
+			if(el.addEventListener){
+				el.addEventListener(event, fn, false);
+			}else if(el.attachEvent){
+				el.attachEvent('on'+event, fn);
+			}
+		}
+
+		addEvent('sb_list', 'mouseover', function(){
+			this.className ='search_list trigger_hover';
+		});
+
+
+
+		/* 搜索提示菜单提示——动态 */
+		/*
+			问题1：服务器地址？searchText.get
+			问题2：并不能自动匹配
+		*/		
+		$('#search_input').bind('keyup', function(){	
+			var searchText = $('#search_input').val();
+			$.get('file:///Users/liuyunsong/Dropbox/Semester%20B/2%20CS5281%20%20Internet%20Application%20Development/0%20Group%20Project/SearchBox.html?q='+searchText, function(d){
+
+					var d = d.AS.Results[0].Suggests;
+					var html='';
+					for (var i=0;i<d.length;i++){
+						html+='<li>'+d[i].Txt+'<li>';
+					}
+					$('#search_suggest').html(html);
+					$('#search_suggest').show().css({
+					top:$('#search_form').offset().top+$('#search_form').height()+10,
+					left:$('search_form').offset().left,
+					position:'absolute'
+			})
+				}, 'json');			
+		});
+
+		//点击页面其他位置时，动态搜索框消失
+		$(document).bind('click', function(){
+			$('#search_suggest').hide();
+		});
+
+		//事件代理，跳到另一个界面(跳到带有结果的搜索页面)
+		$(document).delegate('li','click',function(){
+			var keyword = $(this).text();
+			location.href="http://cn.bing.com/search?q="+keyword;
+		})
+	</script>
+
+
+	
+	
+</body>
+</html>

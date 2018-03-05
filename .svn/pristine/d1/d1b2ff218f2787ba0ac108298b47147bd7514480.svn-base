@@ -1,0 +1,47 @@
+/******** [START] Place order JavaScript ********/
+function addFoodToCart($foodID, $qty)
+{
+	var _foodData = {foodID:$foodID, qty:$qty}; 
+	if(_foodData)
+	{
+		$.ajax(
+			{
+				type: 'post',
+				url: './placeOrder/cartAjaxService.php',
+				
+				data: {
+					foodData2Add:_foodData
+				},
+				
+				success: function (totalQty4AddedFoodID) 
+				{
+					return totalQty4AddedFoodID;
+				}
+			}
+		);
+	}
+}
+
+function removeFoodFromCart($foodID, $qty)
+{
+	var _foodData = {foodID:$foodID, qty:$qty}; 
+	if(_foodData)
+	{
+		$.ajax(
+			{
+				type: 'post',
+				url: './placeOrder/cartAjaxService.php',
+				
+				data: {
+					foodData2Remove:_foodData
+				},
+				
+				success: function (totalQty4RemovedFoodID) 
+				{
+					return totalQty4RemovedFoodID;
+				}
+			}
+		);
+	}
+}
+/******** [END] Place order JavaScript ********/

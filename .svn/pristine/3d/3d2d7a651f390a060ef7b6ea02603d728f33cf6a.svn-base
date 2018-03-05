@@ -1,0 +1,59 @@
+/******** [START] Place order JavaScript ********/
+/*
+$("button").click(function(){
+	var num;
+	if($(this).text() == "-"){
+		var $num = $(this).next();
+		num = parseInt($num.text());
+		num--;
+		if(num <= 0){
+			$num.text(0);
+		}else{
+			$num.text(num);
+		}
+	}else{
+		var $num = $(this).prev();
+		num = parseInt($num.text());
+		num++;
+		$num.text(num);
+	}
+
+	var price = parseInt($(this).parent().prev().children("span").text());
+	$(this).parent().next().children("span").text(price*num);
+
+	var $span = $("tbody>tr>td:last-child>span");
+	var totalNum = 0;
+	for(var i=0;i<$span.length;i++){
+		var total = parseInt($($span[i]).text());
+		totalNum += total;
+	}
+	$("tfoot>tr>td:last>span").text(totalNum);
+});
+*/
+function updateSubtotal(qtyID, price, subtotalID){
+	var _qty = document.getElementById(qtyID).value;
+	var _price = price;
+	
+	document.getElementById(subtotalID).innerHTML = _qty * _price;
+	
+	var _qtyList = $('[id^="qtyID"]');
+	var _totalQty = 0;
+	for(var i=0;i<_qtyList.length;i++){
+		if(!isNaN(_qtyList[i].value)){
+			_totalQty = _totalQty + parseInt(_qtyList[i].value);
+		}
+	}
+	
+	var _subtotalList = $('[id^="subtotalID"]');
+	var _totalPrice = 0;
+	for(var i=0;i<_subtotalList.length;i++){
+		if(!isNaN(_subtotalList[i].innerText)){
+			_totalPrice = _totalPrice + parseInt(_subtotalList[i].innerText);
+		}
+	}
+	
+	document.getElementById("totalQty").innerHTML = _totalQty;
+	document.getElementById("totalPrice").innerHTML = _totalPrice;
+}
+/******** [END] Place order JavaScript ********/
+
