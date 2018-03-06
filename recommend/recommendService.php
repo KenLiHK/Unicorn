@@ -11,7 +11,7 @@ include_once("../common/functions.php");
 include_once("db_recom.php");
 
 
-function food_list_jsonEncode($oriResArray){
+function results_jsonEncode($oriResArray){
     $api_output = array(
         'data'=>array(),
         'message'=>'',
@@ -35,14 +35,36 @@ function food_list_jsonEncode($oriResArray){
 
 }
 
+
 if(isset($_POST['cate2Load'])){
     $cate2Load = $_POST['cate2Load'];
-    $res = db_query_food_list_byCate($cate2Load);
-    echo food_list_jsonEncode($res);
+    $res = db_query_food_list_byCateName($cate2Load);
+    echo results_jsonEncode($res);
     exit();
 }
 
+if(isset($_POST['displayCate'])){
+    $res = db_select_allFoodCateIsAval();
+    echo results_jsonEncode($res);
+    exit();
+}
 
+//$res = db_select_allFoodCateIsAval();
+//echo results_jsonEncode($res);
+
+function console_log($data)
+{
+    if (is_array($data) || is_object($data))
+    {
+        echo("<script>console.log('".json_encode($data)."');</script>");
+    }
+    else
+    {
+        echo("<script>console.log('".$data."');</script>");
+    }
+}
+
+console_log($_POST[$cate2Load]);
 
 
 

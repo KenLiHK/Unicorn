@@ -1,32 +1,64 @@
 /**
- * Created by pcc on 27/02/2018.
+ * Created by pcc on 06/03/2018.
  */
 
 $(document).ready(function(){
-    document.getElementById('recList').innerHTML='';
-    loadCateFood();
+    document.getElementById("food-cont").innerHTML="";
+    setCateName();
 });
 
-function loadCateFood(){
+function setCateName(){
+    var html = "";
 
     $.ajax(
         {
             type:'post',
             url:'recommendService.php',
             data:{
-                cate2Load:'MIN' //to be replaced by variable
+                displayCate:true
             },
             dataType:'json',
             success:function(result){
-                //console.log(result["data"][0].food_id);
-                var li_cont = "";
+                $.each(result["data"],function(i,n){
+                    var cateName = n["food_category"];
+
+                    html+= '<div class="sale-charts">'+
+                        '<div class="category-title">'+
+                        '<span class="cate-name">' + cateName + '</span>' +
+                        '</div>'+
+                        '<div id="recList">'+ loadCateFood(cateName) +
+                        '</div></div>';
+
+                });
+
+                $('#food-cont').append(html);
+            }
+        }
+    )
+
+}
+
+function loadCateFood(cateName){
+    var li_cont = "";
+
+    $.ajax(
+        {
+            type:'post',
+            url:'recommendService.php',
+            cache: true,
+            async: false,
+            data:{
+                cate2Load:cateName
+            },
+            dataType:'json',
+            success:function(result){
+                //console.log(cateName);
                 $.each(result["data"],function(i,n){
                     var disPrice = n["discount"] * n["price"];
                     var oriPrice = n["price"];
 
-                    //console.log(n["food_id"]);
-                    //a += "<li>" + n["food_id"] + "</li>";
-                    li_cont+= '<div class="card">'+
+                    console.log(n["food_id"]);
+                    li_cont += '<div class="card">'+
                         '<img src="'+ n["img_path"] +'" alt="img broken">'+
                         '<div class="dish-title">'+ n["food_name"] +'</div>'+
                         '<div class="card-btm-1">' +
@@ -34,7 +66,7 @@ function loadCateFood(){
                         '<div class="price-sec">';
                     if(disPrice < oriPrice){
                         li_cont += '<span class="ori-price">' + oriPrice +'</span>'+
-                            '<span class="dis-price">' + eval(disPrice) +'</span>';
+                            '<span class="dis-price">' + disPrice +'</span>';
                     }
                     else {
                         li_cont += '<span class="ori-price">' + oriPrice + '</span>';
@@ -43,11 +75,10 @@ function loadCateFood(){
                         '</div>'+
                         '</div>';
                 });
-                //a += "</ul>";
 
-                $('#recList').append(li_cont);
             }
         }
-    )
+    );
+    return li_cont;
 
 }

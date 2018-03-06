@@ -1244,7 +1244,7 @@ h5.reg_success {
 .i-addchart{
     width: 24px;
     height: 24px;
-    background: url("../resources/plus.png") 50% no-repeat;
+    background: url("./resources/plus.png") 50% no-repeat;
     display: inline;
     text-align: right;
 

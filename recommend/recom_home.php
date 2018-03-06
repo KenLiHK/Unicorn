@@ -113,26 +113,27 @@
 
 
 					<!-- ******** [START] Food Navigation Division ******** -->
-                    <div clas="food-cont">
-                        <div class="sale-charts">
-                            <div class="category-title">
-                                <span class="cate-name"><h4>Happy hour</h4></span>
-                            </div>
-
-                            <div id="recList">
-                                <script type="text/javascript" src="recommend.js"></script>
-                            </div>
-                        </div>
-
-                        <div class="sale-charts">
-                            <div class="category-title">
-                                <span class="cate-name"><h4>Happy hour</h4></span>
-                            </div>
-
-                            <div id="recList1">
-
-                            </div>
-                        </div>
+                    <div clas="food-cont" id="food-cont">
+						<script type="text/javascript" src="recommend.js"></script>
+<!--                        <div class="sale-charts">-->
+<!--                            <div class="category-title">-->
+<!--                                <span class="cate-name"><h4>Happy hour</h4></span>-->
+<!--                            </div>-->
+<!---->
+<!--                            <div id="recList">-->
+<!--                                <script type="text/javascript" src="recommend.js"></script>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!---->
+<!--                        <div class="sale-charts">-->
+<!--                            <div class="category-title">-->
+<!--                                <span class="cate-name"><h4>Happy hour</h4></span>-->
+<!--                            </div>-->
+<!---->
+<!--                            <div id="recList1">-->
+<!---->
+<!--                            </div>-->
+<!--                        </div>-->
                     </div>
 
 

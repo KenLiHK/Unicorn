@@ -77,7 +77,7 @@ function db_select_desOrderId_byUserId($order){
 
 }
 
-function db_query_food_list_byCate($cate){
+function db_query_food_list_byCateName($cate){
     if(empty($cate)){
         echo 'The category cannot be empty!';
     }
