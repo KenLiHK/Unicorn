@@ -16,7 +16,6 @@
 	
 	<!-- include jQuery for Ajax call -->
 	<script type="text/javascript" src="../jquery-3.3.1.min.js"></script>
-<!--    <script type="text/javascript" src="demo.js"></script>-->
 </head>
 
 
@@ -31,7 +30,7 @@
 				<!-- ******** [START] Logo ******** -->
 				<div class="navbar-header">
 					<a href="#/" class="navbar-brand">
-						<img src="../resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
+						<img src="../resources/cs5281unicorn2_6.png" alt="Logo" class="float-left" id="logo">
 					</a>
 				</div>
 				<!-- ******** [END] Logo ******** -->
@@ -113,27 +112,20 @@
 
 
 					<!-- ******** [START] Food Navigation Division ******** -->
-                    <div clas="food-cont" id="food-cont">
-						<script type="text/javascript" src="recommend.js"></script>
-<!--                        <div class="sale-charts">-->
-<!--                            <div class="category-title">-->
-<!--                                <span class="cate-name"><h4>Happy hour</h4></span>-->
-<!--                            </div>-->
-<!---->
-<!--                            <div id="recList">-->
-<!--                                <script type="text/javascript" src="recommend.js"></script>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!---->
-<!--                        <div class="sale-charts">-->
-<!--                            <div class="category-title">-->
-<!--                                <span class="cate-name"><h4>Happy hour</h4></span>-->
-<!--                            </div>-->
-<!---->
-<!--                            <div id="recList1">-->
-<!---->
-<!--                            </div>-->
-<!--                        </div>-->
+                    <div clas="food-cont">
+                        <div id="recom-cont">
+                            <div class="sale-charts">
+                                <div class="category-title">
+                                    <span class="cate-name">Recommend For You</span>
+                                </div>
+                                <div class="foodList" id="recom-list">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="cate-cont">
+                            <script type="text/javascript" src="recommend.js"></script>
+                        </div>
                     </div>
 
 

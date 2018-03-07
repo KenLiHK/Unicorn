@@ -64,7 +64,7 @@ function console_log($data)
     }
 }
 
-console_log($_POST[$cate2Load]);
+//console_log($_POST[$cate2Load]);
 
 
 

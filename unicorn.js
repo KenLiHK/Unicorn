@@ -7,22 +7,22 @@ function addFoodToCart($foodID, $qty)
 		$.ajax(
 			{
 				type: 'post',
-				url: './placeOrder/cartAjaxService.php',
+				url: '../placeOrder/cartAjaxService.php',
 				
 				data: {
 					foodData2Add:_foodData
 				},
 				
-				success: function (totalQty4AddedFoodID) 
+				success: function (SUCCESSorFAIL) 
 				{
-					return totalQty4AddedFoodID;
+					return SUCCESSorFAIL;
 				}
 			}
 		);
 	}
 }
 
-function removeFoodFromCart($foodID, $qty)
+function substractFoodFromCart($foodID, $qty)
 {
 	var _foodData = {"foodID":$foodID, "qty":$qty}; 
 	if(_foodData)
@@ -30,15 +30,38 @@ function removeFoodFromCart($foodID, $qty)
 		$.ajax(
 			{
 				type: 'post',
-				url: './placeOrder/cartAjaxService.php',
+				url: '../placeOrder/cartAjaxService.php',
 				
 				data: {
-					foodData2Remove:_foodData
+					foodData2Substract:_foodData
 				},
 				
-				success: function (totalQty4RemovedFoodID) 
+				success: function (SUCCESSorFAIL) 
 				{
-					return totalQty4RemovedFoodID;
+					return SUCCESSorFAIL;
+				}
+			}
+		);
+	}
+}
+
+function countFoodFromCart($foodID)
+{
+	var _foodData = {"foodID":$foodID}; //if foodID == "ALL", then sum all food's quantity
+	if(_foodData)
+	{
+		$.ajax(
+			{
+				type: 'post',
+				url: './cartAjaxService.php',
+				
+				data: {
+					foodID2Count:_foodData
+				},
+				
+				success: function (qty) 
+				{
+					return qty;
 				}
 			}
 		);

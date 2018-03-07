@@ -1,6 +1,6 @@
 <?php
 	include_once("database.php");
-	
+
 	//[START] Registration function
 	function sendEmail($Receiver, $Subject, $Content)
 	{
@@ -58,7 +58,10 @@
 	}
 
 	function prepare_login_session($userID, $email) {
-		session_start();
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+		
 		// Store Session Data
 		$_SESSION['login_user_id']= $userID;
 		$_SESSION['login_user_email']= $email;	
@@ -68,6 +71,10 @@
 
 	function check_session_timeout() {
 		$timeout = 1800;  //30 mins
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+		
 		if (isset($_SESSION['last_request_time']) && (time() - $_SESSION['last_request_time'] > $timeout)) {
 			// When last request time was more than 30 minutes ago, clear all session variables and destroy all sessions.
 			session_unset();
@@ -78,6 +85,10 @@
 	}
 
 	function refresh_session() {
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+		
 		if (isset($_SESSION['last_request_time'])) {
 			$_SESSION['last_request_time'] = time(); // refresh session with current time
 		}
@@ -86,14 +97,32 @@
 	function logout() {
 			session_unset(); // clear all session variables
 			session_destroy();
-	}
+	}	
 	
 	function checkLogon() {
-		if(!isset($_SESSION['uid'])){
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+		
+		if(!isset($_SESSION['login_user_id'])){
 			echo "<script>alert('Please login first!');location.href='../login/login.php';</script>";
 			die();
 		}
 	}	
+	
+	function checkUserLogon(){
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+		
+		//Double check if user logon
+		$userID = $_SESSION['login_user_id'];
+		if(isset($userID)){
+			return true;
+		}
+		
+		return false;
+	}
 	//[END] Login and Logout function
 	
 	//[START] User Profile function
@@ -245,21 +274,36 @@
 	    return $_orderDetailArrayInDB;
 	}
 	
+	
+	function checkOutstandingOrderInSession()
+	{
+		$count = countOutstandingOrderedFoodInSession();
+		if($count > 0){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	function countOutstandingOrderedFoodInSession()
+	{
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+		
+		$countAll = 0;
+		if(isset($_SESSION['selected_food_map'])){
+			$_selectedFoodMap_in_session = $_SESSION['selected_food_map'];
+			
+			for ($row = 0; $row < count($_selectedFoodMap_in_session); $row++) {
+				$qty = $_selectedFoodMap_in_session[$row]["qty"];
+				$countAll = $countAll + $qty;
+			}
+		}
+		return $countAll;
+	}
 	//[END] Place order function
 	
-	function checkUserLogon(){
-	    if (session_status() == PHP_SESSION_NONE) {
-	        session_start();
-	    }
-	    
-	    //Double check if user logon
-	    $userID = $_SESSION['login_user_id'];
-	    if(isset($userID)){
-	        return true;
-	    }
-	    
-	    return false;
-	}
 	
 	/*
 	test_smtp();
