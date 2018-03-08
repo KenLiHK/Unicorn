@@ -377,8 +377,13 @@
 	        $this->createDate                 = $createDate;
 	        $this->updateDate                 = $updateDate;
 	    }
-	    	    
-	    public function getFoodID() {
+
+		public static function __constructById($foodID)
+		{
+			$this->foodID = $foodID;
+		}
+
+		public function getFoodID() {
 	        return $this->foodID;
 	    }
 	    
@@ -425,6 +430,50 @@
 	    public function getUpdateDate() {
 	        return $this->updateDate;
 	    }
+
+		public function setFoodCategory($cate) {
+			$this->foodCategory = $cate;
+		}
+
+		public function setFoodName($foodName) {
+			$this->foodName = $foodName;
+		}
+
+		public function setAvailable($isAval) {
+			$this->available = $isAval;
+		}
+
+		public function setPrice($price) {
+			$this->price = $price;
+		}
+
+		public function setDiscount($discount) {
+			$this->discount = $discount;
+		}
+
+		public function setDiscountEffectDate($effectDate) {
+			$this->discountEffectDate = $effectDate;
+		}
+
+		public function setDiscountExpiryDate($expireDate) {
+			$this->discountExpiryDate = $expireDate;
+		}
+
+		public function setImgPath($imgPath) {
+			$this->imgPath = $imgPath;
+		}
+
+		public function setRemark($remark) {
+			$this->remark = $remark;
+		}
+
+		public function setCreateDate($createDate) {
+			$this->createDate = $createDate;
+		}
+
+		public function setUpdateDate($updateDate) {
+			$this->updateDate = $updateDate;
+		}
 	}
 	//[END] Database table entity class
 

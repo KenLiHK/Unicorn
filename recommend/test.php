@@ -41,7 +41,7 @@ function food_list_jsonEncode($oriArray){
 }
 
 //$res = db_query_food_list_byCate('min');
-$res = db_select_allFoodCateIsAval();
+$res = db_select_allAvailCategories();
 print_r(food_list_jsonEncode($res));
 
 
