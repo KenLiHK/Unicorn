@@ -1231,7 +1231,7 @@ h5.reg_success {
 }
 /******** [START] Recommendation Style ********/
 
-#recList{
+.foodList {
     margin: .5rem .2rem 0 2rem;
 	display: flex;
 	flex-direction: row;
@@ -1244,9 +1244,10 @@ h5.reg_success {
 .i-addchart{
     width: 24px;
     height: 24px;
-    background: url("../resources/plus.png") 50% no-repeat;
+    background: url("./resources/plus.png") 50% no-repeat;
     display: inline;
     text-align: right;
+	cursor: pointer;
 
 }
 .card-btm-1{

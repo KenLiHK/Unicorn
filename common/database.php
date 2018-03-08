@@ -17,7 +17,7 @@
 	{
 		$servername = "localhost";
 		$username = "root";
-		$password = "";
+		$password = "f5ld5He25LXZySy6"; //localhost debug required only
 		$dbname = "unicorn";
 		$dbconnection=null;
 	
