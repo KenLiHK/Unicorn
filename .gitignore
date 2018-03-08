@@ -1,2 +1,5 @@
 #Pycharm
 .idea/
+
+#backup folders
+merge_*
