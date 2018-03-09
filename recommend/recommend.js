@@ -8,8 +8,8 @@ document.write("<script language='javascript' src='jq_plugins.js'></script>");
 
 $(document).ready(function(){
     //document.getElementById("food-cont").innerHTML="";
-    setCateName();
-    loadRecomFood('456');
+    loadAllCateFood();
+    loadRecomFood();
 
 });
 
@@ -25,7 +25,7 @@ $(window).on('load',function(){
 });
 
 //Call a service to get all available categories and display them
-function setCateName(){
+function loadAllCateFood(){
     var html = "";
 
     $.ajax(
@@ -63,6 +63,7 @@ function setCateName(){
 }
 
 //Call service to get food details by a specific categoryName and load the food details
+//This currrent method requires 1 network request for each category, it can be refined by selecting ALL food one time and load food from the result food array without ask for more network request
 function loadCateFood(cateName){
     var li_cont = "";
 
@@ -116,7 +117,7 @@ function loadCateFood(cateName){
 }
 
 
-function loadRecomFood(userId){
+function loadRecomFood(){
 
     var li_cont = "";
 
@@ -127,8 +128,7 @@ function loadRecomFood(userId){
             cache: true,
             async: false,
             data:{
-                //userId:userId
-                cate2Load:'LU'
+                logonCheck:true
             },
             dataType:'json',
             success:function(result){

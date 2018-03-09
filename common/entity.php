@@ -1,5 +1,5 @@
 <?php
-	include_once("/init.php");
+	include_once("init.php");
 	
 	//[START] Database table entity class
 	class User {    

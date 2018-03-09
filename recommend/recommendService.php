@@ -47,7 +47,7 @@ if(isset($_POST['cate2Load'])){
 }
 
 function load_CateName($cate2Load){
-    $res = db_query_food_list_byCateName($cate2Load);
+    $res = db_select_food_list_byCateName($cate2Load);
     echo results_jsonEncode($res);
 }
 
@@ -61,9 +61,18 @@ function load_FoodInCate(){
     echo results_jsonEncode($res);
 }
 
-//$res = db_select_allFoodCateIsAval();
-//echo results_jsonEncode($res);
+if(isset($_POST['logonCheck'])){
+    echo 'login status='.checkUserLogon(); //需要更新后的函数再看下联调的结果
+    if(checkUserLogon()){
+        $userId = $_SESSION['login_user_id'];
+        $result = get_RecomFood_byUserId($userId);
+    }
+    else{
+        $result = get_randFood_from_tagSearchResult('Hot');
+    }
 
+    echo results_jsonEncode($result);
+}
 
 function get_RecomFood_byUserId($userId){
 
@@ -72,93 +81,144 @@ function get_RecomFood_byUserId($userId){
 //    echo $res;
     if(count($res)==0){
         //This user doesn't have any history order, recommend as unlogin user or check the outstanding order?
+        return $recomFoodList = get_randFood_from_tagSearchResult('Hot');
     }
     else{
         $orderId = $res[0]['order_id'];
-//        print_r($orderId);
         $cateList = db_select_orderFoodCateList_byOrderId($orderId);
         $recomFoodList = array();
         $_selectedFoodIds = array();
         $sizeOfCateList = count($cateList);
         $_allSelectedCate = array();
 
-//        if($sizeOfCateList < MAX_RECOM_FOOD){
-//            $i = 0;
-//            do{
-//                $res = getRandFoodFromCate($cateList[$i]['food_category'],$_selectedFoodIds);
-//                if($res['food'] != null){
-//                    $_genFood = $res['food'];
-//                    $_selectedFoodIds = $res['selectedId_array'];
-//                    array_push($recomFoodList, $_genFood);
-//                }
-//                if($i==$sizeOfCateList){
-//                    $i = 0;
-//                }
-//                else{
-//                    $i++;
-//                }
-//            }while(count($recomFoodList) < MAX_RECOM_FOOD);
-//        }
         do{
             do{
-                $_randIndex = mt_rand(0, $sizeOfCateList);
+                $_randIndex = mt_rand(0, $sizeOfCateList-1);
             }while(in_array($_randIndex, $_allSelectedCate));
-            $res = getRandFoodFromCate($cateList[$_randIndex]['food_category'],$_selectedFoodIds);
+            $_selectedCate = $cateList[$_randIndex];
+            $res = get_randFood_from_cate($_selectedCate['food_category'],$_selectedFoodIds);
             if($res['food'] != null){
                 $_genFood = $res['food'];
                 $_selectedFoodIds = $res['selectedId_array'];
                 array_push($recomFoodList, $_genFood);
             }
+            elseif(is_string($res['food'])){
+                echo $res['food'];
+            }
             else{
+//                print_r('All food in the cate have been selected!'.'<br>');
                 array_push($_allSelectedCate, $_randIndex);
+//                print_r($_allSelectedCate);
             }
 
+//            print_r('RecomlistLength='.count($recomFoodList). '<br>');
         }while(count($recomFoodList) < MAX_RECOM_FOOD);
     }
-
     return $recomFoodList;
 
 }
 
 
+function get_randFood_from_cate($cateName, $selectedIdArray){
+    $res = db_select_food_list_byCateName($cateName);
+    if(is_string($res)){
+        return array('food'=>$res, 'selectedId_array'=>$selectedIdArray);
+    }
 
-function getRandFoodFromCate($cateName, $selectedIdArray){
-    $res = db_query_food_list_byCateName($cateName);
     $max = count($res);
     $inCount = 0;
 
     //Check if all foods in the category have been selected
-    for($i=0; $i<=$max; $i++){
+    for($i=0; $i<$max; $i++){
         if(in_array($res[$i]['food_id'], $selectedIdArray)){
             $inCount++;
         }
     }
-
     if($inCount == $max){
         return array('food'=>null, 'selectedId_array'=>$selectedIdArray);
     }
+
     //If not all selected, randomly select one and update selectedIdArray
     else{
         do{
-            $_tmp = mt_rand(0, $max);
+            $_tmp = mt_rand(0, $max-1);
             $foodId = $res[$_tmp]['food_id'];
         }while(in_array($foodId, $selectedIdArray));
 
-        $food = new Food($foodId);  //需要新的构造方法!!
-        $food->setImgPath($res[$_tmp]['img_path']);
-        $food->setFoodName($res[$_tmp]['food_name']);
-        $food->setPrice($res[$_tmp]['price']);
-        $food->setDiscount($res[$_tmp]['discount']);
-
-        array_push($selectedIdArray,$food->getFoodID());
+        $food = $res[$_tmp];
+        array_push($selectedIdArray,$res[$_tmp]['food_id']);
         return array('food'=>$food, 'selectedId_array'=>$selectedIdArray);
     }
 }
 
-$result = get_RecomFood_byUserId('kenli');
-print_r($result)
+//Function created but not used yet
+function convertFoodObj2Array($Food){
+    $foodArray = array(
+        'food_id'=> $Food->getFoodID(),
+        'food_name'=>$Food->getFoodName(),
+        'img_path'=>$Food->getImgPath(),
+        'price'=>$Food->getPrice(),
+        'discount'=>$Food->getDiscount(),
+        'food_category'=>$Food->getFoodCategory(),
+        'available'=>$Food->getAvailable(),
+        'discountEffectDate'=>$Food->getDiscountEffectDate(),
+        'discountExpiryDate'=>$Food->getDiscountExpiryDate(),
+        'remark'=>$Food->getRemark(),
+        'createDate'=>$Food->getCreateDate(),
+        'updateDate'=>$Food->getUpdateDate(),
+    );
+    return $foodArray;
+
+}
+
+//Function created but not used yet
+function jsonEncode_foodObjArray($FoodObjArray2Encode){
+    $jsonArray = array();
+    for($i=0; $i<count($FoodObjArray2Encode); $i++){
+        $arrayItem = convertFoodObj2Array($FoodObjArray2Encode[$i]);
+        array_push($jsonArray, $arrayItem);
+    }
+    return $jsonArray;
+}
+
+function get_RecomFood_byHotTag($tagName){
+
+}
+
+function get_randFood_from_tagSearchResult($tagName, $maxReturnNum=MAX_RECOM_FOOD){
+    $foodArray2Return = array();
+    $res = db_select_food_list_byTagName($tagName);
+//    var_dump($res);
+    if(!isset($res) || is_string($res)){
+        return $foodArray2Return=null;
+    }
+
+    $max = count($res);
+    $inCount = 0;
+    $selectedIdArray = array();
+
+    while($inCount < MAX_RECOM_FOOD){
+        do{
+            $_tmp = mt_rand(0, $max-1);
+            $foodId = $res[$_tmp]['food_id'];
+        }while(in_array($foodId, $selectedIdArray));
+
+        $food = $res[$_tmp];
+        array_push($selectedIdArray,$res[$_tmp]['food_id']);
+        array_push($foodArray2Return,$food);
+        $inCount++;
+    }
+
+    return $foodArray2Return;
+
+}
+
+//$result = get_randFood_from_tagSearchResult('Hot');
+//$result = jsonEncode_FoodObjArray($result);
+//echo results_jsonEncode($result);
+
 //$res = db_query_food_list_byCateName('LU');
-//print_r($res);
+
 
 
 
