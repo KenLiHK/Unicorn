@@ -34,7 +34,7 @@ function loginFormValidate(){
 		
 	// ******** [START] Password validation ********
     if (_pass == "") {
-		document.getElementById("passMsg").innerHTML = "[E009] Password must be input!";				
+		document.getElementById("passMsg").innerHTML = "[E602] Password must be input!";				
 		
 		if(isValid){
 			document.forms["loginForm"]["pass"].focus();   
@@ -58,7 +58,7 @@ function loginFormValidate(){
 		var passValid = true;
 		
 		if(_pass.length < 8 || _pass.length > 20){
-			document.getElementById("passMsg").innerHTML = "[E010] Password length must be 8 - 20 characters!";	
+			document.getElementById("passMsg").innerHTML = "[E603] Password length must be 8 - 20 characters!";	
 			document.forms["loginForm"]["pass"].value="";
 			
 			if(isValid){
@@ -85,7 +85,7 @@ function loginFormValidate(){
 		}
 
 		if(numUpper < 2 && passValid){
-			document.getElementById("passMsg").innerHTML = "[E011] Password must contain at least 2 upper case characters!";
+			document.getElementById("passMsg").innerHTML = "[E604] Password must contain at least 2 upper case characters!";
 			document.forms["loginForm"]["pass"].value="";
 			
 			if(isValid){
@@ -96,7 +96,7 @@ function loginFormValidate(){
 		}
 		
 		if(numLower < 2 && passValid){
-			document.getElementById("passMsg").innerHTML = "[E012] Password must contain at least 2 lower case characters!";
+			document.getElementById("passMsg").innerHTML = "[E605] Password must contain at least 2 lower case characters!";
 			document.forms["loginForm"]["pass"].value="";
 			
 			if(isValid){
@@ -107,7 +107,7 @@ function loginFormValidate(){
 		}
 		
 		if(numNums < 2 && passValid){
-			document.getElementById("passMsg").innerHTML = "[E013] Password must contain at least 2 numeric characters!";
+			document.getElementById("passMsg").innerHTML = "[E606] Password must contain at least 2 numeric characters!";
 			document.forms["loginForm"]["pass"].value="";
 				
 			if(isValid){
@@ -118,7 +118,7 @@ function loginFormValidate(){
 		}
 		
 		if(numSpecials <2 && passValid){
-			document.getElementById("passMsg").innerHTML = "[E014] Password must contain at least 2 special characters!";	
+			document.getElementById("passMsg").innerHTML = "[E607] Password must contain at least 2 special characters!";	
 			document.forms["loginForm"]["pass"].value="";
 			
 			if(isValid){

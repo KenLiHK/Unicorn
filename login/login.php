@@ -2,6 +2,13 @@
 
 include_once("../common/functions.php");
 
+if (session_status() == PHP_SESSION_NONE) {
+	session_start();
+}
+
+if(isset($_SESSION['login_user_id'])){
+	$userID_In_Session = $_SESSION['login_user_id'];
+}
 
 $isFormDataValid = true;
 
@@ -31,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	
 	// ******** [START] Password validation ********
 	if(empty($pass)) {
-		$passMsg_php = "[E009] Password must be input!";	
+		$passMsg_php = "[E602] Password must be input!";	
 	}
 
 	/*
@@ -49,19 +56,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		$aSpecial =  "#(?=\S*[\W])#"; //"#[!|@|#|$|%|^|&|*|(|)|-|_]#";
 		
 		if (strlen($pass) < 8 || strlen($pass) > 20) {
-			$passMsg_php = "[E010] Password length must be 8 - 20 characters!";
+			$passMsg_php = "[E603] Password length must be 8 - 20 characters!";
 		}
 		else if (!preg_match($anUpperCase, $pass)) {
-			$passMsg_php = "[E011] Password must contain at least 2 upper case characters!";
+			$passMsg_php = "[E604] Password must contain at least 2 upper case characters!";
 		}
 		else if (!preg_match($aLowerCase, $pass)) {
-			$passMsg_php = "[E012] Password must contain at least 2 lower case characters!";
+			$passMsg_php = "[E605] Password must contain at least 2 lower case characters!";
 		}
 		else if (!preg_match($aNumber, $pass)) {
-			$passMsg_php = "[E013] Password must contain at least 2 numeric characters!";
+			$passMsg_php = "[E606] Password must contain at least 2 numeric characters!";
 		}
 		else if (!preg_match($aSpecial, $pass)) {
-			$passMsg_php = "[E014] Password must contain at least 2 special characters!";
+			$passMsg_php = "[E607] Password must contain at least 2 special characters!";
 		}    
 	}
 	
@@ -80,11 +87,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			unset($_POST);
 			
 			//go to home page
-			header('Location: ../home.php');
+			header('Location: ../recommend/recom_home.php');
 			exit;
 		} else {
 			//login failed
-			$serverErrMsg_php = "<div class='alert mt-4 alert-danger'><span>Login failed, please try again!</span></div>";
+			$serverErrMsg_php = "<div class='alert mt-4 alert-danger'><span>[E608] Login failed, please try again!</span></div>";
 		}
 	}
 }
@@ -118,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 						
 							<!-- ******** [START] Logo ******** -->
 							<div class="navbar-header">
-								<a href="#/" class="navbar-brand">
+								<a href="../recommend/recom_home.php" class="navbar-brand">
 									<img src="../resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
 								</a> 
 							</div>
@@ -128,26 +135,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 							<!-- ******** [START] Left function menu ******** -->
 							<div id="main-menu" class="navbar-collapse">
 								<ul class="navbar-nav">
-									<h3 class="menu-title"> Unicorn Restaurant </h3>
+									<a href="../recommend/recom_home.php">
+										<h3 class="menu-title"> Unicorn Restaurant </h3>
+									</a>
 									
 									<li class="nav-item">
-										<a href="#/components/tables" class="">
+										<a href="../searchDish/search.php">
 											<i class="menu-icon fa fa-search"></i>
 											<span class="menu-title-text"> Search Dish </span>
 										</a>
 									</li>				
 		
 									<li class="nav-item mt-auto">
-										<a>
+										<a href="../placeOrder/cart.php">
 											<i class="menu-icon fa fa-shopping-cart"></i>
 											<span class="menu-title-text"> Place Order </span>
 										</a>
 									</li>
 											
+									<li class="nav-item mt-auto">
+										<a href="../comment/comment_section.php">
+											<i class="menu-icon fa fa-comments"></i>
+											<span class="menu-title-text"> Comment </span>
+										</a>
+									</li>															
+									
+									<li class="nav-item mt-auto">
+										<a href="../userProfile/userProfile.php">
+											<i class="menu-icon fa fa-user"></i>
+											<span class="menu-title-text"> User Profile </span>
+										</a>
+									</li>
+									
+																			
 									<li class="nav-item">
-										<a href="#/components/icons" class="">
-											<i class="menu-icon fa fa-star"></i>
-											<span class="menu-title-text">Map</span>
+										<a href="../login/login.php">
+											<i class="menu-icon fa fa-sign-in"></i>
+											<span class="menu-title-text">Login</span>
+										</a>
+									</li>
+	
+									<li class="nav-item">
+										<a href="../registration/registerForm.php">
+											<i class="menu-icon fa fa-user-plus"></i>
+											<span class="menu-title-text">Sign Up</span>
+										</a>
+									</li>
+									
+									<li class="nav-item">
+										<a href="../contactUs/contactUs.php">
+											<i class="menu-icon fa fa-globe"></i>
+											<span class="menu-title-text">Contact Us</span>
 										</a>
 									</li>
 									
@@ -155,6 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 							</div>
 							<!-- ******** [END] Left function menul ******** -->
 							
+
 							
 							
 						</nav>
@@ -175,7 +214,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 							<div>							
 								<div class="header-right">
 									<div>
-										<a href="../registration/registerForm.php"><i class="fa fa-sign-up"></i> Sign-up </a> <span>&nbsp;</span>
+										<?php
+										if(isset($userID_In_Session )){
+												echo
+													'<a href="../notification/notification.php"><i class="fa fa-envelope"></i> </a> <span>&nbsp;</span>
+											 		 <a href="../userProfile/userProfile.php"><i class="fa fa-profile"></i>' .@$userID_In_Session . '</a> <span>&nbsp;</span>
+											 		 <a href="../login/logout.php"><i class="fa fa-sign-out"></i> Logout </a> <span>&nbsp;</span>';
+											}else{
+												echo
+													'<a href="../registration/registerForm.php"><i class="fa fa-user-plus"> Sign-up </i></a> <span>&nbsp;</span>';
+											}
+					        			?>
 									</div>								
 								</div>						
 							</div>
@@ -210,7 +259,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 										<input class="login_input" type="password" id="pass" name="pass" maxlength="100" >
 										<span class="login_err" id="passMsg" ><?php if(isset($passMsg_php)){echo $passMsg_php;} ?></span>
 									<div>
-
+									<br><br>
 									<div>
 									  <input class="login_input4" type="reset" name="Reset" value="Reset" onclick="resetErrMsg();">
 									  <input class="login_input5" type="submit" name="login" value="Login">

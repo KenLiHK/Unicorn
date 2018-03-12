@@ -1,0 +1,107 @@
+/******** [START] Account registration style ********/
+label.reg_label {
+	display: inline-block;	
+	width: 23%;
+	text-align: right;
+	font-weight:bold;
+}
+
+label.reg_label2 {
+	display: inline-block;	
+	width: 23%;
+	text-align: right;
+	margin-right: 0.5em;
+}
+
+label.reg_label3 {
+	display: inline-block;	
+	width: 45%;
+	text-align: left;
+	font-weight:bold;
+}
+
+label.reg_label4 {
+	text-align: right;
+	margin-right: 0.5em;
+}
+
+input.reg_input {
+	display: inline-block;
+	width: 30%;
+	padding-left: 5px;
+	text-align: left;
+}
+
+input.reg_input2 {
+	display: inline-block;
+	width: 45%;
+	margin-left: 5%;
+	padding-left: 5px;
+	text-align: left;
+}
+
+span.reg_err {
+	color: red;
+}
+
+span.reg_info {
+	color: green;
+}
+
+input.reg_input3[type=checkbox] {
+	display: inline-block;	
+	width: 5%;
+	text-align: right;
+	zoom: 2;
+	vertical-align: text-bottom;
+}
+
+input.reg_input4[type=reset] {
+	width: 20%;
+	margin-right: 2.5em;
+	margin-bottom: 2.5em;
+	display: inline-block;
+	height: 50px;
+	text-align: center;
+	background-color: skyblue;
+	color: #fff;
+	border: none;
+}
+
+input.reg_input5[type=submit] {
+	width: 20%;
+	margin-right: 2.5em;
+	margin-bottom: 2.5em;
+	display: inline-block;
+	height: 50px;
+	text-align: center;
+	background-color: skyblue;
+	color: #fff;
+	border: none;
+}
+
+h5.reg_success {
+	margin-bottom: 10.5em;
+}
+
+h5.reg_failure {
+	margin-bottom: 10.5em;
+	color:red;
+}
+
+label.mandatory_field {
+	color:red;
+	font-size:15px;
+}
+
+.button_alignment {
+	text-align: center;
+}
+
+input.reg_radio[type=radio] {
+	zoom: 2;
+}
+/******** [END] Account registration style ********/
+
+
+

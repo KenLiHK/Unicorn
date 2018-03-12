@@ -1,0 +1,51 @@
+@charset "UTF-8";
+
+/******** [START] Login style ********/
+label.login_label {
+	display: inline-block;	
+	width: 23%;
+	text-align: right;
+	font-weight:bold;
+}
+
+input.login_input[type=text] {
+	display: inline-block;
+	width: 30%;
+	padding-left: 5px;
+	text-align: left;
+}
+
+span.login_err {
+	color: red;
+}
+
+input.login_input4[type=reset] {
+	width: 20%;
+	margin-right: 2.5em;
+	margin-bottom: 2.5em;
+	display: inline-block;
+	height: 50px;
+	text-align: center;
+	background-color: skyblue;
+	color: #fff;
+	border: none;
+}
+
+input.login_input5[type=submit] {
+	width: 20%;
+	margin-right: 2.5em;
+	margin-bottom: 2.5em;
+	display: inline-block;
+	height: 50px;
+	text-align: center;
+	background-color: skyblue;
+	color: #fff;
+	border: none;
+}
+
+label.mandatory_field {
+	color:red;
+	font-size:15px;
+}
+/******** [END] Login style ********/
+

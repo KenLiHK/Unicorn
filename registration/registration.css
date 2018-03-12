@@ -52,7 +52,7 @@ input.reg_input3[type=checkbox] {
 	display: inline-block;	
 	width: 5%;
 	text-align: right;
-	zoom: 3;
+	zoom: 2;
 	vertical-align: text-bottom;
 }
 
@@ -96,6 +96,10 @@ label.mandatory_field {
 
 .button_alignment {
 	text-align: center;
+}
+
+input.reg_radio[type=radio] {
+	zoom: 2;
 }
 /******** [END] Account registration style ********/
 

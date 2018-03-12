@@ -1,5 +1,12 @@
 <?php
 
+if (session_status() == PHP_SESSION_NONE) {
+	session_start();
+}
+
+if(isset($_SESSION['login_user_id'])){
+	$userID_In_Session = $_SESSION['login_user_id'];
+}
 
 ?>
 <html>
@@ -29,7 +36,7 @@
 						
 							<!-- ******** [START] Logo ******** -->
 							<div class="navbar-header">
-								<a href="#/" class="navbar-brand">
+								<a href="../recommend/recom_home.php" class="navbar-brand">
 									<img src="../resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
 								</a> 
 							</div>
@@ -38,31 +45,62 @@
 							
 							<!-- ******** [START] Left function menu ******** -->
 							<div id="main-menu" class="navbar-collapse">
-								<ol class="navbar-nav">
-									<h3 class="menu-title"> Unicorn Restaurant </h3>
+								<ul class="navbar-nav">
+									<a href="../recommend/recom_home.php">
+										<h3 class="menu-title"> Unicorn Restaurant </h3>
+									</a>
 									
 									<li class="nav-item">
-										<a href="#/components/tables" class="">
+										<a href="../searchDish/search.php">
 											<i class="menu-icon fa fa-search"></i>
 											<span class="menu-title-text"> Search Dish </span>
 										</a>
 									</li>				
 		
 									<li class="nav-item mt-auto">
-										<a>
+										<a href="../placeOrder/cart.php">
 											<i class="menu-icon fa fa-shopping-cart"></i>
 											<span class="menu-title-text"> Place Order </span>
 										</a>
 									</li>
 											
-									<li class="nav-item">
-										<a href="#/components/icons" class="">
-											<i class="menu-icon fa fa-star"></i>
-											<span class="menu-title-text">Map</span>
+									<li class="nav-item mt-auto">
+										<a href="../comment/comment_section.php">
+											<i class="menu-icon fa fa-comments"></i>
+											<span class="menu-title-text"> Comment </span>
+										</a>
+									</li>															
+									
+									<li class="nav-item mt-auto">
+										<a href="../userProfile/userProfile.php">
+											<i class="menu-icon fa fa-user"></i>
+											<span class="menu-title-text"> User Profile </span>
 										</a>
 									</li>
 									
-								</ol>
+																			
+									<li class="nav-item">
+										<a href="../login/login.php">
+											<i class="menu-icon fa fa-sign-in"></i>
+											<span class="menu-title-text">Login</span>
+										</a>
+									</li>
+	
+									<li class="nav-item">
+										<a href="../registration/registerForm.php">
+											<i class="menu-icon fa fa-user-plus"></i>
+											<span class="menu-title-text">Sign Up</span>
+										</a>
+									</li>
+									
+									<li class="nav-item">
+										<a href="../contactUs/contactUs.php">
+											<i class="menu-icon fa fa-globe"></i>
+											<span class="menu-title-text">Contact Us</span>
+										</a>
+									</li>
+									
+								</ul>
 							</div>
 							<!-- ******** [END] Left function menul ******** -->
 							
@@ -86,9 +124,18 @@
 							<div>							
 								<div class="header-right">
 									<div>
-										<a href="#"><i class="fa fa-envelope"></i> </a> <span>&nbsp;</span>									
-										<a href="#"><i class="fa fa-user"></i> Ken </a> <span>&nbsp;</span>
-										<a href="#"><i class="fa fa-power-off"></i> Logout </a> <span>&nbsp;</span>
+										<?php
+										if(isset($userID_In_Session )){
+												echo
+													'<a href="../notification/notification.php"><i class="fa fa-envelope"></i> </a> <span>&nbsp;</span>
+											 		 <a href="../userProfile/userProfile.php"><i class="fa fa-profile"></i>' .@$userID_In_Session . '</a> <span>&nbsp;</span>
+											 		 <a href="../login/logout.php"><i class="fa fa-sign-out"></i> Logout </a> <span>&nbsp;</span>';
+											}else{
+												echo
+													'<a href="../login/login.php"><i class="fa fa-sign-in"> Login </i></a> <span>&nbsp;</span>
+			            					 		 <a href="../registration/registerForm.php"><i class="fa fa-user-plus"> Sign-up </i></a> <span>&nbsp;</span>';
+											}
+					        			?>										
 									</div>								
 								</div>						
 							</div>

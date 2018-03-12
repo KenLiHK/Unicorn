@@ -1,0 +1,43 @@
+<?php
+echo 
+'
+							<!-- ******** [START] Footer ******** -->						
+								<div class="col-md-12">
+									<div class="card">						
+										<div class="card-footer">
+											<ul>									
+												<li>
+													<div class="text-muted">Email</div>
+													<strong>cs5281unicorn@unicorn.com</strong>											
+												</li>
+												<li class="hidden-sm-down">
+													<div class="text-muted">Tel</div>
+													<strong>+852 5281-2018</strong>
+												</li>
+												<li class="hidden-sm-down">
+													<div class="text-muted">Fax</div>
+													<strong>+852 5281-2019</strong>
+												</li>												
+											</ul>
+											
+										</div>
+										
+										<div class="card-footer">										
+											<ul>
+												<li>
+													<div class="text-muted">Service Hour</div>
+													<strong>Monday - Sunday 09:00-23:00</strong>
+												</li>										
+												<li>
+													<div class="text-muted">Address</div>
+													<strong>Li Dak Sum Yip Yio Chin A Bldg 5606, Hong Kong</strong>
+												</li>
+											</ul>										
+										</div>
+										
+										
+									</div>
+								</div>
+							<!-- ******** [END] Footer ******** -->
+';
+?>

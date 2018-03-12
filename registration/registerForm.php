@@ -2,6 +2,13 @@
 
 include_once("../common/functions.php");
 
+if (session_status() == PHP_SESSION_NONE) {
+	session_start();
+}
+
+if(isset($_SESSION['login_user_id'])){
+	$userID_In_Session = $_SESSION['login_user_id'];
+}
 
 $isFormDataValid = true;
 
@@ -284,6 +291,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			//reset form data in the post request
 			unset($_POST);
 			
+			if (session_status() == PHP_SESSION_NONE) {
+				session_start();
+			}
+			
+			$_SESSION['emailValidateUrl'] = $emailValidateUrl;
+			
 			//go to success page
 			header('Location: ./registerSuccess.php');
 			exit;
@@ -327,7 +340,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 						
 							<!-- ******** [START] Logo ******** -->
 							<div class="navbar-header">
-								<a href="#/" class="navbar-brand">
+								<a href="../recommend/recom_home.php" class="navbar-brand">
 									<img src="../resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
 								</a> 
 							</div>
@@ -337,26 +350,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 							<!-- ******** [START] Left function menu ******** -->
 							<div id="main-menu" class="navbar-collapse">
 								<ul class="navbar-nav">
-									<h3 class="menu-title"> Unicorn Restaurant </h3>
+									<a href="../recommend/recom_home.php">
+										<h3 class="menu-title"> Unicorn Restaurant </h3>
+									</a>
 									
 									<li class="nav-item">
-										<a href="#/components/tables" class="">
+										<a href="../searchDish/search.php">
 											<i class="menu-icon fa fa-search"></i>
 											<span class="menu-title-text"> Search Dish </span>
 										</a>
 									</li>				
 		
 									<li class="nav-item mt-auto">
-										<a>
+										<a href="../placeOrder/cart.php">
 											<i class="menu-icon fa fa-shopping-cart"></i>
 											<span class="menu-title-text"> Place Order </span>
 										</a>
 									</li>
 											
+									<li class="nav-item mt-auto">
+										<a href="../comment/comment_section.php">
+											<i class="menu-icon fa fa-comments"></i>
+											<span class="menu-title-text"> Comment </span>
+										</a>
+									</li>															
+									
+									<li class="nav-item mt-auto">
+										<a href="../userProfile/userProfile.php">
+											<i class="menu-icon fa fa-user"></i>
+											<span class="menu-title-text"> User Profile </span>
+										</a>
+									</li>
+									
+																			
 									<li class="nav-item">
-										<a href="#/components/icons" class="">
-											<i class="menu-icon fa fa-star"></i>
-											<span class="menu-title-text">Map</span>
+										<a href="../login/login.php">
+											<i class="menu-icon fa fa-sign-in"></i>
+											<span class="menu-title-text">Login</span>
+										</a>
+									</li>
+	
+									<li class="nav-item">
+										<a href="../registration/registerForm.php">
+											<i class="menu-icon fa fa-user-plus"></i>
+											<span class="menu-title-text">Sign Up</span>
+										</a>
+									</li>
+									
+									<li class="nav-item">
+										<a href="../contactUs/contactUs.php">
+											<i class="menu-icon fa fa-globe"></i>
+											<span class="menu-title-text">Contact Us</span>
 										</a>
 									</li>
 									
@@ -384,7 +428,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 							<div>							
 								<div class="header-right">
 									<div>
-										<a href="#"><i class="fa fa-power-on"></i> Login </a> <span>&nbsp;</span>
+										<?php
+											if(isset($userID_In_Session )){
+												echo
+													'<a href="../notification/notification.php"><i class="fa fa-envelope"></i> </a> <span>&nbsp;</span>
+											 		 <a href="../userProfile/userProfile.php"><i class="fa fa-profile"></i>' .@$userID_In_Session . '</a> <span>&nbsp;</span>
+											 		 <a href="../login/logout.php"><i class="fa fa-sign-out"></i> Logout </a> <span>&nbsp;</span>';
+											}else{
+												echo
+													'<a href="../login/login.php"><i class="fa fa-sign-in"> Login </i></a> <span>&nbsp;</span>
+			            					 		 <a href="../registration/registerForm.php"><i class="fa fa-user-plus"> Sign-up </i></a> <span>&nbsp;</span>';
+											}
+					        			?>
 									</div>								
 								</div>						
 							</div>
@@ -459,8 +514,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 									
 									<div>
 										<label class="reg_label">Gender : </label> 
-										<input type="radio" name="sex" value="M" <?php if (isset($sex) && $sex=="M") echo "checked";?> />Male
-										<input type="radio" name="sex" value="F" <?php if (isset($sex) && $sex=="F") echo "checked";?> />Female
+										<input class="reg_radio" type="radio" name="sex" value="M" <?php if (isset($sex) && $sex=="M") echo "checked";?> />Male
+										<input class="reg_radio" type="radio" name="sex" value="F" <?php if (isset($sex) && $sex=="F") echo "checked";?> />Female
 										<span class="reg_err" id="sexMsg" ><?php if(isset($sexMsg_php)){echo $sexMsg_php;} ?></span>
 									<div>
 
