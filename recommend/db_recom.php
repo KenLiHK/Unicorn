@@ -77,10 +77,10 @@ function db_select_latestOrderId_byUserId($userId)
 
 }
 
-function db_query_food_list_byCateName($cate)
+function db_select_food_list_byCateName($cate)
 {
     if (empty($cate)) {
-        echo 'The category cannot be empty!';
+        return $results='The category cannot be empty!';
     } else {
         try {
             $dbconnection = db_connect();
@@ -141,6 +141,29 @@ function db_select_orderFoodCateList_byOrderId($orderId)
     }
 
     $dbconnection = null;
+
+}
+
+function db_select_food_list_byTagName($tagName)
+{
+    if (empty($tagName)) {
+        return $results='The tagName cannot be empty!';
+    } else {
+        try {
+            $dbconnection = db_connect();
+            $stmt = $dbconnection->prepare("SELECT `food`.`food_id`, `food`.`img_path`, `food`.`food_name`,`food`.`price`, `food`.`discount`, `food_tag`.`update_date` FROM `food` LEFT JOIN `food_tag` ON `food`.`food_id` = `food_tag`.`food_id` WHERE `food_tag`.`tag_des` = :tagName ORDER BY `food_tag`.`update_date` DESC");
+            $stmt->bindParam(":tagName", $tagName);
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $results;
+
+        } catch (PDOException $e) {
+            echo $stmt . "<br>" . $e->getMessage();
+        }
+
+        $dbconnection = null;
+    }
 
 }
 

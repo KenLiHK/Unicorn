@@ -9,6 +9,7 @@
 include_once("../common/database.php");
 include_once("../common/functions.php");
 include_once("db_recom.php");
+include_once ("recommendService.php");
 
 //$sql = "SELECT `food_id`,`img_path`, `food_name`, `price`, `discount` FROM `food` WHERE `food_category` = 'LX' AND `available` = 'Y'";
 //$sql = "SELECT DISTINCT `food_category` FROM `food` WHERE `available` = 'Y'";
@@ -40,9 +41,12 @@ function food_list_jsonEncode($oriArray){
 
 }
 
+$result = get_RecomFood_byUserId('kenli');
+$result = json_encode($result);
+echo $result;
 //$res = db_query_food_list_byCate('min');
-$res = db_select_allAvailCategories();
-print_r(food_list_jsonEncode($res));
+//$res = db_select_allAvailCategories();
+//print_r(food_list_jsonEncode($res));
 
 
 
