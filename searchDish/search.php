@@ -2,9 +2,9 @@
 	header("Content-type:text/html;charset=GB2312");
 	include_once("../common/database.php");		
 
-	//20180310 ¼ÓÔØËÑË÷²Ëµ¥
+	//20180310 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½
     function loadCategory(){
-        $con = mysqli_connect('localhost', 'root', '', 'unicorn');	//Á¬½ÓÊý¾Ý¿â
+        $con = mysqli_connect('localhost', 'root', '', 'unicorn');	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½
 
         $sql= "select distinct food_category from food";
         $query = mysqli_query($con, $sql);
@@ -18,9 +18,9 @@
         mysqli_close($con);
     }
 
-    //20180310 ËÑË÷½á¹û×Ô¶¯Ìî³ä
+    //20180310 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½
     function autofill(){
-        $con = mysqli_connect('localhost', 'root', '', 'unicorn');	//Á¬½ÓÊý¾Ý¿â
+        $con = mysqli_connect('localhost', 'root', '', 'unicorn');	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½
 
         $sqlFood= "select food_name from food";
         $queryFood = mysqli_query($con, $sqlFood);
@@ -39,9 +39,9 @@
         mysqli_close($con);
     }
 
-    //20180310 ËÑË÷
+    //20180310 ï¿½ï¿½ï¿½ï¿½
     function search($category, $food){
-        $con = mysqli_connect('localhost', 'root', '', 'unicorn');	//Á¬½ÓÊý¾Ý¿â
+        $con = mysqli_connect('localhost', 'root', '', 'unicorn');	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½
 
         $sql= "select food_id from food where food_category=".$category." and food_name=".$food;
         $query = mysqli_query($con, $sql);
@@ -59,17 +59,17 @@
 <html>
 <head>
     <title>This is a SearchBox</title>
-    <meta charset="utf-8" http-equiv="X-UA-Compatible" content="IE-edge"> <!--½â¾öä¯ÀÀÆ÷¼æÈÝÐÔÎÊÌâ-->
+    <meta charset="utf-8" http-equiv="X-UA-Compatible" content="IE-edge"> <!--ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-->
     <link type="text/css" rel="stylesheet" href="search.css" media="all"/>
 </head>
 
 <body>
 
-    <!--20180310 ËÑË÷ÈÝÆ÷¾²Ì¬²¿·Ö¿ªÊ¼-->
+    <!--20180310 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½Ö¿ï¿½Ê¼-->
     <div class="search_container">
 
         <form id="search_category" action="search.php" method="POST">
-            <!--20180310 ËÑË÷ÁÐ±í categories Êý¾Ý¿âµ÷ÓÃ-->
+            <!--20180310 ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ categories ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½ï¿½-->
             <div id="sb_list" class="search_list">
                     <select class="search_list">
                         <option value="all" selected>ALL</option>
@@ -79,7 +79,7 @@
                     </select>
             </div>
 
-            <!--20180228 ËÑË÷¿òºÍ°´Å¥-->
+            <!--20180228 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í°ï¿½Å¥-->
             <div style="float:left">
                 <input class="search_text" id="search_input" type="text"
                         name="search_text" value="" onkeypress="autofill()">
@@ -90,7 +90,7 @@
                 <input class="search_button" type="submit" value="" onkeypress="search()">
             </div>
         </form>
-        <!--20180228 ËÑË÷ÌáÊ¾²Ëµ¥ÌáÊ¾??¾²Ì¬-->
+        <!--20180228 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ëµï¿½ï¿½ï¿½Ê¾??ï¿½ï¿½Ì¬-->
         <div class="suggest" id="search_suggest">
             <ul id="search_result">
                 <?php
@@ -99,23 +99,23 @@
             </ul>
         </div>
     </div>
-    <!--20180310 ËÑË÷ÈÝÆ÷¾²Ì¬²¿·Ö½áÊø-->
+    <!--20180310 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½-->
 
-    <!--20180228 jsÒýÓÃ-->
+    <!--20180228 jsï¿½ï¿½ï¿½ï¿½-->
     <script src="http://code.jquery.com/jquery-1.10.2.min.js">
     </script>
 
     <!--20180228 -->
     <script>
 
-        /* category listÑ¡Ôñ */
+        /* category listÑ¡ï¿½ï¿½ */
         /*  */
-        /* Í¨¹ýDOM»ñÈ¡ÔªËØ */
+        /* Í¨ï¿½ï¿½DOMï¿½ï¿½È¡Ôªï¿½ï¿½ */
         var getDOM = function(id){
             return document.getElementById(id);
         }
 
-        /* °ó¶¨ÔªËØÊÂ¼þ */
+        /* ï¿½ï¿½Ôªï¿½ï¿½ï¿½Â¼ï¿½ */
         var addEvent = function(id, event, fn){
             var el = getDOM(id)||document;
             if(el.addEventListener){
@@ -129,10 +129,10 @@
             this.className ='search_list trigger_hover';
         });
 
-        /* ËÑË÷ÌáÊ¾²Ëµ¥ÌáÊ¾??¶¯Ì¬ */
+        /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ëµï¿½ï¿½ï¿½Ê¾??ï¿½ï¿½Ì¬ */
         /*
-            ÎÊÌâ1£º·þÎñÆ÷µØÖ·£¿searchText.get
-            ÎÊÌâ2£º²¢²»ÄÜ×Ô¶¯Æ¥Åä
+            ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½searchText.get
+            ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½Æ¥ï¿½ï¿½
         */
         $('#search_input').bind('keyup', function(){
             var searchText = $('#search_input').val();
@@ -152,12 +152,12 @@
             }, 'json');
         });
 
-        //µã»÷Ò³ÃæÆäËûÎ»ÖÃÊ±£¬¶¯Ì¬ËÑË÷¿òÏûÊ§
+        //ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§
         $(document).bind('click', function(){
             $('#search_suggest').hide();
         });
 
-        //ÊÂ¼þ´úÀí£¬Ìøµ½ÁíÒ»¸ö½çÃæ(Ìøµ½´øÓÐ½á¹ûµÄËÑË÷Ò³Ãæ)
+        //ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½)
         $(document).delegate('li','click',function(){
             var keyword = $(this).text();
             location.href="http://cn.bing.com/search?q="+keyword;

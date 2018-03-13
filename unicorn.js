@@ -7,7 +7,7 @@ function addFoodToCart($foodID, $qty)
 		$.ajax(
 			{
 				type: 'post',
-				url: './cartAjaxService.php',
+				url: '../placeOrder/cartAjaxService.php',
 				
 				data: {
 					foodData2Add:_foodData
@@ -64,7 +64,7 @@ function substractFoodFromCart($foodID, $qty)
 		$.ajax(
 			{
 				type: 'post',
-				url: './cartAjaxService.php',
+				url: '../placeOrder/cartAjaxService.php',
 				
 				data: {
 					foodData2Substract:_foodData
