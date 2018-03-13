@@ -189,6 +189,7 @@ INSERT INTO `sys_config` (`config_id`, `config_category`, `config_name`, `config
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `user_id` varchar(50) NOT NULL,
+  `img_path` varchar(100) DEFAULT NULL,
   `sex` varchar(1) DEFAULT NULL,
   `privilege` varchar(1) NOT NULL,
   `eng_surname` varchar(50) NOT NULL,

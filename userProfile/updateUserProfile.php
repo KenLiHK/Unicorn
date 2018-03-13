@@ -223,7 +223,7 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 	if (session_status() == PHP_SESSION_NONE) {
 		session_start();
 	}
-	$userID = $_SESSION['login_user_id'];
+	$userID = isset($_SESSION['login_user_id']) ? $_SESSION['login_user_id'] : "";
 	
 	$userInDB = select_user_all_info_by_UserID($userID);
 	if(isset($userInDB)){

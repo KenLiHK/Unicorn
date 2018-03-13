@@ -75,7 +75,7 @@ $food2->setFoodCategory("BBCC");
 						
 							<!-- ******** [START] Logo ******** -->
 							<div class="navbar-header">
-								<a href="../recommend/recom_home.php" class="navbar-brand">
+								<a href="./recommend/recom_home.php" class="navbar-brand">
 									<img src="./resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
 								</a> 
 							</div>

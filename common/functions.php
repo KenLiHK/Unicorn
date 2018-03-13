@@ -116,8 +116,7 @@
 		}
 		
 		//Double check if user logon
-		$userID = $_SESSION['login_user_id'];
-		if(isset($userID)){
+		if(isset($_SESSION['login_user_id'])){
 			return true;
 		}
 		

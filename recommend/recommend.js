@@ -18,7 +18,8 @@ $(window).on('load',function(){
     $(':regex(id,^[0-9]*$)').click(
         function addToCart(){
         //add food to cart
-        addFoodToCart(this.id, 1);
+        //addFoodToCart(this.id, 1);
+        addFoodToCartInSync(this.id, 1);
         alert('Successfully added!'); //need to add logic, display different msg depending on returnValue
     });
 
@@ -168,3 +169,176 @@ function loadRecomFood(){
     return li_cont;
 
 }
+
+/******** [START] Place order JavaScript ********/
+function addFoodToCart($foodID, $qty)
+{
+	var _foodData = {"foodID":$foodID, "qty":$qty}; 
+	if(_foodData)
+	{
+		$.ajax(
+			{
+				type: 'post',
+				url: './cartAjaxService.php',
+				
+				data: {
+					foodData2Add:_foodData
+				},
+				
+				success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+				{
+					return response;
+				}
+			}
+		);
+	}
+}
+
+function addFoodToCartInSync($foodID, $qty)
+{
+	var _foodData = {"foodID":$foodID, "qty":$qty}; 
+	$.extend({
+	    addResponse: function() 
+	    {
+			if(_foodData)
+			{
+				var result = null;
+				$.ajax(
+					{
+						type: 'post',
+						url: './cartAjaxService.php',
+						
+						async: false,
+						
+						data: {
+							foodData2Add:_foodData
+						},
+						
+						success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+						{
+							result = response;
+						}
+					}
+				);
+				return result;
+			}
+	    }
+	});
+	
+	return $.addResponse();
+}
+
+function substractFoodFromCart($foodID, $qty)
+{
+	var _foodData = {"foodID":$foodID, "qty":$qty}; 
+	if(_foodData)
+	{
+		$.ajax(
+			{
+				type: 'post',
+				url: './cartAjaxService.php',
+				
+				data: {
+					foodData2Substract:_foodData
+				},
+				
+				success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+				{
+					return response;
+				}
+			}
+		);
+	}
+}
+
+function substractFoodFromCartInSync($foodID, $qty)
+{
+	var _foodData = {"foodID":$foodID, "qty":$qty}; 
+	$.extend({
+		substractResponse: function() 
+	    {
+			if(_foodData)
+			{
+				var result = null;
+				$.ajax(
+					{
+						type: 'post',
+						url: './cartAjaxService.php',
+						
+						async: false,
+						
+						data: {
+							foodData2Substract:_foodData
+						},
+						
+						success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+						{
+							result = response;
+						}
+					}
+				);
+				return result;
+			}
+	    }
+	});
+	
+	return $.substractResponse();
+}
+
+function countFoodFromCart($foodID)
+{
+	var _foodData = {"foodID":$foodID}; //if foodID == "ALL", then sum all food's quantity
+	if(_foodData)
+	{
+		$.ajax(
+			{
+				type: 'post',
+				url: './cartAjaxService.php',
+				
+				data: {
+					foodID2Count:_foodData
+				},
+				
+				success: function (qty) 
+				{
+					return qty;
+				}
+			}
+		);
+	}
+}
+
+function countFoodFromCartInSync($foodID)
+{
+	var _foodData = {"foodID":$foodID}; //if foodID == "ALL", then sum all food's quantity
+	$.extend({
+		countResponse: function() 
+	    {
+			if(_foodData)
+			{
+				var result = null;
+				$.ajax(
+					{
+						type: 'post',
+						url: './cartAjaxService.php',
+						
+						async: false,
+						
+						data: {
+							foodID2Count:_foodData
+						},
+						
+						success: function (qty) 
+						{
+							result = qty;
+						}
+					}
+				);
+				return result;
+			}
+	    }
+	});
+	
+	return $.countResponse();
+}
+/******** [END] Place order JavaScript ********/
