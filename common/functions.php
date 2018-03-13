@@ -110,19 +110,19 @@
 		}
 	}	
 	
+
 	function checkUserLogon(){
 		if (session_status() == PHP_SESSION_NONE) {
 			session_start();
 		}
-		
+
 		//Double check if user logon
-		$userID = $_SESSION['login_user_id'];
-		if(isset($userID)){
+		if(isset($_SESSION['login_user_id'])){
 			return true;
 		}
-		
+
 		return false;
-	}
+}
 	//[END] Login and Logout function
 	
 	//[START] User Profile function

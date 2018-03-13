@@ -15,12 +15,26 @@ $(document).ready(function(){
 
 $(window).on('load',function(){
     //a 3rd jquery plgin for reg validation
-    $(':regex(id,^[0-9]*$)').click(
+    $(':regex(id,^add_)').click(
         function addToCart(){
-        //add food to cart
-        addFoodToCart(this.id, 1);
-        alert('Successfully added!'); //need to add logic, display different msg depending on returnValue
+            var food_id = this.id.substring(4);
+            //add food to cart
+             if(addFoodToCart(food_id, 1)){
+                 alert('Successfully add 1 unit!');
+             }
+            else
+                 alert("Fail adding, please try again!");
     });
+    $(':regex(id,^del_)').click(
+        function delFromCart(){
+            var food_id = this.id.substring(4);
+            //add food to cart
+            if(substractFoodFromCart(food_id, 1)){
+                alert("Successfully delete 1 unit!")
+            }
+            else
+                alert('Fail deleting, please try again!'); //need to add logic, display different msg depending on returnValue
+        });
 
 });
 
@@ -93,8 +107,11 @@ function loadCateFood(cateName){
                                 //store food_id in coresponding id of addcart icon
                             '<div class="dish-title">'+ n["food_name"] +'</div>'+
                             '<div class="card-btm-1">' +
-                            '<div class="i-addchart" id='+n["food_id"] + '></div>'+
-                            '<div class="price-sec">';
+                                '<div class="card-btm-b">' +
+                                    '<div class="i-addchart" id='+'add_'+n["food_id"] + '></div>'+
+                                    '<div class="i-deletechart" id='+'del_'+n["food_id"] + '></div>'+
+                                '</div>'+
+                                    '<div class="price-sec">';
                         //Display discount price only when it's less than origin price
                         if(disPrice < oriPrice){
                             li_cont += '<span class="ori-price">' + oriPrice +'</span>'+
@@ -103,9 +120,7 @@ function loadCateFood(cateName){
                         else {
                             li_cont += '<span class="ori-price">' + oriPrice + '</span>';
                         }
-                        li_cont += '</div>'+
-                            '</div>'+
-                            '</div>';
+                        li_cont += '</div>'+ '</div>'+ '</div>';
                     });
                 }
 
@@ -123,7 +138,8 @@ function loadRecomFood(){
 
     $.ajax(
         {
-            type:'post',
+            //type:'post',
+            type:'get',
             url:'recommendService.php',
             cache: true,
             async: false,
@@ -132,7 +148,7 @@ function loadRecomFood(){
             },
             dataType:'json',
             success:function(result){
-                //console.log(cateName);
+                //console.log(result["data"]);
                 if(result["code"]!==0){
                     li_cont = result["message"];
                 }
@@ -144,10 +160,15 @@ function loadRecomFood(){
                         //console.log(n["food_id"]);
                         li_cont += '<div class="card">'+
                             '<img src="'+ n["img_path"] +'" alt="img broken">'+
+                                //store food_id in coresponding id of addcart icon
                             '<div class="dish-title">'+ n["food_name"] +'</div>'+
                             '<div class="card-btm-1">' +
-                            '<div class="i-addchart" id='+n["food_id"] + '></div>'+
+                            '<div class="card-btm-b">' +
+                            '<div class="i-addchart" id='+'add_'+n["food_id"] + '></div>'+
+                            '<div class="i-deletechart" id='+'del_'+n["food_id"] + '></div>'+
+                            '</div>'+
                             '<div class="price-sec">';
+                        //Display discount price only when it's less than origin price
                         if(disPrice < oriPrice){
                             li_cont += '<span class="ori-price">' + oriPrice +'</span>'+
                                 '<span class="dis-price">' + disPrice +'</span>';

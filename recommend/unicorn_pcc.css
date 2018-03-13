@@ -1242,18 +1242,37 @@ h5.reg_success {
 
 
 .i-addchart{
+	margin-left: 5px;
     width: 24px;
     height: 24px;
-    background: url("./resources/plus.png") 50% no-repeat;
+    background: url("./resources/plus_24.png") 50% no-repeat;
     display: inline;
     text-align: right;
 	cursor: pointer;
 
 }
+
+.i-deletechart{
+	margin-left: 5px;
+	width: 24px;
+	height: 24px;
+	background: url("./resources/delete_24.png") 100% no-repeat;
+	display: inline;
+	text-align: right;
+	cursor: pointer;
+
+}
+
 .card-btm-1{
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
+}
+
+.card-btm-b{
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
 }
 
 .price-sec{
