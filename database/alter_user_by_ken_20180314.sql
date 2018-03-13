@@ -1,0 +1,1 @@
+ALTER TABLE `user` ADD COLUMN `img_path4` varchar(100)  NULL AFTER `user_id`;
