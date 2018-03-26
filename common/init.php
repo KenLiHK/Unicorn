@@ -23,7 +23,7 @@
 	define('UNICORN_USER_PROFILE_PAGE', 	"/userProfile/userProfile.php");
 	define('UNICORN_REGISTER_PAGE', 		"/registration/registerForm.php");
 	define('UNICORN_RECOMMEND_PAGE', 		"/recommend/recom_home.php");
-	define('UNICORN_SEARCH_PAGE', 			"/searchDish/search.php");
+	define('UNICORN_SEARCH_PAGE', 			"/recommend/recom_home.php");
 	define('UNICORN_CART_PAGE', 			"/placeOrder/cart.php");
 	define('UNICORN_NOTIFICATION_PAGE', 	"/notification/notification.php");
 	define('UNICORN_COMMENT_PAGE', 			"/comment/comment_section.php");

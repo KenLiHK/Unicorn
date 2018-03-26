@@ -1,58 +1,160 @@
 <?php
 
+include_once("../common/database.php");
 include_once("../common/functions.php");
+// custom functions
+include_once("./comment_function.php");
 
-if (session_status() == PHP_SESSION_NONE) {
-	session_start();
-}
 
-if(isset($_SESSION['login_user_id'])){
-	$userID_In_Session = $_SESSION['login_user_id'];
-}
+
+// parameters
+/* this decides how many entries from database will be fetched*/
+$num_of_comment_sections = 5;
+/* decides how many food entries will be shown in the list*/
+$num_of_food_entries = 5;
+
 
 // logic variables
-$userLogged=false;
-$userOrdered=false;
+$userLogged;
+$userOrdered;
+// variables
+$array_user_id = array();
+$array_order_id = array();
+$array_content = array();
+$array_ratings  = array();
+$array_dates    = array();
+/*
+/////////////////////////// TESTING
+// add comments
+// addComment($user_id, $order_id, $rating, $content, $create_date)
+addComment('Martin', 1, 5, 'first comment', date("Y-m-d H:i:s"));
+addComment('Nikol', 2, 4, 'I like this shop', date("Y-m-d H:i:s"));
+addComment('kenli', 3, 4, 'I cannot stop', date("Y-m-d H:i:s"));
+addComment('kenli', 2, 5, 'fI literarly cannot stop', date("Y-m-d H:i:s"));
+/////////////////////////// TESTING (end)
+*/
 
-// comment variables
-$userNames=array("0" => "","1" => "","2" => "");
-$orders=array(	// 3 orders
-	array("0" => "","1" => "","2" => "","3" => "","4" => ""),	// 5 items per order
-	array("0" => "","1" => "","2" => "","3" => "","4" => ""),
-	array("0" => "","1" => "","2" => "","3" => "","4" => "")
-);
-$comments=array("0" => "","1" => "","2" => "");
-$ratings=array("0" => "","1" => "","2" => "");
-$dates = array("0" => "","1" => "","2" => "");
+// 1) check whether the user is logged in
+$userLogged=checkUserLogon();
+// 2) check outstanding order
 
+// REMOVE THIS LOGIC
+// ADD javascript saying your comment was uploaded
+// ALLOW user to keep adding COMMENTS
+// FINISH "SUBMIT" button logic
+$userOrdered=checkOutstandingOrderInSession();
+// 3) PRE-fetch the values from database
+fetchComments($array_user_id, $array_order_id, $array_ratings, $array_content, $array_dates, $num_of_comment_sections);
 
-// echo $value->format('Y-m-d H:i:s');
+/*
+for ($x = 0; $x <= ($num_of_comment_sections-1); $x++) {
+	echo 'array_user_id[' . $x . ']    : '  . $array_user_id[$x] . '<br>';
+	echo 'array_order_id[' . $x . ']   : '  . $array_order_id[$x] . '<br>';
+	echo 'array_content[' . $x . ']    : '  . $array_content[$x] . '<br>';
+	echo 'array_ratings[' . $x . ']    : '  . $array_ratings[$x] . '<br>';
+	echo '----------next entry' . '<br>';
+} 
+*/
 
-// CHECK whether the use is LOGGED IN
-$userLogged=false;
-// CHECK whether the user has UNCOMMENTED ORDER
-$userOrdered=false;
-
-
-
-// LOAD the data from database
-// testing "userNames"
-$userNames[0] = "Username_0";
-$userNames[1] = "Username_1";
-$userNames[2] = "Username_2";
-// testing "comments"
-$comments[0] = "some relatively long stringg dsfgvdshvsdthstdvhsthsthvfnasgfxbasgfgersfgaxfgnyrgfxykregfberxygferfngxkfrfxxgbfxgetfxgerfngksetr";
-$comments[1] = "short comment";
-$comments[2] = "fine";
-// testing "dates"
-$start = new DateTime('01-01-2017');
-$end = new DateTime('03-01-2017');
-do {
-	var_dump($start);
-	array_push($dates, clone $start);
-	$start->add(DateInterval::createFromDateString('1 day'));
-} while(false);
-
+//$userLogged=true;
+//$userOrdered=true;
+/// LOGIC
+// user is logged in and can comment on recent order
+if($userLogged && $userOrdered){
+	// fetch user id
+	$thisUserName = isset($_SESSION['login_user_id']) ? $_SESSION['login_user_id'] : "";
+	// display the user id
+	$userNames[0] = $thisUserName;
+	// fetch order details
+	$orderID = getOrderIDWithUserID($thisUserName);
+	// fetch food list
+	$foodIDList=getFoodIDWithOrderID($orderID);
+	// fill in the 'orders' values
+	for ($x = 0; $x <= ($num_of_food_entries-1); $x++) {
+		if($foodIDList[$x] != -1 ){
+			$orders[0][$x] = getFoodNameWithFoodID($foodIDList[$x]);
+		}else{
+			$orders[0][$x] = '';
+		}
+	} 
+	// current date
+	$dates[0] = date("Y-m-d H:i:s");
+	
+	// parse previous orders, by other users
+	for ($x = 1; $x <= ($num_of_comment_sections-1); $x++) {
+		// extract the values
+		$userNames[$x] = $array_user_id[$x-1];
+		$comments[$x] = $array_content[$x-1];
+		$ratings[$x] = $array_ratings[$x-1];
+		$dates[$x] = $array_dates[$x-1];
+		
+		// fetch foodID List/Array for specific order ID
+		$foodIDList=getFoodIDWithOrderID($array_order_id[$x-1]);
+		// parse foodID names
+		for ($y = 0; $y <= ($num_of_food_entries-1); $y++) {
+			if($foodIDList[$y] != -1 ){
+				$orders[$x][$y] = getFoodNameWithFoodID($foodIDList[$y]);
+			}else{
+				$orders[$x][$y] = '';
+			}
+		}
+	} 
+	
+	
+// user is logged in, but cannot comment (no order in process)
+/*}elseif($userLogged) {
+	$thisUserName = $_SESSION['login_user_id'];
+	$userNames[0] = $thisUserName;
+	
+	// parse previous orders, by other users
+	for ($x = 0; $x <= ($num_of_comment_sections-1); $x++) {
+		// extract the values
+		$userNames[$x] = $array_user_id[$x];
+		$comments[$x] = $array_content[$x];
+		$ratings[$x] = $array_ratings[$x];
+		$dates[$x] = $array_dates[$x];
+		
+		// fetch foodID List for specific order ID
+		$foodIDList=getFoodIDWithOrderID($array_order_id[$x]);
+		// parse foodID names
+		for ($y = 0; $y <= ($num_of_food_entries-1); $y++) {
+			if($foodIDList[$y] != -1 ){
+				$orders[$x][$y] = getFoodNameWithFoodID($foodIDList[$x]);
+			}else{
+				$orders[$x][$y] = '';
+			}
+		}
+	} 
+	
+// for any other non-logged guest*/
+}else{
+	
+	// parse previous orders, by other users
+	for ($x = 0; $x <= ($num_of_comment_sections-1); $x++) {
+		// extract the values
+		$userNames[$x] = $array_user_id[$x];
+		$comments[$x] = $array_content[$x];
+		$ratings[$x] = $array_ratings[$x];
+		$dates[$x] = $array_dates[$x];
+		
+		// fetch foodID List for specific order ID
+		$foodIDList=getFoodIDWithOrderID($array_order_id[$x]);
+		// parse foodID names
+		for ($y = 0; $y <= ($num_of_food_entries-1); $y++) {
+			if($foodIDList[$y] != -1 ){
+				$orders[$x][$y] = getFoodNameWithFoodID($foodIDList[$y]);
+			}else{
+				$orders[$x][$y] = '';
+			}
+		}
+	} 
+	
+	// change name if user is logged in
+	if($userLogged){
+		$thisUserName = $_SESSION['login_user_id'];
+		$userNames[0] = $thisUserName;
+	}
+}
 
 
 ?>
@@ -68,7 +170,7 @@ do {
 		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 		<link rel="stylesheet" href="../unicorn.css">
-		<link rel="stylesheet" href="./css/comment.css">
+		<link rel="stylesheet" href="./comment.css">
 	</head>
 
 
@@ -76,79 +178,55 @@ do {
 		<div id="app">
 			<div>
 			
-					<!-- ******** [START] Left panel ******** -->
-					<aside id="left-panel" class="left-panel">
-						<nav class="navbar navbar-expand-lg">
+				<!-- ******** [START] Left panel ******** -->
+				<aside id="left-panel" class="left-panel">
+					<nav class="navbar navbar-expand-lg">
+					
+						<!-- ******** [START] Logo ******** -->
+						<div class="navbar-header">
+							<a href="#/" class="navbar-brand">
+								<img src="./resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
+							</a> 
+						</div>
+						<!-- ******** [END] Logo ******** -->
 						
-							<!-- ******** [START] Logo ******** -->
-							<div class="navbar-header">
-								<a href="../recommend/recom_home.php" class="navbar-brand">
-									<img src="../resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
-								</a> 
-							</div>
-							<!-- ******** [END] Logo ******** -->
-							
-							
-							<!-- ******** [START] Left function menu ******** -->
-							<div id="main-menu" class="navbar-collapse">
-								<ul class="navbar-nav">
-									<a href="../recommend/recom_home.php">
-										<h3 class="menu-title"> Unicorn Restaurant </h3>
+						
+						<!-- ******** [START] Left function menu ******** -->
+						<div id="main-menu" class="navbar-collapse">
+							<ul class="navbar-nav">
+								<h3 class="menu-title"> Unicorn Restaurant </h3>
+								
+								<li class="nav-item">
+									<a href="#/components/tables" class="">
+										<i class="menu-icon fa fa-search"></i>
+										<span class="menu-title-text"> Search Dish </span>
 									</a>
-									
-									<li class="nav-item">
-										<a href="../searchDish/search.php">
-											<i class="menu-icon fa fa-search"></i>
-											<span class="menu-title-text"> Search Dish </span>
-										</a>
-									</li>				
-		
-									<li class="nav-item mt-auto">
-										<a href="../placeOrder/cart.php">
-											<i class="menu-icon fa fa-shopping-cart"></i>
-											<span class="menu-title-text"> Place Order </span>
-										</a>
-									</li>
-											
-									<li class="nav-item mt-auto">
-										<a href="../comment/comment_section.php">
-											<i class="menu-icon fa fa-comments"></i>
-											<span class="menu-title-text"> Comment </span>
-										</a>
-									</li>															
-									
-									<li class="nav-item mt-auto">
-										<a href="../userProfile/userProfile.php">
-											<i class="menu-icon fa fa-user"></i>
-											<span class="menu-title-text"> User Profile </span>
-										</a>
-									</li>
-									
-																			
-									<li class="nav-item">
-										<a href="../login/login.php">
-											<i class="menu-icon fa fa-sign-in"></i>
-											<span class="menu-title-text">Login</span>
-										</a>
-									</li>
-	
-									<li class="nav-item">
-										<a href="../registration/registerForm.php">
-											<i class="menu-icon fa fa-user-plus"></i>
-											<span class="menu-title-text">Sign Up</span>
-										</a>
-									</li>
-									
-									<li class="nav-item">
-										<a href="../contactUs/contactUs.php">
-											<i class="menu-icon fa fa-globe"></i>
-											<span class="menu-title-text">Contact Us</span>
-										</a>
-									</li>
-									
-								</ul>
-							</div>
-							<!-- ******** [END] Left function menul ******** -->
+								</li>				
+                                
+								<li class="nav-item mt-auto">
+									<a>
+										<i class="menu-icon fa fa-shopping-cart"></i>
+										<span class="menu-title-text"> Place Order </span>
+									</a>
+								</li>
+										
+								<li class="nav-item mt-auto">
+									<a>
+										<i class="menu-icon fa fa-comment"></i>
+										<span class="menu-title-text"> Let Us Know </span>
+									</a>
+								</li>										
+										
+								<li class="nav-item">
+									<a href="#/components/icons" class="">
+										<i class="menu-icon fa fa-star"></i>
+										<span class="menu-title-text">Map</span>
+									</a>
+								</li>
+								
+							</ul>
+						</div>
+						<!-- ******** [END] Left function menul ******** -->
 						
 						
 						
@@ -170,18 +248,9 @@ do {
 						<div>							
 							<div class="header-right">
 								<div>
-									<?php
-									if(isset($userID_In_Session )){
-											echo
-												'<a href="../notification/notification.php"><i class="fa fa-envelope"></i> </a> <span>&nbsp;</span>
-										 		 <a href="../userProfile/userProfile.php"><i class="fa fa-profile"></i>' .@$userID_In_Session . '</a> <span>&nbsp;</span>
-										 		 <a href="../login/logout.php"><i class="fa fa-sign-out"></i> Logout </a> <span>&nbsp;</span>';
-										}else{
-											echo
-												'<a href="../login/login.php"><i class="fa fa-sign-in"> Login </i></a> <span>&nbsp;</span>
-		            					 		 <a href="../registration/registerForm.php"><i class="fa fa-user-plus"> Sign-up </i></a> <span>&nbsp;</span>';
-										}
-				        			?>
+									<a href="#"><i class="fa fa-envelope"></i> </a> <span>&nbsp;</span>									
+									<a href="#"><i class="fa fa-user"></i> Ken </a> <span>&nbsp;</span>
+									<a href="#"><i class="fa fa-power-off"></i> Logout </a> <span>&nbsp;</span>
 								</div>								
 							</div>						
 						</div>
@@ -189,28 +258,180 @@ do {
 					<!-- ******** [START] Navigation Header Bar ******** -->
 					
 					
-					
-					
+
 					<!-- ******** [START] Navigation Body ******** -->
 					<div>
 						<div>
 						
+<!-- ******** CUSTOMIZED PART OF WEB PAGE ******** -->
+						
+						
+						
+						
 							<!-- ******** [START] Alert Message Display ******** -->
-							<div class="alert mt-4 alert-success">
-								<?php 
-									if(isset($_successMsg) && !empty($_successMsg)){
-										echo "$_successMsg";
-									}else{
-										echo "<span class='badge badge-pill badge-success'>Welcome ".$userID."</span> We promise to deliver the freshest foods to you as soon as possible.";
-								 	}
-								?>						
-							</div>
+							<?php if(!$userLogged): ?>
+								<div class="alert mt-4 alert-info">
+									<span class="badge badge-pill badge-info">Welcome!!</span> Please, log in and place an order to be able to post comment.							
+								</div>
+							<?php elseif(!$userOrdered) : ?>
+								<div class="alert mt-4 alert-info">
+									<span class="badge badge-pill badge-info">Welcome <?php echo $thisUserName ?> !!</span> Please, place an order to be able to post comment.							
+								</div>
+							<?php else: ?>
+								<div class="alert mt-4 alert-success">
+									<span class="badge badge-pill badge-success">Welcome <?php echo $thisUserName ?> !!</span> Let us know what you think about your last order.						
+								</div>
+							<?php endif; ?>
 							<!-- ******** [END] Alert Message Display ******** -->
 							
-							
+
                             <!-- ******** [START] Food Comment Section ******** -->
 							<div class="comment-section">
-								<!-- ******** Comment 0 ******** -->
+								<!-- ******** User Logged In & New Order ******** -->
+								<?php if($userLogged && $userOrdered): ?>
+	<!-- ******** COMMENT 0 - INPUT ******** -->
+									<form action="http://www.goole.com/" method="POST" name="comment">
+										<!--comment section-->
+										<div class="comment-container">
+											<!--order + name + stars-->
+											<div class="comment-init">
+												<!--order-->
+												<div class="comment-order">
+													<p id="text-order">Your order</p>
+												</div>
+												<!--name-->
+												<div class="comment-name">
+													<p id="text-name"><?php echo $userNames[0] ?></p>
+												</div>
+												<!--stars-->
+												<div class="comment-star">
+													<div class="star-rating">
+														<input id="star-5" type="radio" name="rating" value="star-5">
+														<label for="star-5" title="5 stars">
+																<i class="active fa fa-star" aria-hidden="true"></i>
+														</label>
+														<input id="star-4" type="radio" name="rating" value="star-4">
+														<label for="star-4" title="4 stars">
+																<i class="active fa fa-star" aria-hidden="true"></i>
+														</label>
+														<input id="star-3" type="radio" name="rating" value="star-3">
+														<label for="star-3" title="3 stars">
+																<i class="active fa fa-star" aria-hidden="true"></i>
+														</label>
+														<input id="star-2" type="radio" name="rating" value="star-2">
+														<label for="star-2" title="2 stars">
+																<i class="active fa fa-star" aria-hidden="true"></i>
+														</label>
+														<input id="star-1" type="radio" name="rating" value="star-1">
+														<label for="star-1" title="1 star">
+																<i class="active fa fa-star" aria-hidden="true"></i>
+														</label>
+													</div>
+												</div>
+											</div>
+											<!-- order contant + comment input -->
+											<div class="comment-body">
+												<!-- order contant -->
+												<div class="comment-order-list">
+													<ul>
+														<li id="order-item-0"><?php echo $orders[0][0] ?></li>
+														<li id="order-item-1"><?php echo $orders[0][1] ?></li>
+														<li id="order-item-2"><?php echo $orders[0][2] ?></li>
+														<li id="order-item-3"><?php echo $orders[0][3] ?></li>
+														<li id="order-item-4"><?php echo $orders[0][4] ?></li>
+													</ul>				
+												</div>
+
+												<div class="comment-input"> 
+													<textarea name="comment" placeholder="Your opinion ... " maxlength="1000"></textarea>
+
+												</div>
+											</div>
+
+											<div class="comment-footer">
+											<!--submit button-->
+												<div class="button">
+													<input type="submit" value="Submit">
+												</div>
+
+												<div class="time">
+													<p id="text-time"><?php echo $dates[0] ?></p>
+												</div>
+											</div>
+										</div>
+									</form>
+								<?php else: ?>
+								
+		<!-- ******** COMMENT 0 ******** -->
+									<div class="comment-container">
+										<!--order + name + stars-->
+										<div class="comment-init">
+											<!--order-->
+											<div class="comment-order">
+												<p id="text-order">Previous order</p>
+											</div>
+											<!--name-->
+											<div class="comment-name">
+												<p id="text-name"><?php echo $userNames[0] ?></p>
+											</div>
+											<!--stars-->
+											<div class="comment-star">
+												<div class="star-static">
+													<?php if($ratings[0] >= 1 ): ?>
+														<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+													<?php else: ?>
+														<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+													<?php endif; ?>
+													<?php if($ratings[0] >= 2 ): ?>
+														<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+													<?php else: ?>
+														<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+													<?php endif; ?>
+													<?php if($ratings[0] >= 3 ): ?>
+														<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+													<?php else: ?>
+														<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+													<?php endif; ?>
+													<?php if($ratings[0] >= 4 ): ?>
+														<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+													<?php else: ?>
+														<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+													<?php endif; ?>
+													<?php if($ratings[0] >= 5 ): ?>
+														<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+													<?php else: ?>
+														<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+													<?php endif; ?>
+												</div>
+											</div>
+										</div>
+										<!-- order contant + comment input -->
+										<div class="comment-body">
+											<!-- order contant -->
+											<div class="comment-order-list">
+												<ul>
+													<li id="order-item-0"><?php echo $orders[0][0] ?></li>
+													<li id="order-item-1"><?php echo $orders[0][1] ?></li>
+													<li id="order-item-2"><?php echo $orders[0][2] ?></li>
+													<li id="order-item-3"><?php echo $orders[0][3] ?></li>
+													<li id="order-item-4"><?php echo $orders[0][4] ?></li>
+												</ul>				
+											</div>
+
+											<div class="comment-input"> 
+												<p id="prev-comment-0"><?php echo $comments[0] ?></p>
+											</div>
+										</div>
+
+										<div class="comment-footer">
+											<div class="time">
+												<p id="text-time"><?php echo $dates[0] ?></p>
+											</div>
+										</div>
+									</div>
+								<?php endif; ?>
+								
+	<!-- ******** COMMENT 1 ******** -->
 								<div class="comment-container">
 									<!--order + name + stars-->
 									<div class="comment-init">
@@ -220,31 +441,36 @@ do {
 										</div>
 										<!--name-->
 										<div class="comment-name">
-											<p id="text-name"><?php echo $userNames[0] ?></p>
+											<p id="text-name"><?php echo $userNames[1] ?></p>
 										</div>
 										<!--stars-->
 										<div class="comment-star">
-											<div class="star-rating">
-												<input id="star-5" type="radio" name="rating" value="star-5">
-												<label for="star-5" title="5 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-4" type="radio" name="rating" value="star-4">
-												<label for="star-4" title="4 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-3" type="radio" name="rating" value="star-3">
-												<label for="star-3" title="3 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-2" type="radio" name="rating" value="star-2">
-												<label for="star-2" title="2 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-1" type="radio" name="rating" value="star-1">
-												<label for="star-1" title="1 star">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
+											<div class="star-static">
+												<?php if($ratings[1] >= 1 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[1] >= 2 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[1] >= 3 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[1] >= 4 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[1] >= 5 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
 											</div>
 										</div>
 									</div>
@@ -253,28 +479,27 @@ do {
 										<!-- order contant -->
 										<div class="comment-order-list">
 											<ul>
-												<li id="order-item-0">Noodles</li>
-												<li id="order-item-1">Donut</li>
-												<li id="order-item-2">Meal with very long name ... soooooo long, extremely long, th longest in the menu</li>
-												<li id="order-item-3">Cup of coffe</li>
-												<li id="order-item-4">Milk</li>
-												<li id="order-item-5"></li>
+													<li id="order-item-0"><?php echo $orders[1][0] ?></li>
+													<li id="order-item-1"><?php echo $orders[1][1] ?></li>
+													<li id="order-item-2"><?php echo $orders[1][2] ?></li>
+													<li id="order-item-3"><?php echo $orders[1][3] ?></li>
+													<li id="order-item-4"><?php echo $orders[1][4] ?></li>
 											</ul>				
 										</div>
 
 										<div class="comment-input"> 
-											<p id="prev-comment-0">text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text </p>
+											<p id="prev-comment-0"><?php echo $comments[1] ?> </p>
 										</div>
 									</div>
 
 									<div class="comment-footer">
 										<div class="time">
-											<p id="text-time">11/02/2018</p>
+											<p id="text-time"><?php echo $dates[1] ?></p>
 										</div>
 									</div>
 								</div>
 
-								<!-- ******** Comment 1 ******** -->
+	<!-- ******** COMMENT 2 ******** -->
 								<div class="comment-container">
 									<!--order + name + stars-->
 									<div class="comment-init">
@@ -284,31 +509,36 @@ do {
 										</div>
 										<!--name-->
 										<div class="comment-name">
-											<p id="text-name">Name-from-DB</p>
+											<p id="text-name"><?php echo $userNames[2] ?></p>
 										</div>
 										<!--stars-->
 										<div class="comment-star">
-											<div class="star-rating">
-												<input id="star-5" type="radio" name="rating" value="star-5">
-												<label for="star-5" title="5 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-4" type="radio" name="rating" value="star-4">
-												<label for="star-4" title="4 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-3" type="radio" name="rating" value="star-3">
-												<label for="star-3" title="3 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-2" type="radio" name="rating" value="star-2">
-												<label for="star-2" title="2 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-1" type="radio" name="rating" value="star-1">
-												<label for="star-1" title="1 star">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
+											<div class="star-static">
+												<?php if($ratings[2] >= 1 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[2] >= 2 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[2] >= 3 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[2] >= 4 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[2] >= 5 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
 											</div>
 										</div>
 									</div>
@@ -317,91 +547,104 @@ do {
 										<!-- order contant -->
 										<div class="comment-order-list">
 											<ul>
-												<li id="order-item-0">Noodles</li>
-												<li id="order-item-1">Donut</li>
-												<li id="order-item-2">Meal with very long name ... soooooo long, extremely long, th longest in the menu</li>
-												<li id="order-item-3">Cup of coffe</li>
-												<li id="order-item-4">Milk</li>
-												<li id="order-item-5"></li>
+												<li id="order-item-0"><?php echo $orders[2][0] ?></li>
+												<li id="order-item-1"><?php echo $orders[2][1] ?></li>
+												<li id="order-item-2"><?php echo $orders[2][2] ?></li>
+												<li id="order-item-3"><?php echo $orders[2][3] ?></li>
+												<li id="order-item-4"><?php echo $orders[2][4] ?></li>
 											</ul>				
 										</div>
-
 										<div class="comment-input"> 
-											<p id="prev-comment-0">text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text </p>
+											<p id="prev-comment-0"><?php echo $comments[2] ?> </p>
 										</div>
 									</div>
 
 									<div class="comment-footer">
 										<div class="time">
-											<p id="text-time">11/02/2018</p>
-										</div>
-									</div>
-								</div>
-
-								<!-- ******** Comment 2 ******** -->
-								<div class="comment-container">
-									<!--order + name + stars-->
-									<div class="comment-init">
-										<!--order-->
-										<div class="comment-order">
-											<p id="text-order">Previous order</p>
-										</div>
-										<!--name-->
-										<div class="comment-name">
-											<p id="text-name">Name-from-DB</p>
-										</div>
-										<!--stars-->
-										<div class="comment-star">
-											<div class="star-rating">
-												<input id="star-5" type="radio" name="rating" value="star-5">
-												<label for="star-5" title="5 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-4" type="radio" name="rating" value="star-4">
-												<label for="star-4" title="4 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-3" type="radio" name="rating" value="star-3">
-												<label for="star-3" title="3 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-2" type="radio" name="rating" value="star-2">
-												<label for="star-2" title="2 stars">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-												<input id="star-1" type="radio" name="rating" value="star-1">
-												<label for="star-1" title="1 star">
-														<i class="active fa fa-star" aria-hidden="true"></i>
-												</label>
-											</div>
-										</div>
-									</div>
-									<!-- order contant + comment input -->
-									<div class="comment-body">
-										<!-- order contant -->
-										<div class="comment-order-list">
-											<ul>
-												<li id="order-item-0">Noodles</li>
-												<li id="order-item-1">Donut</li>
-												<li id="order-item-2">Meal with very long name ... soooooo long, extremely long, th longest in the menu</li>
-												<li id="order-item-3">Cup of coffe</li>
-												<li id="order-item-4">Milk</li>
-												<li id="order-item-5"></li>
-											</ul>				
-										</div>
-										<div class="comment-input"> 
-											<p id="prev-comment-0">text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text </p>
-										</div>
-									</div>
-
-									<div class="comment-footer">
-										<div class="time">
-											<p id="text-time">11/02/2018</p>
+											<p id="text-time"><?php echo $dates[2] ?></p>
 										</div>
 									</div>
 								</div>
 								<!-- ******** [END] Food Comment Section ******** -->	
 
+								
+	<!-- ******** COMMENT 3 ******** -->
+								<div class="comment-container">
+									<!--order + name + stars-->
+									<div class="comment-init">
+										<!--order-->
+										<div class="comment-order">
+											<p id="text-order">Previous order</p>
+										</div>
+										<!--name-->
+										<div class="comment-name">
+											<p id="text-name"><?php echo $userNames[3] ?></p>
+										</div>
+										<!--stars-->
+										<div class="comment-star">
+											<div class="star-static">
+												<?php if($ratings[3] >= 1 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[3] >= 2 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[3] >= 3 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[3] >= 4 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+												<?php if($ratings[3] >= 5 ): ?>
+													<i class="active fa fa-star" style='color:f2b600;' aria-hidden="true"></i>
+												<?php else: ?>
+													<i class="active fa fa-star" style='color:bbb;'id="checked" aria-hidden="true"></i>
+												<?php endif; ?>
+											</div>
+										</div>
+									</div>
+									<!-- order contant + comment input -->
+									<div class="comment-body">
+										<!-- order contant -->
+										<div class="comment-order-list">
+											<ul>
+												<li id="order-item-0"><?php echo $orders[3][0] ?></li>
+												<li id="order-item-1"><?php echo $orders[3][1] ?></li>
+												<li id="order-item-2"><?php echo $orders[3][2] ?></li>
+												<li id="order-item-3"><?php echo $orders[3][3] ?></li>
+												<li id="order-item-4"><?php echo $orders[3][4] ?></li>
+											</ul>				
+										</div>
+										<div class="comment-input"> 
+											<p id="prev-comment-0"><?php echo $comments[3] ?> </p>
+										</div>
+									</div>
+
+									<div class="comment-footer">
+										<div class="time">
+											<p id="text-time"><?php echo $dates[3] ?></p>
+										</div>
+									</div>
+								</div>
+								<!-- ******** [END] Food Comment Section ******** -->	
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
                             
 							<!-- ******** [START] Footer ******** -->						
 								<div class="col-md-12">

@@ -54,7 +54,7 @@ unset($_SESSION['emailValidateUrl']);
 									</a>
 									
 									<li class="nav-item">
-										<a href="../searchDish/search.php">
+										<a href="../recommend/recom_home.php">
 											<i class="menu-icon fa fa-search"></i>
 											<span class="menu-title-text"> Search Dish </span>
 										</a>

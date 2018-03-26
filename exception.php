@@ -8,7 +8,7 @@ if(isset($_SESSION['login_user_id'])){
 	$userID_In_Session = $_SESSION['login_user_id'];
 }
 
-$_exceptionMsg = isset($_SESSION['exception_msg']) ? $_SESSION['exception_msg'] : array();
+$_exceptionMsg = isset($_SESSION['exception_msg']) ? $_SESSION['exception_msg'] : "";
 unset($_SESSION['exception_msg']);
 
 ?>
@@ -36,8 +36,8 @@ unset($_SESSION['exception_msg']);
 						
 							<!-- ******** [START] Logo ******** -->
 							<div class="navbar-header">
-								<a href="../recommend/recom_home.php" class="navbar-brand">
-									<img src="../resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
+								<a href="./recommend/recom_home.php" class="navbar-brand">
+									<img src="./resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
 								</a> 
 							</div>
 							<!-- ******** [END] Logo ******** -->
@@ -46,33 +46,33 @@ unset($_SESSION['exception_msg']);
 							<!-- ******** [START] Left function menu ******** -->
 							<div id="main-menu" class="navbar-collapse">
 								<ul class="navbar-nav">
-									<a href="../recommend/recom_home.php">
+									<a href="./recommend/recom_home.php">
 										<h3 class="menu-title"> Unicorn Restaurant </h3>
 									</a>
 									
 									<li class="nav-item">
-										<a href="../searchDish/search.php">
+										<a href="./recommend/recom_home.php">
 											<i class="menu-icon fa fa-search"></i>
 											<span class="menu-title-text"> Search Dish </span>
 										</a>
 									</li>				
 		
 									<li class="nav-item mt-auto">
-										<a href="../placeOrder/cart.php">
+										<a href="./placeOrder/cart.php">
 											<i class="menu-icon fa fa-shopping-cart"></i>
 											<span class="menu-title-text"> Place Order </span>
 										</a>
 									</li>
 											
 									<li class="nav-item mt-auto">
-										<a href="../comment/comment_section.php">
+										<a href="./comment/comment_section.php">
 											<i class="menu-icon fa fa-comments"></i>
 											<span class="menu-title-text"> Comment </span>
 										</a>
 									</li>															
 									
 									<li class="nav-item mt-auto">
-										<a href="../userProfile/userProfile.php">
+										<a href="./userProfile/userProfile.php">
 											<i class="menu-icon fa fa-user"></i>
 											<span class="menu-title-text"> User Profile </span>
 										</a>
@@ -80,21 +80,21 @@ unset($_SESSION['exception_msg']);
 									
 																			
 									<li class="nav-item">
-										<a href="../login/login.php">
+										<a href="./login/login.php">
 											<i class="menu-icon fa fa-sign-in"></i>
 											<span class="menu-title-text">Login</span>
 										</a>
 									</li>
 	
 									<li class="nav-item">
-										<a href="../registration/registerForm.php">
+										<a href="./registration/registerForm.php">
 											<i class="menu-icon fa fa-user-plus"></i>
 											<span class="menu-title-text">Sign Up</span>
 										</a>
 									</li>
 									
 									<li class="nav-item">
-										<a href="../contactUs/contactUs.php">
+										<a href="./contactUs/contactUs.php">
 											<i class="menu-icon fa fa-globe"></i>
 											<span class="menu-title-text">Contact Us</span>
 										</a>

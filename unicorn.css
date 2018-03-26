@@ -895,23 +895,23 @@ small {
 
 /*-- [START] card color --*/
 .bg-flat-color-1 {
-	background-color: #20a8d8 !important
+	background-color: #20a8d8 !important;
 }
 
 .bg-flat-color-2 {
-	background-color: #63c2de !important
+	background-color: #f86c6b !important;
 }
 
 .bg-flat-color-3 {
-	background-color: #ffc107 !important
+	background-color: #4dbd74 !important;
 }
 
 .bg-flat-color-4 {
-	background-color: #f86c6b !important
+	background-color: #ffc107 !important;
 }
 
 .bg-flat-color-5 {
-	background-color: #4dbd74 !important
+	background-color: #ffc107 !important;
 }
 /*-- [END] card color --*/
 
@@ -1113,6 +1113,50 @@ img {
 	max-width: 100%
 }
 /******** [END] Common style definition ********/
+
+/******** [START] Recommend home page style definition ********/
+.sale-charts {
+	display: inline-block;
+	width: 100%;
+	height: 50%;
+}
+
+.font-weight-bold-height{
+	display: inline-block;
+	width: 100%;
+	height: 10em;
+}
+
+.font-weight-bold-height2{
+	display: inline-block;
+	width: 100%;
+	height: 4em;
+}
+
+.foodCategorySel{
+	margin-left: 1em;
+	width: 20%;
+	height: 2em;
+}
+
+.foodSearch{
+	width: 40%;
+	height: 2em;
+	margin-bottom: 1em;
+}
+
+input.recom_button {
+	width: 20%;
+	margin-right: 2.5em;
+	margin-bottom: 2.5em;
+	display: inline-block;
+	height: 2em;
+	text-align: center;
+	background-color: skyblue;
+	color: #fff;
+	border: none;
+}
+/******** [END] Recommend home page style definition ********/
 
 ******** [START] Exception page style definition ********/
 span.Exception page {
