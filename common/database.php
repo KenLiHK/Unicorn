@@ -17,7 +17,7 @@
 	{
 		$servername = "localhost";
 		$username = "root";
-		$password = "";
+		$password = "f5ld5He25LXZySy6";
 		$dbname = "unicorn";
 		$dbconnection=null;
 	

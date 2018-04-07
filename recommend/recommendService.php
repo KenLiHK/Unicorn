@@ -181,18 +181,51 @@ function convertFoodObj2Array($Food){
 }
 
 //Function created but not used yet
-function jsonEncode_foodObjArray($FoodObjArray2Encode){
+function jsonEncode_foodArray2Display($foodArray2Display){
     $jsonArray = array();
-    for($i=0; $i<count($FoodObjArray2Encode); $i++){
-        $arrayItem = convertFoodObj2Array($FoodObjArray2Encode[$i]);
-        array_push($jsonArray, $arrayItem);
+    foreach($foodArray2Display as $_sameCateArray){
+        for($i=0; $i<count($_sameCateArray); $i++){
+            $arrayItem = convertFoodObj2Array($_sameCateArray[$i]);
+            array_push($jsonArray, $arrayItem);
+        }
     }
+
     return $jsonArray;
 }
 
 function get_RecomFood_byHotTag($tagName){
 
 }
+
+function get_foodArray2Display(){
+    $_preCate = '';
+    $_currentArray = [];
+    $foodArray2Display = array();
+    $_resAllFoodArray = db_select_food_list_orderByCate();
+    foreach($_resAllFoodArray as $_resFood){
+
+        $_currentFood = new Food($_resFood["food_id"]);
+        $_currentFood->setFoodName($_resFood["food_name"]);
+        $_currentFood->setFoodCategory($_resFood["food_category"]);
+        $_currentFood->setPrice($_resFood["price"]);
+        $_currentFood->setDiscount($_resFood["discount"]);
+        $_currentFood->setImgPath($_resFood["img_path"]);
+
+        if($_preCate != $_currentFood->getFoodCategory() && !empty($_currentArray)){
+            array_push($foodArray2Display, $_currentArray);
+            $_currentArray = [];
+        }
+
+        array_push($_currentArray, $_currentFood);
+        $_preCate = $_currentFood->getFoodCategory();
+
+    }
+    array_push($foodArray2Display, $_currentArray); //append last iter array
+
+    return $foodArray2Display;
+}
+
+
 
 function get_randFood_from_tagSearchResult($tagName, $maxReturnNum=MAX_RECOM_FOOD){
     $foodArray2Return = array();
@@ -225,8 +258,11 @@ function get_randFood_from_tagSearchResult($tagName, $maxReturnNum=MAX_RECOM_FOO
 //$result = get_randFood_from_tagSearchResult('Hot');
 //$result = jsonEncode_FoodObjArray($result);
 
-//$res = get_RecomFood_byUserId('kenli');
-//echo results_jsonEncode($res);
+$res = get_foodArray2Display();
+$res = jsonEncode_foodArray2Display($res);
+echo results_jsonEncode($res);  //返回还是有问题
+//var_dump($res);
+
 
 
 

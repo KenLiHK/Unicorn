@@ -6,6 +6,7 @@
  * Time: 17:00
  */
 
+include_once("../common/database.php");
 
 //Start of recommendation DB part
 function db_insert($sql)
@@ -101,6 +102,33 @@ function db_select_food_list_byCateName($cate)
 
 }
 
+
+function db_select_food_list_orderByCate()
+{
+    try {
+        $dbconnection = db_connect();
+        $stmt = $dbconnection->prepare("SELECT * FROM `food` WHERE `available`='Y' ORDER BY `food_category`");
+//        $stmt->bindParam(":cate", $cate);
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $results;
+
+    } catch (PDOException $e) {
+        echo $stmt . "<br>" . $e->getMessage();
+    }
+
+    $dbconnection = null;
+
+//    if (empty($cate)) {
+//        return $results='The category cannot be empty!';
+//    } else {
+//
+//    }
+
+}
+
+
 function db_select_allAvailCategories()
 {
     try {
@@ -166,5 +194,8 @@ function db_select_food_list_byTagName($tagName)
     }
 
 }
+
+//$res = db_select_food_list_orderByCate();
+//print_r($res);
 
 ?>
