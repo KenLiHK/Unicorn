@@ -1,0 +1,642 @@
+/**
+ * Created by pcc on 06/03/2018.
+ */
+
+document.write("<script language='javascript' src='../unicorn.js'></script>");
+document.write("<script language='javascript' src='../jq_plugins.js'></script>");
+
+
+$(document).ready(function(){
+	prepareSearchSection();
+	liveSearch();
+	loadRecomFood();
+    loadAllCateFood();
+    loadSec();
+    loadSearchBox();
+    searchByCookieValue();
+    showItemCount();
+});
+
+
+function searchByCookieValue(){
+	var $foodCate = $.cookie("unicornCookie");
+
+	if($foodCate != ""){
+		searchFoodByFoodCateName($foodCate, "");
+	}
+}
+
+function loadSec(){
+    $('#id_foodCategory').change(
+            function prepareSearchBox(){
+            	var $foodCate = document.getElementById("id_foodCategory").value;
+            	var $foodName = document.getElementById("id_searchFood").value;
+
+            	if($foodCate == ""){
+            		liveSearch();
+            		if($foodName == ""){
+                		$('#search-result').empty();
+                	}else{
+                		searchFoodByFoodCateName("", $foodName);
+                	}
+            	}else{
+            		liveSearchByCat($foodCate);
+            		if($foodName == ""){
+            			searchFoodByFoodCateName($foodCate, "");
+                	}else{
+                		searchFoodByFoodCateName($foodCate, $foodName);
+                	}
+            		$.cookie('unicornCookie', $foodCate, (30 * 24 * 3600));
+            	}
+     });
+}
+
+function loadSearchBox(){
+    $('#id_searchFood').on('input',
+    //$(':regex(id,^id_searchFood$)').change(
+            function searchFood(){
+            	var $foodCate = document.getElementById("id_foodCategory").value;
+            	var $foodName = document.getElementById("id_searchFood").value;
+            	
+            	if($foodCate == ""){
+            		if($foodName == ""){
+                		$('#search-result').empty();
+                	}else{
+                		searchFoodByFoodCateName("", $foodName);
+                	}
+            	}else{
+            		if($foodName == ""){
+            			searchFoodByFoodCateName($foodCate, "");
+                	}else{
+                		searchFoodByFoodCateName($foodCate, $foodName);
+                	}
+            		$.cookie('unicornCookie', $foodCate, (30 * 24 * 3600));
+            	}
+     });
+}
+
+function addCartAnimate($foodId){
+        var cart = $('span.fa-shopping-cart');
+        var imgId = "#img" + $foodId;
+        var imgtodrag = $(imgId);
+        
+        /*
+         *         var imgIdT1 = "#imgSearch_" + $foodId;
+        var imgIdT2 = "#imgFoodCate_" + $foodId;
+        var imgIdT3 = "#imgFoodRec_" + $foodId;
+        if(imgtodrag.offset() != undefined){
+        	imgId = imgIdT1;
+        }else{
+        	imgtodrag = $(imgIdT2);
+        	if(imgtodrag.offset() != undefined){
+        		imgId = imgIdT2;
+            }else{
+            	imgtodrag = $(imgIdT3);
+            	if(imgtodrag.offset() != undefined){
+            		imgId = imgIdT3;	
+                }
+            }	
+        }
+        imgtodrag = $(imgId);
+        */
+        
+                
+        if (imgtodrag) {
+            var imgclone = imgtodrag.clone()
+                .offset({
+                top: imgtodrag.offset().top,
+                left: imgtodrag.offset().left
+            })
+                .css({
+                'opacity': '0.5',
+                    'position': 'absolute',
+                    'height': '150px',
+                    'width': '150px',
+                    'z-index': '100'
+            })
+                .appendTo($('body'))
+                .animate({
+                'top': cart.offset().top + 10,
+                    'left': cart.offset().left + 10,
+                    'width': 75,
+                    'height': 75
+            }, 1000, 'easeInOutExpo');
+            
+            setTimeout(function () {
+                cart.effect("shake", {
+                    times: 2
+                }, 200);
+            }, 1500);
+
+            imgclone.animate({
+                'width': 0,
+                    'height': 0
+            }, function () {
+                $(this).detach()
+            });
+        }
+}
+
+
+function addToCart($foodId){
+	if($foodId != undefined && $foodId != null && $foodId != ""){						    
+	    addCartAnimate($foodId);
+	    var n = $foodId.indexOf("_");
+	    var tmpFoodId = $foodId.substr(n+1);
+	    addFoodToCartInSync(tmpFoodId, 1);
+		showItemCount();
+	}
+}
+
+function substractFromCart($foodId){
+	if($foodId != undefined && $foodId != null && $foodId != ""){
+	    var n = $foodId.indexOf("_");
+	    var tmpFoodId = $foodId.substr(n+1);
+	    substractFoodFromCartInSync(tmpFoodId, 1);
+	    showItemCount();
+	}
+}
+
+function searchFoodByFoodCateName($foodCate, $foodName){
+	var $searchResult = "";
+	var $section = "Search";
+	var $foodCatName = {"foodCate":$foodCate, "foodName":$foodName}; 
+	$('#search-result').empty();
+	
+	$.ajax(
+        {
+            type:'post',
+            url:'recommendService.php',
+            data:{
+                searchFoodCatName:$foodCatName
+            },
+            dataType:'json',
+            success:function(result){
+                if(result["code"]!=0){
+                    //If the results of query is abnormal, display error msg given by backend.
+                	$searchResult = result["message"];
+                }
+                else{
+                	var intColor = 1;
+                    $.each(result["data"],function(i,n){
+                        var cateName 	= n["food_category"];
+                        var disPrice 	= n["discount"] * n["price"];
+                        var oriPrice 	= n["price"];
+                        var imgPath 	= n["img_path"];
+                        var foodName 	= n["food_name"];
+                        var foodId 		= n["food_id"];
+
+                        if(intColor == 5){
+                        	intColor = 1;
+                        }
+                        
+                        $searchResult+= 	prepareFoodDetail(oriPrice, disPrice, imgPath, cateName, foodName, foodId, intColor, $section);
+                    	
+                        intColor++;
+                    });
+                }               
+            	
+                $('#search-result').append($searchResult);
+            }
+        }
+    )
+}
+
+function prepareSearchSection(){
+	var $searchSection = "";
+	
+	$.ajax(
+        {
+            type:'post',
+            url:'recommendService.php',
+            async: false,
+            data:{
+                prepareCate:true
+            },
+            dataType:'json',
+            success:function(result){
+            	$searchSection += '<select class="foodCategorySel" id="id_foodCategory" name="foodCategory">	                                      ';
+            	$searchSection += '       <option value=""></option>                                                                                  ';
+            	
+                if(result["code"]!=0){
+                    //If the results of query is abnormal, display error msg given by backend.
+                	$searchSection = result["message"];
+                }
+                else{
+                    $.each(result["data"],function(i,n){
+                        var $foodCategory 	= n["food_category"];
+                        $searchSection += '<option value="' + $foodCategory + '">' + $foodCategory + '</option>                                        ';
+                    }); 
+                }
+                
+                $searchSection += '</select>											                                                               ';
+                $searchSection += '<input class="foodSearch ui-widget" type="text" id="id_searchFood" name="searchFood" placeholder="Search here...">  ';
+                //$searchSection += '<input class="recom_button" type="button" id="id_searchBtn" name="searchBtn" value="Search">                        ';
+                $('#search-section').append($searchSection);
+            }
+        }
+    )
+}
+
+function liveSearch(){
+    var availableTags = [];
+    
+	$.ajax(
+	        {
+	            type:'post',
+	            url:'recommendService.php',
+	            data:{
+	                prepareLiveSearch:true
+	            },
+	            dataType:'json',
+	            success:function(result){          	
+	                if(result["code"] == 0){	                    
+	                    $.each(result["data"],function(i,n){
+	                        var $foodDes 	= n["food_des"];
+	                        availableTags.push($foodDes);
+	                    }); 
+	                }
+	            }
+	        }
+	    )
+	    
+	  $( function() {
+		    $( "#id_searchFood" ).autocomplete({
+		      source: availableTags
+		    });
+		  } );
+}
+
+function liveSearchByCat($catName){
+    var availableTags = [];
+    
+	$.ajax(
+	        {
+	            type:'post',
+	            url:'recommendService.php',
+	            data:{
+	                prepareLiveSearchByCat:$catName
+	            },
+	            dataType:'json',
+	            success:function(result){          	
+	                if(result["code"]==0){	                    
+	                    $.each(result["data"],function(i,n){
+	                        var $foodDes 	= n["food_des"];
+	                        availableTags.push($foodDes);
+	                    }); 
+	                }
+	            }
+	        }
+	    )
+	    
+	  $( function() {
+		    $( "#id_searchFood" ).autocomplete({
+		      source: availableTags
+		    });
+		  } );
+}
+
+//Call a service to get all available categories and display them
+function loadAllCateFood(){
+    var html = "";
+    var $section = "FoodCate";
+    $.ajax(
+        {
+            type:'post',
+            url:'recommendService.php',
+            data:{
+                displayCate:true
+            },
+            dataType:'json',
+            success:function(result){
+                if(result["code"]!=0){
+                    //If the results of query is abnormal, display error msg given by backend.
+                    html = result["message"];
+                }
+                else{
+                	var cateNameNow = "";
+                	var intColor = 1
+                    $.each(result["data"],function(i,n){
+                        var cateName 	= n["food_category"];
+                        var disPrice 	= n["discount"] * n["price"];
+                        var oriPrice 	= n["price"];
+                        var imgPath 	= n["img_path"];
+                        var foodName 	= n["food_name"];
+                        var foodId 		= n["food_id"];
+                        
+                        if(intColor == 5){
+                        	intColor = 1;
+                        }
+                        
+                        if(cateNameNow == ""){
+                        	cateNameNow = cateName;
+                      	                      
+                        	html+= 	'<fieldset><legend><h5>' + cateName + ':</h5></legend><div class="sale-charts">' +
+	                        prepareFoodDetail(oriPrice, disPrice, imgPath, cateName, foodName, foodId, intColor, $section);	
+                        }else if(cateNameNow != cateName){
+                        	cateNameNow = cateName;
+	                        html+= '</div></fieldset><br>';
+	                        
+	                        html+= 	'<fieldset><legend><h5>' + cateName + ':</h5></legend><div class="sale-charts">' +
+	                        prepareFoodDetail(oriPrice, disPrice, imgPath, cateName, foodName, foodId, intColor, $section);	
+                        }else if(cateNameNow == cateName){
+	                        html+= 	prepareFoodDetail(oriPrice, disPrice, imgPath, cateName, foodName, foodId, intColor, $section);
+                        }else {
+                        	html+= '</div></fieldset><br>';
+                        }
+                        intColor++;
+                    });
+                }
+
+                if(html != ""){
+                	html = '<fieldset><legend><h4>Food Category</h4></legend>' + html;
+                	html+= '</fieldset><br>';
+            	}
+                
+                $('#cate-cont').append(html);
+            }
+        }
+    )
+
+}
+
+function prepareFoodDetail($_oriPrice, $_disPrice, $_imgPath, $_cateName, $_foodName, $_foodId, $_intColor, $_section){
+	var li_cont = "";
+
+	li_cont +=	
+	'<div class="col-sm-6 col-lg-3">																						                    ' +
+	'	<div class="card">																									                    ' +
+	'		<div class="card-header text-white bg-flat-color-' + $_intColor + '">											                    ' +
+	'			<div class="font-weight-bold-img" align="center">																                    ' +
+	'				<img id="img'+ $_section + "_" + $_foodId +'" class="font-weight-bold-height" src="'+ $_imgPath +'" alt="'+ $_foodName +'" >						                    ' +
+	'			</div>																										                    ' +
+	'		</div>																											                    ' +
+	'		<div class="card-body py-0 px-4 b-t-1">																			                    ' +
+	'			<div class="row">																							                    ' +
+	'				<div class="col-6 b-r-1 py-3">																			                    ' +
+	'					<div class="font-weight-bold-height2">'+ $_foodName + '</div>												            ' +
+	'				</div>																									                    ' +	
+	'				<div class="col-6 py-3 text-right">																		                    ' +
+	'					<div class="font-weight-bold-height2">$'+ $_disPrice +'</div>												            ' +		
+	'				</div>																									                    ' +
+	'			</div>																										                    ' +	
+	'			<div class="row">																							                    ' +
+	'				<div class="col-6 b-r-1 py-3" onclick="addToCart(\''+ $_section + "_" + $_foodId + '\')"><span id="itemCount'+ $_section + "_" + $_foodId +'"></span>															' +
+	'					<div class="font-weight-bold" id="add'+ $_section + "_" + $_foodId + '"><h1 class="fa fa-cart-plus fa-2x"></h1></div>		    ' +	
+	'				</div>																									                    ' +
+	'				<div class="col-6 py-3 text-right" onclick="substractFromCart(\''+ $_section + "_" + $_foodId + '\')">											' +
+	'					<div class="font-weight-bold" id="minus'+ $_section + "_" + $_foodId + '"><h1 class="fa fa-cart-arrow-down fa-2x"></h1></div>	' +
+	'				</div>																									                    ' +
+	'			</div>																										                    ' +
+	'		</div>																											                    ' +
+	'	</div>																												                    ' +
+	'</div>	                            																					                    ' ;
+	
+	/*
+    //console.log(n["food_id"]);
+    li_cont += 	'<div class="card">'+
+        			'<img src="'+ $_imgPath +'" alt="img broken">'+
+        			//store food_id in coresponding id of addcart icon
+        			'<div class="dish-title">'+ $_foodName +'</div>'+
+        			'<div class="card-btm-1">' +
+        				'<div class="i-addchart" id='+ $_foodId + '></div>'+
+        				'<div class="price-sec">';
+    
+    //Display discount price only when it's less than origin price
+    if($_disPrice < $_oriPrice){
+        li_cont += 			'<span class="ori-price">' + $_oriPrice +'</span>'+
+            				'<span class="dis-price">' + $_disPrice +'</span>';
+    }
+    else {
+        li_cont += 			'<span class="ori-price">' + $_oriPrice + '</span>';
+    }
+    
+    li_cont += 			'</div>'+
+        			'</div>'+
+        		'</div>';
+    */
+    return li_cont;
+}
+
+/*
+//Call service to get food details by a specific categoryName and load the food details
+//This currrent method requires 1 network request for each category, it can be refined by selecting ALL food one time and load food from the result food array without ask for more network request
+function loadCateFood(cateName){
+    var li_cont = "";
+
+    $.ajax(
+        {
+            type:'post',
+            url:'recommendService.php',
+            data:{
+                cate2Load:cateName
+            },
+            dataType:'json',
+            success:function(result){
+                //If the results of query is abnormal, display error msg given by backend.
+                if(result["code"]!=0){
+                    li_cont = result["message"];
+                }
+                else{
+                    $.each(result["data"],function(i,n){
+                        var disPrice = n["discount"] * n["price"];
+                        var oriPrice = n["price"];
+
+                        //console.log(n["food_id"]);
+                        li_cont += '<div class="card">'+
+                            '<img src="'+ n["img_path"] +'" alt="img broken">'+
+                                //store food_id in coresponding id of addcart icon
+                            '<div class="dish-title">'+ n["food_name"] +'</div>'+
+                            '<div class="card-btm-1">' +
+                            '<div class="i-addchart" id='+n["food_id"] + '></div>'+
+                            '<div class="price-sec">';
+                        //Display discount price only when it's less than origin price
+                        if(disPrice < oriPrice){
+                            li_cont += '<span class="ori-price">' + oriPrice +'</span>'+
+                                '<span class="dis-price">' + disPrice +'</span>';
+                        }
+                        else {
+                            li_cont += '<span class="ori-price">' + oriPrice + '</span>';
+                        }
+                        li_cont += '</div>'+
+                            '</div>'+
+                            '</div>';
+                    });
+                }
+
+            }
+        }
+    );
+    return li_cont;
+
+}
+*/
+
+function loadRecomFood(){
+    var li_cont = "";
+    var $section = "FoodRec";
+    $.ajax(
+        {
+            type:'post',
+            url:'recommendService.php',
+            data:{
+                logonCheck:true
+            },
+            dataType:'json',
+            success:function(result){
+                if(result["code"]!=0){
+                    li_cont = result["message"];
+                }
+                else{
+                	
+                	var cateNameNow = "";
+                	var intColor = 1
+                    $.each(result["data"],function(i,n){
+                        var cateName 	= n["food_category"];
+                        var disPrice 	= n["discount"] * n["price"];
+                        var oriPrice 	= n["price"];
+                        var imgPath 	= n["img_path"];
+                        var foodName 	= n["food_name"];
+                        var foodId 		= n["food_id"];
+                        
+                        if(intColor == 5){
+                        	intColor = 1;
+                        }
+                        
+                    	li_cont+= 	prepareFoodDetail(oriPrice, disPrice, imgPath, cateName, foodName, foodId, intColor, $section);
+                    	
+                        intColor++;
+                    });
+                }
+                if(li_cont != ""){
+                	li_cont = '<fieldset><legend><h4>Food Recommendation</h4></legend>' + li_cont;
+                	li_cont+= '</fieldset><br>';
+            	}
+                $('#recom-list').append(li_cont);
+
+            }
+        }
+    );
+    return li_cont;
+}
+
+/******** [START] Place order JavaScript ********/
+function addFoodToCart($foodID, $qty)
+{
+	if(($foodID == undefined || $foodID == null || $foodID == "") && ($qty == undefined || $qty == null || $qty == "")){
+		return;
+	}
+	
+	var _foodData = {"foodID":$foodID, "qty":$qty}; 
+	$.ajax(
+		{
+			type: 'post',
+			url: 'cartAjaxService.php',
+			
+			data: {
+				foodData2Add:_foodData
+			},
+			
+			success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+			{
+				return response;
+			}
+		}
+	);
+}
+
+function addFoodToCartInSync($foodID, $qty)
+{
+	if(($foodID == undefined || $foodID == null || $foodID == "") && ($qty == undefined || $qty == null || $qty == "")){
+		return;
+	}
+	
+	var _foodData = {"foodID":$foodID, "qty":$qty}; 
+	$.extend({
+	    addResponse: function() 
+	    {
+			var result = null;
+			$.ajax(
+				{
+					type: 'post',
+					url: 'cartAjaxService.php',
+					
+					async: false,
+					
+					data: {
+						foodData2Add:_foodData
+					},
+					
+					success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+					{
+						result = response;
+					}
+				}
+			);
+			return result;
+	    }
+	});
+	
+	return $.addResponse();
+}
+
+function substractFoodFromCart($foodID, $qty)
+{
+	if(($foodID == undefined || $foodID == null || $foodID == "") && ($qty == undefined || $qty == null || $qty == "")){
+		return;
+	}
+	
+	var _foodData = {"foodID":$foodID, "qty":$qty}; 
+	$.ajax(
+		{
+			type: 'post',
+			url: 'cartAjaxService.php',
+			
+			data: {
+				foodData2Substract:_foodData
+			},
+			
+			success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+			{
+				return response;
+			}
+		}
+	);
+}
+
+function substractFoodFromCartInSync($foodID, $qty)
+{
+	if(($foodID == undefined || $foodID == null || $foodID == "") && ($qty == undefined || $qty == null || $qty == "")){
+		return;
+	}
+	
+	var _foodData = {"foodID":$foodID, "qty":$qty}; 
+	$.extend({
+		substractResponse: function() 
+	    {
+			var result = null;
+			$.ajax(
+				{
+					type: 'post',
+					url: 'cartAjaxService.php',
+					
+					async: false,
+					
+					data: {
+						foodData2Substract:_foodData
+					},
+					
+					success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+					{
+						result = response;
+					}
+				}
+			);
+			return result;
+	    }
+	});
+	
+	return $.substractResponse();
+}
+
+/******** [END] Place order JavaScript ********/

@@ -1,0 +1,35 @@
+<?php
+
+include_once("../common/functions.php");
+
+check_session_timeout();
+
+$_isLogon = checkUserLogon();
+
+?>
+
+<!-- ******** [START] Navigation Header Bar ******** -->			
+<header id="header" class="header">
+	<div>							
+		<div class="header-right">
+			<div>
+				<?php if($_isLogon) {
+				        $_userID = $_SESSION['login_user_id'];
+				    ?>		
+					<a href="../placeOrder/cart.php"><i class="fa fa-cart"></i> </a> <span>&nbsp;</span>
+					<a href="../notification/notification.php"><i class="fa fa-envelope"></i> </a> <span>&nbsp;</span>
+					<a href="../userProfile/userProfile.php"><i class="fa fa-profile"></i><?php echo $_userID;?></a> <span>&nbsp;</span>
+					<a href="../login/logout.php"><i class="fa fa-sign-out"></i> Logout </a> <span>&nbsp;</span>
+				<?php 	}else{ ?>
+					<a href="../login/login.php"><i class="fa fa-sign-in"> Login </i></a> <span>&nbsp;</span>
+					<a href="../registration/registerForm.php"><i class="fa fa-user-plus"> Sign-up </i></a> <span>&nbsp;</span>
+				<?php	} ?>
+    			
+			</div>								
+		</div>						
+	</div>
+</header>
+<!-- ******** [START] Navigation Header Bar ******** -->
+						
+						
+						

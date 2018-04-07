@@ -599,6 +599,10 @@ small {
 	font-weight: 700;
 }
 
+.font-weight-bold-img {
+	font-weight: 700;
+}
+
 .bg-warning {
 	background-color: #ffc107 !important
 }
@@ -1163,5 +1167,4 @@ span.Exception page {
 	color: red;
 }
 ******** [END] Exception page style definition ********/
-
 

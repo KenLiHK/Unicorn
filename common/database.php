@@ -9,7 +9,7 @@
         
         $_SESSION['exception_msg'] = $exceptionMsg;
         //go to success page
-        header('Location: ../exception.php');
+        header('Location: ../exception/exception.php');
         exit;        
     }
     
@@ -27,11 +27,8 @@
 			// set the PDO error mode to exception
 			$dbconnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			
-			//echo "Connected successfully"; 
-			//return db connection
 			return $dbconnection;
 		} catch(PDOException $e){
-			//echo "Connection failed: " . $e->getMessage();
 		    go_to_exception_page("db_connect() -> ".$e);
 		}
 	}
@@ -69,10 +66,9 @@
 			//execute prepared sql statement to insert user table
 			$stmt->execute();
 			$result = $dbconnection->lastInsertId();
+			
 			return $result;
-			//echo "New record created successfully";
 		}catch(PDOException $e){
-			//echo "<br>" . $e->getMessage();
 		    go_to_exception_page("db_insert_user() -> ".$e);
 		}
 
@@ -91,9 +87,9 @@
 			$paramArray = array(':userID' => $userID);
 			$stmt->execute($paramArray);
 			$fetch = $stmt->fetch();
+			
 			echo $fetch['USER_ID'];
 		}catch(PDOException $e){
-			//echo "<br>" . $e->getMessage();
 		    go_to_exception_page("db_select_user_by_UserID() -> ".$e);
 		}
 
@@ -112,9 +108,9 @@
 			$paramArray = array(':email' => $email);
 			$stmt->execute($paramArray);
 			$fetch = $stmt->fetch();
-			echo $fetch['EMAIL'];
+			
+			return $fetch['EMAIL'];
 		}catch(PDOException $e){
-			//echo "<br>" . $e->getMessage();
 		    go_to_exception_page("db_select_user_by_Email() -> ".$e);
 		}
 
@@ -133,9 +129,9 @@
 			$paramArray = array(':email' => $email, ':userID' => $userID);
 			$stmt->execute($paramArray);
 			$fetch = $stmt->fetch();
-			echo $fetch['EMAIL'];
+			
+			return $fetch['EMAIL'];
 		}catch(PDOException $e){
-			//echo "<br>" . $e->getMessage();
 			go_to_exception_page("db_select_user_by_Email_UserID() -> ".$e);
 		}
 		
@@ -161,7 +157,6 @@
 			
 			return $column_arr;
 		}catch(PDOException $e){
-			//echo "<br>" . $e->getMessage();
 		    go_to_exception_page("db_select_user_by_Email_RegToken() -> ".$e);
 		}
 
@@ -179,9 +174,9 @@
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':email' => $email, ':regToken' => $regToken);
 			$stmt->execute($paramArray);
+			
 			return $stmt->rowCount();
 		}catch(PDOException $e){
-			//echo "<br>" . $e->getMessage();
 		    go_to_exception_page("db_update_user_remove_RegToken() -> ".$e);
 		}
 
@@ -200,9 +195,9 @@
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':email' => $email, ':regToken' => $regToken);
 			$stmt->execute($paramArray);
+			
 			return $stmt->rowCount();
 		}catch(PDOException $e){
-			//echo "<br>" . $e->getMessage();
 		    go_to_exception_page("db_update_user_lastLoginTime() -> ".$e);
 		}
 
@@ -231,12 +226,37 @@
 			
 			return $column_arr;
 		}catch(PDOException $e){
-			//echo "<br>" . $e->getMessage();
 			go_to_exception_page("db_select_user_by_UserID_or_Email_Password() -> ".$e);
 		}
 
 		//close db connection to release memory
 		$dbconnection = null;	
+	}
+	
+	function db_select_user_by_UserID_or_Email_PasswordFake($userIdOrEmail, $password)
+	{
+		try {
+			$dbconnection = db_connect();
+			$encryptedPassword = md5($password);
+			
+			//Prepared SQL statement
+			$sql = "SELECT USER_ID, EMAIL FROM UNICORN.USER WHERE (USER_ID = :userIdOrEmail or EMAIL=:userIdOrEmail)";
+			$stmt = $dbconnection->prepare($sql);
+			$paramArray = array(':userIdOrEmail' => $userIdOrEmail);
+			$stmt->execute($paramArray);
+			$fetch = $stmt->fetch();
+			
+			$column_arr = array();
+			$column_arr[] = $fetch['USER_ID'];
+			$column_arr[] = $fetch['EMAIL'];
+			
+			return $column_arr;
+		}catch(PDOException $e){
+			go_to_exception_page("db_select_user_by_UserID_or_Email_Password() -> ".$e);
+		}
+		
+		//close db connection to release memory
+		$dbconnection = null;
 	}
 	
 	function db_update_user_lastLoginTime_by_Email($email)
@@ -250,9 +270,9 @@
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':email' => $email);
 			$stmt->execute($paramArray);
+			
 			return $stmt->rowCount();
 		}catch(PDOException $e){
-		    //echo "<br>" . $e->getMessage();
 		    go_to_exception_page("db_update_user_lastLoginTime_by_Email() -> ".$e);
 		}
 
@@ -276,7 +296,6 @@
 			
 			return $result;
 		}catch(PDOException $e){
-			//echo "<br>" . $e->getMessage();
 			go_to_exception_page("db_select_user_all_info_by_UserID() -> ".$e);
 		}
 		
@@ -286,31 +305,48 @@
 	
 	function db_update_user_profile($user)
 	{
+		$sql = "";
 		try {
-			$dbconnection = db_connect();
-							
+			$dbconnection 			= db_connect();
+			$imgPathTmp 			= $user->getImgPath();
+			$encrypttedPasswordTmp 	= $user->getEncrypttedPassword();
+			
 			//Prepared SQL statement
-			$sql = "UPDATE USER SET 
-						 img_path=:imgPath, 
-							email=:email, 
-							  sex=:sex, 
-					  eng_surname=:engSurname, 
-				  eng_middle_name=:engMidName,
-						 eng_name=:engName,
-							  tel=:tel,
-						address_1=:address1,
-						address_2=:address2,
-						address_3=:address3,
-						address_4=:address4 
-					WHERE user_id=:userID";
+			$sql = $sql . "UPDATE UNICORN.USER SET 					       " ;
+			
+			if(isset($imgPathTmp) && $imgPathTmp != ""){
+				$sql = $sql . "	      img_path=:imgPath, 			   " ;
+			}
+			
+			if(isset($encrypttedPasswordTmp) && $encrypttedPasswordTmp != ""){
+				$sql = $sql . "	      password=:newPass, 			   " ;
+			}
+			
+			$sql = $sql . "		         email=:email, 			   " ;
+			$sql = $sql . "		           sex=:sex,                 " ;
+			$sql = $sql . "	       eng_surname=:engSurname,          " ;
+			$sql = $sql . "    eng_middle_name=:engMidName,          " ;
+			$sql = $sql . "           eng_name=:engName,             " ;
+			$sql = $sql . "			       tel=:tel,                 " ;
+			$sql = $sql . "		     address_1=:address1,            " ;
+			$sql = $sql . "		     address_2=:address2,            " ;
+			$sql = $sql . "		     address_3=:address3,            " ;
+			$sql = $sql . "		     address_4=:address4             " ;
+			$sql = $sql . "	     WHERE user_id=:userID               " ;
+			
+			echo $sql;
+			
 			$stmt = $dbconnection->prepare($sql);
 			
-			$imgPathTmp = $user->getImgPath();
-			if(!isset($imgPathTmp) || $imgPathTmp == ""){
-				$imgPathTmp = UNICORN_ROOT."/resources/userProfileImg/default.jpg";
-			}					
 			
-			$stmt->bindParam(':imgPath', 			$imgPathTmp);
+			if(isset($imgPathTmp) && $imgPathTmp != ""){
+				$stmt->bindParam(':imgPath', 			$imgPathTmp);
+			}
+			
+			if(isset($encrypttedPasswordTmp) && $encrypttedPasswordTmp != ""){
+				$stmt->bindParam(':newPass', 			$encrypttedPasswordTmp);
+			}
+			
 			$stmt->bindParam(':email', 				$user->getEmail());
 			$stmt->bindParam(':sex', 				$user->getSex());
 			$stmt->bindParam(':engSurname', 		$user->getEngSurname());
@@ -326,8 +362,7 @@
 			$stmt->execute();
 			return $stmt->rowCount();
 		}catch(PDOException $e){
-			//echo "<br>" . $e->getMessage();
-			go_to_exception_page("db_update_user_profile() -> ".$e);
+			go_to_exception_page("db_update_user_profile() -> " . $e);
 		}
 		
 		//close db connection to release memory
@@ -347,9 +382,9 @@
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':status' => $status, ':updateDate' => $updateDate);
 			$stmt->execute($paramArray);
+			
 			return $stmt->rowCount();
 		}catch(PDOException $e){
-		    //echo "<br>" . $e->getMessage();
 		    go_to_exception_page("db_delete_notification_by_status_date() -> ".$e);
 		}
 
@@ -401,7 +436,6 @@
 			
 			return $orderDetail_array;
 		}catch(PDOException $e){
-		    //echo "<br>" . $e->getMessage();
 		    go_to_exception_page("db_select_food_by_FoodID() -> ".$e);
 		}
 		
@@ -450,7 +484,6 @@
 	        
 	        return $orderDetail_array;
 	    }catch(PDOException $e){
-	        //echo "<br>" . $e->getMessage();
 	        go_to_exception_page("db_select_food_info_by_FoodID() -> ".$e);
 	    }
 	    
@@ -476,7 +509,6 @@
 	        
 	        return $column_arr;
 	    }catch(PDOException $e){
-	        //echo "<br>" . $e->getMessage();
 	        go_to_exception_page("get_user_address_contactNo_by_userId() -> ".$e);
 	    }
 	    
@@ -498,7 +530,6 @@
 	        
 	        return $resultArray;
 	    }catch(PDOException $e){
-	        //echo "<br>" . $e->getMessage();
 	        go_to_exception_page("db_select_order_by_OrderID() -> ".$e);
 	    }
 	    
@@ -520,7 +551,6 @@
 	        
 	        return $resultArray;
 	    }catch(PDOException $e){
-	        //echo "<br>" . $e->getMessage();
 	        go_to_exception_page("db_select_order_detail_by_OrderID() -> ".$e);
 	    }
 	    
@@ -564,13 +594,10 @@
 			$stmt->bindParam(':createDate', 				$order->getCreateDate());
 			$stmt->bindParam(':updateDate', 				$order->getUpdateDate());		
 			
-			//execute prepared sql statement to insert user table
 			$stmt->execute();
 			$result = $dbconnection->lastInsertId();			
 			return $result;
-			//echo "New record created successfully";
 		}catch(PDOException $e){
-		    //echo "<br>" . $e->getMessage();
 			go_to_exception_page("db_insert_order() -> ".$e);
 		}
 		
@@ -598,13 +625,10 @@
 			$stmt->bindParam(':createDate', 				$orderDetail->getCreateDate());
 			$stmt->bindParam(':updateDate', 				$orderDetail->getUpdateDate());
 			
-			//execute prepared sql statement to insert user table
 			$stmt->execute();
 			$result = $dbconnection->lastInsertId();
 			return $result;
-			//echo "New record created successfully";
 		}catch(PDOException $e){
-			//echo "<br>" . $e->getMessage();
 			go_to_exception_page("db_insert_order() -> ".$e);
 		}
 		
@@ -612,9 +636,217 @@
 		$dbconnection = null;
 	}
 	
+	function db_insert_notification($notification)
+	{
+		try {
+			$dbconnection = db_connect();
+			$now = date("Y-m-d h:i:sa");
+			
+			//Prepared SQL statement
+			$stmt = $dbconnection->prepare("INSERT INTO `notification` (`notification_id`, `type`, `subject`, `content`,
+				`create_date`, `update_date`)
+				VALUES(NULL, :type, :subject, :content,
+				:createDate, :updateDate)");
+			
+			//$stmt->bindParam(':notification_id', 			$notification->getNotificationID()); //automatically increased by MySQL DB
+			$stmt->bindParam(':type', 						$notification->getType());
+			$stmt->bindParam(':subject', 					$notification->getSubject());
+			$stmt->bindParam(':content', 					$notification->getContent());
+			$stmt->bindParam(':createDate', 				$notification->getCreateDate());
+			$stmt->bindParam(':updateDate', 				$notification->getUpdateDate());
 
-	//[END] Place orderfunction
+			$stmt->execute();
+			$result = $dbconnection->lastInsertId();
+			return $result;
+		}catch(PDOException $e){
+			go_to_exception_page("db_insert_notification() -> ".$e);
+		}
+		
+		//close db connection to release memory
+		$dbconnection = null;
+	}
 	
+	function db_insert_user_notification($userNotification)
+	{
+		try {
+			$dbconnection = db_connect();
+			$now = date("Y-m-d h:i:sa");
+			
+			//Prepared SQL statement
+			$stmt = $dbconnection->prepare("INSERT INTO `user_notification` (`notification_id`, `user_id`, `status`, 
+				`create_date`, `update_date`)
+				VALUES(:notificationID, :userID, :status,
+				:createDate, :updateDate)");
+			
+			$stmt->bindParam(':notificationID', 			$userNotification->getNotificationID());
+			$stmt->bindParam(':userID', 					$userNotification->getUserID());
+			$stmt->bindParam(':status', 					$userNotification->getStatus());
+			$stmt->bindParam(':createDate', 				$userNotification->getCreateDate());
+			$stmt->bindParam(':updateDate', 				$userNotification->getUpdateDate());
+			
+			$stmt->execute();
+			$result = $dbconnection->lastInsertId();
+			return $result;
+		}catch(PDOException $e){
+			go_to_exception_page("db_insert_user_notification() -> ".$e);
+		}
+		
+		//close db connection to release memory
+		$dbconnection = null;
+	}
+	//[END] Place order function
+	
+	//[START] Comment function
+	function db_select_order_by_UserID($userID)
+	{
+	    try {
+	        $dbconnection = db_connect();
+	        
+	        //Prepared SQL statement
+	        $sql = "SELECT ORDER_ID FROM UNICORN.ORDER WHERE USER_ID=:userID ORDER BY ORDER_ID DESC LIMIT 5";
+	        $stmt = $dbconnection->prepare($sql);
+	        $paramArray = array(':userID' => $userID);
+	        $stmt->execute($paramArray);
+	        $resultArray = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	        
+	        $dbconnection = null;
+	        return $resultArray;
+	    }catch(PDOException $e){
+	        go_to_exception_page("db_select_order_by_UserID() -> ".$e);
+	    }
+	    
+	    //close db connection to release memory
+	    $dbconnection = null;
+	}
+	
+	function db_insert_comment($commentObj)
+	{
+	    try {
+	        $dbconnection = db_connect();
+	        
+	        //Prepared SQL statement
+	        $stmt = $dbconnection->prepare("INSERT INTO `comment` (`comment_id`, `user_id`, `order_id`,
+                `rating`,`content`,
+				`create_date`, `update_date`)
+				VALUES(NULL, :userID, :orderID,
+                :rating, :content,
+				:createDate, :updateDate)");
+	        
+	        $stmt->bindParam(':userID', 					$commentObj->getUserID());
+	        $stmt->bindParam(':orderID', 					$commentObj->getOrderID());
+	        $stmt->bindParam(':rating', 		            $commentObj->getRating());
+	        $stmt->bindParam(':content', 					$commentObj->getContent());
+	        $stmt->bindParam(':createDate', 				$commentObj->getCreateDate());
+	        $stmt->bindParam(':updateDate', 				$commentObj->getUpdateDate());
+	        
+	        $stmt->execute();
+	        $result = $dbconnection->lastInsertId();
+	        
+	        $dbconnection = null;
+	        return $result;
+	    }catch(PDOException $e){
+	        go_to_exception_page("db_insert_comment() -> ".$e);
+	    }
+	    
+	    //close db connection to release memory
+	    $dbconnection = null;
+	}
+	
+	function db_select_comment_by_UserID($userID)
+	{
+		try {
+			$dbconnection = db_connect();
+			
+			//Prepared SQL statement
+			$sql = "SELECT * FROM UNICORN.COMMENT WHERE USER_ID=:userID ORDER BY COMMENT_ID DESC LIMIT 5";
+			$stmt = $dbconnection->prepare($sql);
+			$paramArray = array(':userID' => $userID);
+			$stmt->execute($paramArray);
+			$resultArray = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			
+			return $resultArray;
+		}catch(PDOException $e){
+			go_to_exception_page("db_select_order_detail_by_OrderID() -> ".$e);
+		}
+		
+		//close db connection to release memory
+		$dbconnection = null;
+	}
+	//[END] Comment function
+	
+	//[START] Notificationfunction
+	function db_select_notification_by_UserID($userID)
+	{
+		try {
+			$dbconnection = db_connect();
+			
+			//Prepared SQL statement
+			$sql = "select un.notification_id, un.create_date, un.status, n.subject, n.content 
+					from user_notification un, notification n 
+					where un.notification_id = n.notification_id and un.user_id = :userID 
+					order by un.create_date desc;";
+			$stmt = $dbconnection->prepare($sql);
+			$paramArray = array(':userID' => $userID);
+			$stmt->execute($paramArray);
+			$resultArray = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			return $resultArray;
+		}catch(PDOException $e){
+			go_to_exception_page("db_select_notification_by_UserID() -> ".$e);
+		}
+		
+		//close db connection to release memory
+		$dbconnection = null;
+	}
+	
+	function db_update_notification($notificationObj)
+	{
+		try {
+			$dbconnection = db_connect();
+			
+			//Prepared SQL statement
+			$sql = "UPDATE USER_NOTIFICATION SET STATUS = :status, UPDATE_DATE = :updateDate WHERE NOTIFICATION_ID= :notificationID AND USER_ID = :userID";
+			$stmt = $dbconnection->prepare($sql);
+			
+			$stmt->bindParam(':userID', 					$notificationObj->getUserID());
+			$stmt->bindParam(':notificationID', 			$notificationObj->getNotificationID());
+			$stmt->bindParam(':status', 		            $notificationObj->getStatus());
+			$stmt->bindParam(':updateDate', 				$notificationObj->getUpdateDate());
+			
+			$stmt->execute();
+			return $stmt->rowCount();
+			
+			
+		}catch(PDOException $e){
+			go_to_exception_page("db_insert_comment() -> ".$e);
+		}
+		
+		//close db connection to release memory
+		$dbconnection = null;
+	}
+		
+	function db_select_notification_count_by_UserID($userID)
+	{
+	    try {
+	        $dbconnection = db_connect();
+	        
+	        //Prepared SQL statement
+	        $sql = "select *
+					from user_notification 
+					where status = 'NS01' and user_id = :userID";
+	        $stmt = $dbconnection->prepare($sql);
+	        $paramArray = array(':userID' => $userID);
+	        
+	        $stmt->execute($paramArray);	        
+	        return $stmt->rowCount();
+	    }catch(PDOException $e){
+	        go_to_exception_page("db_select_notification_count_by_UserID() -> ".$e);
+	    }
+	    
+	    //close db connection to release memory
+	    $dbconnection = null;
+	}
+	//[END] Notificationfunction
 	/*
 	//Not prefer to use the following function, we should use prepared statement to prevent SQL Injection hacking
 	function db_insert($sql)

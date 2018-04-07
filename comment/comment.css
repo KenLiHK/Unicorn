@@ -265,3 +265,21 @@
 	color: #cccccc;
     width: 12em;
 }
+
+span.comment_err {
+	color: red;
+}
+
+span.comment_info {
+	color: green;
+}
+
+input.comment_button {
+	text-align: center;
+	background-color: skyblue;
+	color: #fff;
+	border: none;
+}
+
+
+

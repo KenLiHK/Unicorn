@@ -137,4 +137,42 @@ select.disabledList
 input.cart_radio[type=radio] {
 	zoom: 2;
 }
+
+@media print {
+	/* Default left, right, top, bottom margin is 2cm */
+	@page { margin: 2cm } 
+    body {
+        background-color: white;
+        font: 12pt Georgia, "Times New Roman", Times, serif;
+		line-height: 1.3;
+		color: black;
+    }
+    
+    
+	h1 {
+		font-size: 24pt;
+	}
+	
+	h2 {
+		font-size: 14pt;
+	}
+
+	left-panel header left-panel footer img input[type=button]{
+		display: none;
+	}
+}
+
+input.placeOrder_button {
+	width: 20%;
+	margin-right: 2.5em;
+	margin-bottom: 2.5em;		
+	margin-left: 2em;
+	margin-top: 1em;
+	display: inline-block;
+	height: 50px;
+	text-align: center;
+	background-color: skyblue;
+	color: #fff;
+	border: none;
+}
 /******** [END] Place order style ********/

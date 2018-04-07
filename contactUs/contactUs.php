@@ -1,5 +1,9 @@
 <?php
 
+include_once("../common/functions.php");
+
+check_session_timeout();
+
 if (session_status() == PHP_SESSION_NONE) {
 	session_start();
 }
@@ -14,133 +18,27 @@ if(isset($_SESSION['login_user_id'])){
 	<head>
 		<meta charset="utf-8">
 		
-		<title>Unicorn Restaurant</title>
+		<title>Unicorn Restaurant - Contact Us</title>
 		
-		<!-- Using Icon library and refer to https://www.w3schools.com/w3css/w3css_icons.asp -->
-		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-		<link rel="stylesheet" href="../unicorn.css">
+		<?php include_once("../import.php");?>
+		
+		<link rel="stylesheet" href="../unicorn.css" type="text/css">
 	</head>
 
 
 	<body>
-		<div id="app">
+		<div id="loading"></div>
+		<div id="app"  style="display:none;" >		
 			<div>
 			
-					<!-- ******** [START] Left panel ******** -->
-					<aside id="left-panel" class="left-panel">
-						<nav class="navbar navbar-expand-lg">
-						
-							<!-- ******** [START] Logo ******** -->
-							<div class="navbar-header">
-								<a href="../recommend/recom_home.php" class="navbar-brand">
-									<img src="../resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
-								</a> 
-							</div>
-							<!-- ******** [END] Logo ******** -->
-							
-							
-							<!-- ******** [START] Left function menu ******** -->
-							<div id="main-menu" class="navbar-collapse">
-								<ul class="navbar-nav">
-									<a href="../recommend/recom_home.php">
-										<h3 class="menu-title"> Unicorn Restaurant </h3>
-									</a>
-									
-									<li class="nav-item">
-										<a href="../recommend/recom_home.php">
-											<i class="menu-icon fa fa-search"></i>
-											<span class="menu-title-text"> Search Dish </span>
-										</a>
-									</li>				
-		
-									<li class="nav-item mt-auto">
-										<a href="../placeOrder/cart.php">
-											<i class="menu-icon fa fa-shopping-cart"></i>
-											<span class="menu-title-text"> Place Order </span>
-										</a>
-									</li>
-											
-									<li class="nav-item mt-auto">
-										<a href="../comment/comment_section.php">
-											<i class="menu-icon fa fa-comments"></i>
-											<span class="menu-title-text"> Comment </span>
-										</a>
-									</li>															
-									
-									<li class="nav-item mt-auto">
-										<a href="../userProfile/userProfile.php">
-											<i class="menu-icon fa fa-user"></i>
-											<span class="menu-title-text"> User Profile </span>
-										</a>
-									</li>
-									
-																			
-									<li class="nav-item">
-										<a href="../login/login.php">
-											<i class="menu-icon fa fa-sign-in"></i>
-											<span class="menu-title-text">Login</span>
-										</a>
-									</li>
-	
-									<li class="nav-item">
-										<a href="../registration/registerForm.php">
-											<i class="menu-icon fa fa-user-plus"></i>
-											<span class="menu-title-text">Sign Up</span>
-										</a>
-									</li>
-									
-									<li class="nav-item">
-										<a href="../contactUs/contactUs.php">
-											<i class="menu-icon fa fa-globe"></i>
-											<span class="menu-title-text">Contact Us</span>
-										</a>
-									</li>
-									
-								</ul>
-							</div>
-							<!-- ******** [END] Left function menul ******** -->
-						
-						
-						
-					</nav>
-					
-					<div></div>
-				</aside>
-				<!-- ******** [END] Left panel ******** -->
+				<?php include_once("../leftPanel.php");?>	
 				
 				
 				
 				<!-- ******** [START] Right panel ******** -->
 				<div id="right-panel" class="right-panel">
 					
-					
-					
-					<!-- ******** [START] Navigation Header Bar ******** -->			
-					<header id="header" class="header">
-						<div>							
-							<div class="header-right">
-								<div>
-									<?php
-									if(isset($userID_In_Session )){
-											echo
-												'<a href="../notification/notification.php"><i class="fa fa-envelope"></i> </a> <span>&nbsp;</span>
-										 		 <a href="../userProfile/userProfile.php"><i class="fa fa-profile"></i>' .@$userID_In_Session . '</a> <span>&nbsp;</span>
-										 		 <a href="../login/logout.php"><i class="fa fa-sign-out"></i> Logout </a> <span>&nbsp;</span>';
-										}else{
-											echo
-												'<a href="../login/login.php"><i class="fa fa-sign-in"> Login </i></a> <span>&nbsp;</span>
-		            					 		 <a href="../registration/registerForm.php"><i class="fa fa-user-plus"> Sign-up </i></a> <span>&nbsp;</span>';
-										}
-				        			?>								
-								</div>								
-							</div>						
-						</div>
-					</header>
-					<!-- ******** [START] Navigation Header Bar ******** -->
-					
-					
-					
+					<?php include_once("../header.php");?>	
 					
 					<!-- ******** [START] Navigation Body ******** -->
 					<div>

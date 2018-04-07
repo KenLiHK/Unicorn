@@ -226,7 +226,7 @@ INSERT INTO `user` (`user_id`, `sex`, `privilege`, `eng_surname`, `eng_middle_na
 DROP TABLE IF EXISTS `user_notification`;
 CREATE TABLE IF NOT EXISTS `user_notification` (
   `notification_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` varchar(50) NOT NULL,
   `status` varchar(4) NOT NULL,
   `create_date` datetime NOT NULL,
   `update_date` datetime NOT NULL

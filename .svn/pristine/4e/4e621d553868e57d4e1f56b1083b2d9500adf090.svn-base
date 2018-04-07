@@ -1,0 +1,297 @@
+<?php
+
+include_once("../common/database.php");
+include_once("../common/functions.php");
+// custom functions
+include_once("./comment_function.php");
+
+checkLogon();
+
+check_session_timeout();
+
+
+
+$commentMsg_php = "";
+$userID = isset($_SESSION['login_user_id']) ? $_SESSION['login_user_id'] : "";
+$userLogged = checkUserLogon();
+$userOrdered = array();
+
+if (!empty($_POST["submitCom"]) && $_SERVER["REQUEST_METHOD"] == "POST") {    
+    $rating             = optimizateInput($_POST["rating"]);
+    $selectedOrder      = optimizateInput($_POST["selectedOrder"]);
+    $comment            = "";
+    $isFormDataValid = true;
+    
+    if(!isset($_POST['comment']) || $_POST['comment'] == ""){
+        $commentMsg_php = 										"[E301] Comment must be input!";
+        $isFormDataValid = false;
+        $comment = optimizateInput($_POST["commentDetail"]);
+    }
+    
+    if($isFormDataValid){
+        $now = date("Y-m-d h:i:sa");
+        
+        $commentObj = new Comment(NULL, $userID, $selectedOrder, $rating, $comment, $now, $now);
+        save_comment($commentObj);    
+    }
+    
+    
+}else{
+    // parameters
+    /* this decides how many entries from database will be fetched*/
+    $num_of_comment_sections = 5;
+    /* decides how many food entries will be shown in the list*/
+    $num_of_food_entries = 5;
+    
+    // variables
+    $array_user_id = array();
+    $array_order_id = array();
+    $array_content = array();
+    $array_ratings  = array();
+    $array_dates    = array();
+
+    $userOrdered=get_order_list_by_userID($userID);
+    
+   
+    if($userLogged && $userOrdered){ 
+    	// fetch order details
+    	$orderID = getOrderIDWithUserID($userID);
+    	// fetch food list
+    	$foodIDList=getFoodIDWithOrderID($orderID);
+    	// fill in the 'orders' values
+    	for ($x = 0; $x <= ($num_of_food_entries-1); $x++) {
+    		if($foodIDList[$x] != -1 ){
+    			$orders[0][$x] = getFoodNameWithFoodID($foodIDList[$x]);
+    		}else{
+    			$orders[0][$x] = '';
+    		}
+    	} 
+    	// current date
+    	$dates[0] = date("Y-m-d H:i:s");
+
+    	
+    // for any other non-logged guest*/
+    }else{
+    	
+    	// parse previous orders, by other users
+    	for ($x = 0; $x <= ($num_of_comment_sections-1); $x++) {
+    		// extract the values
+    		$userID[$x] = $array_user_id[$x];
+    		$comments[$x] = $array_content[$x];
+    		$ratings[$x] = $array_ratings[$x];
+    		$dates[$x] = $array_dates[$x];
+    		
+    		// fetch foodID List for specific order ID
+    		$foodIDList=getFoodIDWithOrderID($array_order_id[$x]);
+    		// parse foodID names
+    		for ($y = 0; $y <= ($num_of_food_entries-1); $y++) {
+    			if($foodIDList[$y] != -1 ){
+    				$orders[$x][$y] = getFoodNameWithFoodID($foodIDList[$y]);
+    			}else{
+    				$orders[$x][$y] = '';
+    			}
+    		}
+    	} 
+    	
+    	// change name if user is logged in
+    	if($userLogged){
+    		$userID = $_SESSION['login_user_id'];
+    		$userID = $userID;
+    	}
+    }
+
+}
+
+?>
+
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		
+		<title>Unicorn Restaurant - Comment</title>
+		
+		<?php include_once("../import.php");?>
+		
+		<link rel="stylesheet" href="../unicorn.css" type="text/css">
+		<link rel="stylesheet" href="./comment.css" type="text/css">		
+	</head>
+
+
+	<body>
+		<div id="loading"></div>
+		<div id="app"  style="display:none;" >	
+			<div>
+			
+				<?php include_once("../leftPanel.php");?>	
+				
+				<!-- ******** [START] Right panel ******** -->
+				<div id="right-panel" class="right-panel">
+					
+					<?php include_once("../header.php");?>	
+
+					<!-- ******** [START] Navigation Body ******** -->
+					<div>
+						<div>
+						
+			
+						
+						
+							<!-- ******** [START] Alert Message Display ******** -->
+							<?php if(!$userLogged): ?>
+								<div class="alert mt-4 alert-info">
+									<span class="badge badge-pill badge-info">Welcome!!</span> Please, log in and place an order to be able to post comment.							
+								</div>
+							<?php elseif(!$userOrdered) : ?>
+								<div class="alert mt-4 alert-info">
+									<span class="badge badge-pill badge-info">Welcome <?php echo $userID ?> !!</span> Please, place an order to be able to post comment.							
+								</div>
+							<?php else: ?>
+								<div class="alert mt-4 alert-success">
+									<span class="badge badge-pill badge-success">Welcome <?php echo $userID ?> !!</span> Let us know what you think about your last order.						
+								</div>
+							<?php endif; ?>
+							<!-- ******** [END] Alert Message Display ******** -->
+							
+
+                            <!-- ******** [START] Food Comment Section ******** -->
+							<div class="comment-section">
+							
+								<!-- ******** User Logged In & New Order ******** -->
+								<?php if($userLogged && count($userOrdered) > 0){ ?>
+	                        <!-- ******** COMMENT 0 - INPUT ******** -->
+									<form name="commentForm" method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+										<!--comment section-->
+										<div class="comment-container">
+											<!--order + name + stars-->
+											<div class="comment-init">
+												<!--order-->
+												<div class="comment-order">
+													<p id="text-order">Your order</p>
+												</div>
+												<!--name-->
+												<div class="comment-name">
+													<p id="text-name"><?php echo $userID ?></p>
+												</div>
+												<!--stars-->
+												<div class="comment-star">
+													<div class="star-rating">
+														<input id="star-5" type="radio" name="rating" value="star-5">
+														<label for="star-5" title="5 stars">
+																<i class="active fa fa-star" aria-hidden="true"></i>
+														</label>
+														<input id="star-4" type="radio" name="rating" value="star-4">
+														<label for="star-4" title="4 stars">
+																<i class="active fa fa-star" aria-hidden="true"></i>
+														</label>
+														<input id="star-3" type="radio" name="rating" value="star-3" checked>
+														<label for="star-3" title="3 stars">
+																<i class="active fa fa-star" aria-hidden="true"></i>
+														</label>
+														<input id="star-2" type="radio" name="rating" value="star-2">
+														<label for="star-2" title="2 stars">
+																<i class="active fa fa-star" aria-hidden="true"></i>
+														</label>
+														<input id="star-1" type="radio" name="rating" value="star-1">
+														<label for="star-1" title="1 star">
+																<i class="active fa fa-star" aria-hidden="true"></i>
+														</label>
+													</div>
+												</div>
+											</div>
+											<!-- order contant + comment input -->
+											<div class="comment-body">
+												<!-- order contant -->
+												<div class="comment-order-list">
+												Order ID:
+                                					<select id="id_selectedOrder" name="selectedOrder" style="width:150px;">
+                                						<?php
+                                						for ($row = 0; $row < count($userOrdered); $row++) {
+                                						    $orderID = $userOrdered[$row]["ORDER_ID"];
+                                						    echo "<option value=" . $orderID . ">" . $orderID . "</option>";
+                                						}                                						                                						
+                                						?>                  
+                                    				</select> 			
+												</div>
+
+												<div class="comment-input"> 
+													<textarea id="id_commentDetail" name="commentDetail" placeholder="Your opinion ... " maxlength="1000"></textarea>
+													<span class="comment_err" id="commentMsg" ><?php if(isset($commentMsg_php)){echo $commentMsg_php;} ?></span>
+												</div>
+											</div>
+
+											<div class="comment-footer">
+											<!--submit button-->
+												<div class="button">
+													<input type="submit" id="id_submitCom" name="submitCom" value="Submit">
+												</div>
+											</div>
+										</div>
+									</form>
+								<?php } ?>
+								
+		<!-- ******** COMMENT 0 ******** -->
+									<div class="comment-container">
+										<!--order + name + stars-->
+										<div class="comment-init">
+											<!--order-->
+											<div class="comment-order">
+												<p id="text-order">Previous order</p>
+											</div>
+											<!--name-->
+											<div class="comment-name">
+												<p id="text-name"><?php echo $userID ?></p>
+											</div>
+											<!--stars-->
+											<div class="comment-star">
+												<div class="star-static">
+
+												</div>
+											</div>
+										</div>
+										<!-- order contant + comment input -->
+										<div class="comment-body">
+											<!-- order contant -->
+											<div class="comment-order-list">
+												<ul>
+													<li id="order-item-0"><?php echo $orders[0][0] ?></li>
+													<li id="order-item-1"><?php echo $orders[0][1] ?></li>
+													<li id="order-item-2"><?php echo $orders[0][2] ?></li>
+													<li id="order-item-3"><?php echo $orders[0][3] ?></li>
+													<li id="order-item-4"><?php echo $orders[0][4] ?></li>
+												</ul>				
+											</div>
+
+											<div class="comment-input"> 
+
+											</div>
+										</div>
+
+										<div class="comment-footer">
+											<div class="time">
+												<p id="text-time"><?php echo $dates[0] ?></p>
+											</div>
+										</div>
+									</div>				
+								<!-- ******** [END] Food Comment Section ******** -->	
+								
+
+							<?php include_once("../footer.php");?>
+							
+							
+							
+						</div>
+					</div>
+					<!-- ******** [END] Navigation Body ******** -->
+					
+					
+					
+				</div>
+				<!-- ******** [END] Right panel ******** -->
+				
+				
+			</div>
+		</div>
+	
+	</body>
+</html>

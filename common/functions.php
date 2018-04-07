@@ -57,6 +57,26 @@
 		}
 	}
 
+	function login_by_userId_or_email_passwordFake($userIdOrEmail, $password) {
+		$_user_in_db = array();
+		$_user_in_db = db_select_user_by_UserID_or_Email_PasswordFake($userIdOrEmail, $password);
+		$userID = $_user_in_db[0];
+		$email = $_user_in_db[1];
+		
+		if(isset($_user_in_db)){
+			$_updated_row_count = db_update_user_lastLoginTime_by_Email($email);
+			
+			if(isset($_updated_row_count) && $_updated_row_count > 0){
+				prepare_login_session($userID, $email);
+				return "true";	//login success
+			}else{
+				return "false";	//login failure
+			}
+		}else{
+			return "false";
+		}
+	}
+	
 	function prepare_login_session($userID, $email) {
 		if (session_status() == PHP_SESSION_NONE) {
 			session_start();
@@ -70,18 +90,25 @@
 	}
 
 	function check_session_timeout() {
-		$timeout = 1800;  //30 mins
-		if (session_status() == PHP_SESSION_NONE) {
-			session_start();
-		}
-		
-		if (isset($_SESSION['last_request_time']) && (time() - $_SESSION['last_request_time'] > $timeout)) {
-			// When last request time was more than 30 minutes ago, clear all session variables and destroy all sessions.
-			session_unset();
-			session_destroy();
-		}else{
-			$_SESSION['last_request_time'] = time(); // update last activity time stamp
-		}		
+	    if(checkUserLogon()){
+    		$timeout = 3000;  //30 mins
+    		if (session_status() == PHP_SESSION_NONE) {
+    			session_start();
+    		}
+    		
+    		if (isset($_SESSION['last_request_time']) && (time() - $_SESSION['last_request_time'] > $timeout)) {
+    			// When last request time was more than 30 minutes ago, clear all session variables and destroy all sessions.
+    			session_unset();
+    			session_destroy();
+    			
+    			//go back to cart.php
+    			$logoutMsg = "Session is timeout and logout automatically.";
+    			header('Location: ../login/logout.php?logoutMsg=' . $logoutMsg);
+    			exit;   
+    		}else{
+    			$_SESSION['last_request_time'] = time(); // update last activity time stamp
+    		}
+	    }
 	}
 
 	function refresh_session() {
@@ -105,7 +132,7 @@
 		}
 		
 		if(!isset($_SESSION['login_user_id'])){
-			echo "<script>alert('Please login first!');location.href='../login/login.php';</script>";
+			echo "<script type=text/javascript'>alert('Please login first!');location.href='../login/login.php';</script>";
 			die();
 		}
 	}	
@@ -232,7 +259,7 @@
 		
 	function place_order($order, $orderDetailList) {
 		$_orderID = db_insert_order($order);
-		
+		$now = date("Y-m-d");
 		if(isset($_orderID)){
     		for ($row = 0; $row < count($orderDetailList); $row++) {
     			$orderDetail = $orderDetailList[$row];
@@ -240,6 +267,15 @@
     			db_insert_order_detail($orderDetail);
     		}
 		}
+		
+		//add notification
+		$nSubject = "Order ID:" . $_orderID . " Placed order successfully!";
+		$nContent = "Order ID:" . $_orderID . " Placed order successfully on " . $now . "!";
+		$notification = new Notification("", "NT11", $nSubject, $nContent, $order->getCreateDate(), $order->getCreateDate());
+		$_notificationID = db_insert_notification($notification);
+		
+		$userNotification = new UserNotification($_notificationID, $order->getUserID(), "NS01", $order->getCreateDate(), $order->getCreateDate());
+		db_insert_user_notification($userNotification);
 		return $_orderID;
 	}
 	
@@ -302,6 +338,32 @@
 		return $countAll;
 	}
 	//[END] Place order function
+	
+	//[START] Comment function
+	function get_order_list_by_userID($userID){
+	    return db_select_order_by_UserID($userID);
+	}
+	
+	function save_comment($commentObj){
+	    return db_insert_comment($commentObj);
+	}
+	
+	//[END] Comment function
+	
+	//[START] Notification function
+	function get_notification_list_by_userID($userID){
+		return db_select_notification_by_UserID($userID);
+	}
+	
+	function update_notification($notificationObj){
+		return db_update_notification($notificationObj);
+	}
+	
+	function get_notification_count_by_userID($userID){
+	    return db_select_notification_count_by_UserID($userID);
+	}
+	//[END] Notificationfunction
+	
 	
 	
 	/*
