@@ -8,7 +8,7 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 if(isset($_SESSION['login_user_id'])){
-	$userID_In_Session = $_SESSION['login_user_id'];
+	$userID = $_SESSION['login_user_id'];
 }
 
 

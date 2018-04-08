@@ -2,12 +2,8 @@
 
 include_once("../common/functions.php");
 
-if (session_status() == PHP_SESSION_NONE) {
-	session_start();
-}
-
 $_isLogon = checkUserLogon();
-$privilege = isset($_SESSION['login_user_privilege']) ? $_SESSION['login_user_privilege'] : "";	
+
 
 ?>
 
@@ -90,46 +86,7 @@ $privilege = isset($_SESSION['login_user_privilege']) ? $_SESSION['login_user_pr
 											<span class="menu-title-text">Contact Us</span>
 										</a>
 									</li>
-
 									
-									<?php if ($_isLogon && $privilege != "" && $privilege == "A") {?>
-									<h3 class="menu-title"> Administration </h3>
-
-									<li class="nav-item mt-auto">
-										<a href="../admin/addFood.php">
-											<i class="menu-icon fa fa-clone fa-1x"></i>
-											<span class="menu-title-text"> Add Food </span>
-										</a>
-									</li>
-									
-									<li class="nav-item mt-auto">
-										<a href="../admin/updateFood.php">
-											<i class="menu-icon fa fa-edit fa-1x"></i>
-											<span class="menu-title-text"> Update Food </span>
-										</a>
-									</li>
-									
-									<li class="nav-item mt-auto">
-										<a href="../admin/updateOrder.php">
-											<i class="menu-icon fa fa-cutlery fa-1x"></i>
-											<span class="menu-title-text"> Update Order </span>
-										</a>
-									</li>
-									
-									<li class="nav-item mt-auto">
-										<a href="../admin/addStaff.php">
-											<i class="menu-icon fa fa-address-book-o fa-1x"></i>
-											<span class="menu-title-text"> Add Staff </span>
-										</a>
-									</li>
-									
-									<li class="nav-item mt-auto">
-										<a href="../admin/updateStaff.php">
-											<i class="menu-icon fa fa-address-book fa-1x"></i>
-											<span class="menu-title-text"> Update Staff </span>
-										</a>
-									</li>																																				
-									<?php }?>									
 								</ul>
 							</div>
 							<!-- ******** [END] Left function menul ******** -->

@@ -40,14 +40,15 @@
 	function login_by_userId_or_email_password($userIdOrEmail, $password) {
 		$_user_in_db = array();
 		$_user_in_db = db_select_user_by_UserID_or_Email_Password($userIdOrEmail, $password);
-		$userID = $_user_in_db[0];
-		$email = $_user_in_db[1];
+		$userID      = $_user_in_db[0];
+		$email       = $_user_in_db[1];
+		$privilege   = $_user_in_db[2];
 		
 		if(isset($_user_in_db)){
 			$_updated_row_count = db_update_user_lastLoginTime_by_Email($email);
 			
 			if(isset($_updated_row_count) && $_updated_row_count > 0){
-				prepare_login_session($userID, $email);
+				prepare_login_session($userID, $email, $privilege);
 				return "true";	//login success
 			}else{
 				return "false";	//login failure
@@ -60,14 +61,15 @@
 	function login_by_userId_or_email_passwordFake($userIdOrEmail, $password) {
 		$_user_in_db = array();
 		$_user_in_db = db_select_user_by_UserID_or_Email_PasswordFake($userIdOrEmail, $password);
-		$userID = $_user_in_db[0];
-		$email = $_user_in_db[1];
+		$userID      = $_user_in_db[0];
+		$email       = $_user_in_db[1];
+		$privilege   = $_user_in_db[2];
 		
 		if(isset($_user_in_db)){
 			$_updated_row_count = db_update_user_lastLoginTime_by_Email($email);
 			
 			if(isset($_updated_row_count) && $_updated_row_count > 0){
-				prepare_login_session($userID, $email);
+				prepare_login_session($userID, $email, $privilege);
 				return "true";	//login success
 			}else{
 				return "false";	//login failure
@@ -77,14 +79,15 @@
 		}
 	}
 	
-	function prepare_login_session($userID, $email) {
+	function prepare_login_session($userID, $email, $privilege) {
 		if (session_status() == PHP_SESSION_NONE) {
 			session_start();
 		}
 		
 		// Store Session Data
 		$_SESSION['login_user_id']= $userID;
-		$_SESSION['login_user_email']= $email;	
+		$_SESSION['login_user_email']= $email;
+		$_SESSION['login_user_privilege']= $privilege;	
 		$_SESSION['login_date_time']= time(); //Current date time in second format
 		$_SESSION['last_request_time']= time();
 	}

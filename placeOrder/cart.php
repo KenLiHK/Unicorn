@@ -493,8 +493,18 @@ if (!empty($_POST["SubmitBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 							
 								<!-- ******** [START] Alert Message Display ******** -->
 								<div class="alert mt-4 alert-success">
-									<span class="cart_info" id="cartInfoMsg" ><?php if(isset($cartInfoMsg_php)){echo $cartInfoMsg_php;} ?></span>
-									<span class="cart_err" id="cartMsg" ><?php if(isset($cartMsg_php)){echo $cartMsg_php;} ?></span>
+								<?php if(isset($cartInfoMsg_php) && !empty($cartInfoMsg_php)){ ?>
+												<span class="cart_info" id="cartInfoMsg" ><?php if(isset($cartInfoMsg_php)){echo $cartInfoMsg_php;} ?></span>
+								<?php }else if(isset($cartMsg_php) && !empty($cartMsg_php)){ ?>
+												<span class="cart_err" id="cartMsg" ><?php if(isset($cartMsg_php)){echo $cartMsg_php;} ?></span>";
+								<?php }else{
+											if(isset($userID)){ ?>
+												<span class='badge badge-pill badge-success'>Welcome <?php if(isset($userID)){echo $userID;} ?></span> We promise to deliver the freshest foods to you as soon as possible.
+								<?php 		}else{ ?>
+												<span class="cart_info" id="cartInfoMsg" >We promise to deliver the freshest foods to you as soon as possible.</span>
+								<?php }
+				 				}
+								?>
 								</div>
 								<!-- ******** [END] Alert Message Display ******** -->
 								

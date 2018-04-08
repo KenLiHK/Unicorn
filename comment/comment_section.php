@@ -88,19 +88,19 @@ if (!empty($_POST["submitCom"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 						
 							<!-- ******** [START] Alert Message Display ******** -->
 							<?php if(!$userLogged){ ?>
-								<div class="alert mt-4 alert-info">
-									<span class="badge badge-pill badge-info">Welcome!!</span> Please, log in and place an order to be able to post comment.							
+								<div class="alert mt-4 alert-success">
+									<span class="badge badge-pill badge-success">Welcome!!</span> Please, log in and place an order to be able to post comment.							
 								</div>
 							<?php }else if(!isset($userOrdered) || count($userOrdered) == 0) { ?>
-								<div class="alert mt-4 alert-info">
-									<span class="badge badge-pill badge-info">Welcome <?php echo $userID ?> !!</span> Please, place an order to be able to post comment.							
+								<div class="alert mt-4 alert-success">
+									<span class="badge badge-pill badge-success">Welcome <?php echo $userID ?> !!</span> Please, place an order to be able to post comment.							
 								</div>
 							<?php }else if($commentMsg_php != "") { ?>
-								<div class="alert mt-4 alert-info">																											
+								<div class="alert mt-4 alert-success">																											
 									<span class="comment_err"><?php if(isset($commentMsg_php)){echo $commentMsg_php;} ?></span>							
 								</div>
 							<?php }else if($commentInfoMsg_php != "") { ?>
-								<div class="alert mt-4 alert-info">
+								<div class="alert mt-4 alert-success">
 									<span class="comment_info" ><?php if(isset($commentInfoMsg_php)){echo $commentInfoMsg_php;} ?></span>								
 								</div>																
 							<?php }else{ ?>
