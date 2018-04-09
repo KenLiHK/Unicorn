@@ -102,4 +102,18 @@ label.mandatory_field {
 input.admin_radio[type=radio] {
 	zoom: 2;
 }
+
+input.admin_textarea {
+	display: inline-block;
+	width: 50%;
+	padding-left: 5px;
+	text-align: left;
+}
+
+.food_tag {
+	display: inline-block;	
+	width: 50%;
+	text-align: left;
+	font-weight:bold;
+}
 /******** [END] Admin style ********/

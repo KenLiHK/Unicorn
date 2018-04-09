@@ -134,11 +134,24 @@
 			session_start();
 		}
 		
-		if(!isset($_SESSION['login_user_id'])){
-			echo "<script type=text/javascript'>alert('Please login first!');location.href='../login/login.php';</script>";
+		if(!isset($_SESSION['login_user_id'])){			
+			$_msg = "Please login first!";
+			go_to_exception_page($_msg);
 			die();
 		}
 	}	
+	
+	function checkAdmin() {
+	    if (session_status() == PHP_SESSION_NONE) {
+	        session_start();
+	    }
+	    
+	    if(!isset($_SESSION['login_user_privilege']) || $_SESSION['login_user_privilege'] != "A"){
+	        $_msg = "Page access denied!";
+	        go_to_exception_page($_msg);
+	        die();
+	    }
+	}
 	
 	function checkUserLogon(){
 		if (session_status() == PHP_SESSION_NONE) {

@@ -2,6 +2,7 @@
 
 include_once("../common/functions.php");
 
+
 //Receive Ajax call with parameter foodData2Add and add the food to selectedFoodMap in user login session.
 if(isset($_POST['foodData2Add']))
 {

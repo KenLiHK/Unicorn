@@ -43,11 +43,12 @@ function prepareNotificationSection(){
                 else{
                     $.each(result["data"],function(i,n){
                     	var $_notificationID 	= n["notification_id"];
+                    	var $_type 				= n["type"];
                     	var $_status 			= n["status"];
                         var $_subject 			= n["subject"];
                         var $_content 			= n["content"];
                         var $_createDate 		= n["create_date"];                        
-                        $notificationSection += prepareNotification($_notificationID, $_status, $_subject, $_content, $_createDate);
+                        $notificationSection += prepareNotification($_notificationID, $_type, $_status, $_subject, $_content, $_createDate);
                     }); 
                 }
                 $notificationSection += '</div>';
@@ -58,16 +59,25 @@ function prepareNotificationSection(){
     )
 }
 
-function prepareNotification($_notificationID, $_status, $_subject, $_content, $_createDate){	
+function prepareNotification($_notificationID, $_type, $_status, $_subject, $_content, $_createDate){	
 	var notificationSec = "";
 	var color = "black";
 	if($_status == "NS01"){
 		color = "red";
 	}
 	
+	var detailBtn = "";	 
+	if($_type == 'NT11'){		
+		var n = $_subject.indexOf("Placed order successfully!");	    
+	    var s = $_subject.substr(0, n-1);
+	    var orderID = s.substr(9);
+	    detailBtn = '<input class="noti_button" type="button" value="Check order details" onclick="viewOrderDetail(' + orderID + ')">';
+	}
+	
+	
 	notificationSec +=
 	'	  <h3 id="h3_' + $_notificationID + '" style="color:' + color + ';">' + $_createDate + ' ' + $_subject + '</h3>				' +
-	'	  <div><p>' + $_content + '</p><input class="comment_button" type="button" value="Check order details" onclick="viewOrderDetail(' + $_orderID + ')"></div>																						' ;
+	'	  <div><p>' + $_content + '</p>' + detailBtn + '</div>																		' ;
 	
     return notificationSec;
 }

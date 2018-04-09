@@ -3,6 +3,7 @@
 include_once("../common/functions.php");
 
 checkLogon();
+checkAdmin();
 
 check_session_timeout();
 
