@@ -3,6 +3,7 @@
 include_once("../common/functions.php");
 
 checkLogon();
+checkAdmin();
 
 check_session_timeout();
 
@@ -16,83 +17,61 @@ if(isset($_SESSION['login_user_id'])){
 
 $isFormDataValid = true;
 
-$userID			= "";
-$imgPath 		= "../resources/userProfileImg/default.jpg";
-$sex 			= "";
-$engSurname		= "";
-$engMidName 	= "";
-$engName		= "";
-$email			= "";
-$tel 			= "";
-$address1		= "";
-$address2		= "";
-$address3		= "";
-$address4		= "";
+$foodImgPath	= "../resources/foodImg/defaultFood.jpg";
+$foodCat		= "";
+$foodName		= "";
+$price       	= "";
+$discount		= "";
+$effectDateFrom	= "";
+$effectDateTo	= "";
+$remarks	    = "";
+$tags	        = "";
 
 //define server side error message variables and set to empty values
-$adminMsg_php = "";
-$adminImgInfoMsg_php = "";
-$adminImgMsg_php = "";
-
-$emailMsg_php = "";
-$emailInfoMsg_php = "";
-
-$engSurnameMsg_php = "";
-$engMidNameMsg_php = "";
-$engNameMsg_php = "";
-
-$sexMsg_php = "";
-$telMsg_php = "";
-
-$address1Msg_php = "";
-$address2Msg_php = "";
-$address3Msg_php = "";
-$address4Msg_php = "";
+$foodImgInfoMsg_php     = "";
+$foodImgMsg_php         = "";
+$foodCatMsg_php         = "";
+$foodNameInfoMsg_php    = "";
+$foodNameMsg_php        = "";
+$priceMsg_php           = "";
+$discountMsg_php        = "";
+$effectDateMsg_php      = "";
 
 
 if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
-	$userID			= optimizateInput($_POST["userID"]);
-	$email 			= optimizateInput($_POST["email"]);
-	$engSurname 	= optimizateInput($_POST["engSurname"]);
-	$engMidName 	= optimizateInput($_POST["engMidName"]);
-	$engName 		= optimizateInput($_POST["engName"]);
-	$sex 			= optimizateInput($_POST["sex"]);
-	$tel 			= optimizateInput($_POST["tel"]);
-	$address1 		= optimizateInput($_POST["address1"]);
-	$address2 		= optimizateInput($_POST["address2"]);
-	$address3 		= optimizateInput($_POST["address3"]);
-	$address4 		= optimizateInput($_POST["address4"]);	
-	
-	// ******** [START] Email validation ********
-	if(empty($email)) {
-		$emailMsg_php = "[E701] Email must be input!";
+    $foodCat 			= optimizateInput($_POST["foodCat"]);
+    $foodName 			= optimizateInput($_POST["foodName"]);
+    $available 			= optimizateInput($_POST["available"]);
+    $price 		        = optimizateInput($_POST["price"]);
+    $discount 		    = optimizateInput($_POST["discount"]);
+    $effectDateFrom 	= optimizateInput($_POST["fromDate"]);
+    $effectDateTo 		= optimizateInput($_POST["toDate"]);	    
+    $remarks 	        = optimizateInput($_POST["remarks"]);
+    $tags 		        = optimizateInput($_POST["tags"]);	
+    
+    if(empty($foodCat)) {
+        $foodCatMsg_php = "[E901] Food category must be input!";
+        $isFormDataValid = false;
 	}
 	
-	if($emailMsg_php == ""){
-		$_email = db_select_user_by_Email($email);
-		if(!isset($_email))
+	if(empty($foodName)) {
+	    $foodNameMsg_php = "[E902] Food name must be input!";
+	    $isFormDataValid = false;
+	}
+	
+	if($foodCatMsg_php == "" && $foodNameMsg_php == ""){
+	    $_foodCount = db_select_food_by_FoodCat_FoodName($foodCat, $foodName);
+	    if(!isset($_foodCount) || $_foodCount == 0)
 		{
-			$emailInfoMsg_php = "[I701] Email is acceptable!"; //NOT found Email in DB
+		    $foodNameInfoMsg_php = "[I901] Food name is acceptable!";
 		}
 		else
 		{
-			$emailMsg_php = "[E711] Email is already registered, please register by other email!"; //Found Email in DB
+		    $foodNameMsg_php = "[E903] Food name is already added!";
 		}
 	}
 	
-	//Validate email address pattern
-	if ($emailMsg_php == "" && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-		$emailMsg_php = "[E702] Invalid Email!";
-	}
-	
-	if($emailMsg_php != ""){
-		$isFormDataValid = false;
-	}
-	// ******** [END] Email validation ********
-	
-	
-	
-	if(empty($engSurname)) {
+	if(empty($price)) {
 		$engSurnameMsg_php = "[E703] English Surname must be input!";
 		$isFormDataValid = false;
 	}
@@ -306,88 +285,81 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 								
 								<!-- ******** [START] Add Food Division ******** -->
 								<div class="container">
-									<h5>Add Food</h5>
+									<h5>Add Food</h5>									
 									<hr>
 										<div>
-											<label class="admin_label">Food Image : </label>
+											<label class="mandatory_field">* Mandatory field</label><br>
+											<label class="admin_label">Food Image<label class="mandatory_field">*</label> : </label>
 											<label class="admin_label3">
 												<?php if(isset($imgPath) && $imgPath != ""){ ?>
 												<img class="foodImage" src="<?php echo UNICORN_ROOT . $imgPath; ?>" alt="Food Image">
-												<?php }else { $imgPath = "../resources/userProfileImg/default.jpg";?>
-												<img class="foodImage" src="../resources/userProfileImg/default.jpg" alt="Food Image">
+												<?php }else { $imgPath = "../resources/foodImg/defaultFood.jpg";?>
+												<img class="foodImage" src="../resources/foodImg/defaultFood.jpg" alt="Food Image">
 												<?php } ?>
 												<input type="file" id="foodImg" name="foodImg" />
 											</label>
-											<!--<input type="button" id="profileImgUpload" name="profileImgUpload" value="Upload" onclick="uploadProfileImg();" />-->
-											<span class="admin_info" id="adminImgInfoMsg" ><?php if(isset($adminImgInfoMsg_php)){echo $adminImgInfoMsg_php;} ?></span>								
-											<span class="admin_err" id="adminImgMsg" ><?php if(isset($adminImgMsg_php)){echo $adminImgMsg_php;} ?></span>
+											<span class="admin_info" id="foodImgInfoMsg" ><?php if(isset($foodImgInfoMsg_php)){echo $foodImgInfoMsg_php;} ?></span>								
+											<span class="admin_err" id="foodImgMsg" ><?php if(isset($foodImgMsg_php)){echo $foodImgMsg_php;} ?></span>
 											<br>											
 										</div>	
 										<hr>
-										<label class="mandatory_field">* Mandatory field</label><br>
 										<div>
-											<label class="admin_label">Food Category : </label> 										
-											<label class="admin_label3"><?php if(isset($userID)){echo $userID;} ?></label>
-								       		<select id="id_selectedOrder" name="selectedOrder" style="width:150px;">
+											<label class="admin_label">Food Category<label class="mandatory_field">*</label> : </label> 										
+											<select id="id_foodCat" name="foodCat" style="width:150px;">
                                 				<?php
                                 				for ($row = 0; $row < count($userOrdered); $row++) {
                                 					$orderID = $userOrdered[$row]["ORDER_ID"];
                                 					echo "<option value=" . $orderID . ">" . $orderID . "</option>";
                                 				}                                						                                						
                                 				?>                  
-                                    		</select>
-											<span class="admin_info" id="userIDInfoMsg" ><?php if(isset($userIDInfoMsg_php)){echo $userIDInfoMsg_php;} ?></span>								
-											<span class="admin_err" id="userIDMsg" ><?php if(isset($userIDMsg_php)){echo $userIDMsg_php;} ?></span>
+                                    		</select>						
+											<span class="admin_err" id="foodCatMsg" ><?php if(isset($foodCatMsg_php)){echo $foodCatMsg_php;} ?></span>
 										<div>
 										
 										<div>
-											<label class="admin_label">Food Name<label class="mandatory_field">*</label> : </label>
-											<input type="hidden" id="currentEmail", name="currentEmail" value="<?php if(isset($email)){echo $email;} ?>">  
-											<input class="admin_input" type="email" id="email" name="email" maxlength="100" value="<?php if(isset($email)){echo $email;} ?>" >
-											<span class="admin_info" id="emailInfoMsg" ><?php if(isset($emailInfoMsg_php)){echo $emailInfoMsg_php;} ?></span>										
-											<span class="admin_err" id="emailMsg" ><?php if(isset($emailMsg_php)){echo $emailMsg_php;} ?></span>
+											<label class="admin_label">Food Name<label class="mandatory_field">*</label> : </label> 
+											<input class="admin_input" type="text" id="id_foodName" name="foodName" maxlength="100" value="<?php if(isset($foodName)){echo $foodName;} ?>" >
+											<span class="admin_info" id="foodNameInfoMsg" ><?php if(isset($foodNameInfoMsg_php)){echo $foodNameInfoMsg_php;} ?></span>										
+											<span class="admin_err" id="foodNameMsg" ><?php if(isset($foodNameMsg_php)){echo $foodNameMsg_php;} ?></span>
 										<div>
 						
 										<div>
 											<label class="admin_label">Available<label class="mandatory_field">*</label> : </label> 
-											<select id="id_selectedOrder" name="selectedOrder" style="width:150px;">
+											<select id="id_available" name="available" style="width:150px;">
 												<option value="Y"> Y </option>
 												<option value="N"> N </option>
 											</select>
-											<span class="admin_err" id="engSurnameMsg" ><?php if(isset($engSurnameMsg_php)){echo $engSurnameMsg_php;} ?></span>
 										<div>									
 										
 										<div>
 											<label class="admin_label">Price<label class="mandatory_field">*</label> : </label> 
-											<input class="admin_input" type="text" id="engMidName" name="engMidName" maxlength="50" value="<?php if(isset($engMidName)){echo $engMidName;} ?>" >
-											<span class="admin_err" id="engMidNameMsg" ><?php if(isset($engMidNameMsg_php)){echo $engMidNameMsg_php;} ?></span>
+											<input type="text" id="id_price" name="price" maxlength="10" value="<?php if(isset($price)){echo $price;} ?>" >
+											<span class="admin_err" id="priceMsg" ><?php if(isset($priceMsg_php)){echo $priceMsg_php;} ?></span>
 										<div>
 	
 										<div>
 											<label class="admin_label">Discount percentage : </label>
-											<input class="admin_input" type="text" id="engName" name="engName" maxlength="50" value="<?php if(isset($engName)){echo $engName;} ?>">
-											<span class="admin_err" id="engNameMsg" ><?php if(isset($engNameMsg_php)){echo $engNameMsg_php;} ?></span>
+											<input type="text" id="id_discount" name="discount" maxlength="3" value="<?php if(isset($discount)){echo $discount;} ?>">
+											<span class="admin_err" id="discountMsg" ><?php if(isset($discountMsg_php)){echo $discountMsg_php;} ?></span>
 										<div>
 										
 										<div>
 											<label class="admin_label">Discount effective date : </label> 
-											<input class="admin_radio" type="radio" name="sex" value="M" <?php if (isset($sex) && $sex=="M") echo "checked";?> />Male
-											<input class="admin_radio" type="radio" name="sex" value="F" <?php if (isset($sex) && $sex=="F") echo "checked";?> />Female
-											<span class="admin_err" id="sexMsg" ><?php if(isset($sexMsg_php)){echo $sexMsg_php;} ?></span>
+											<input type="date" name="fromDate" min="2018-04-01" />
+											<input type="date" name="toDate" max="2099-12-31"/>
+											<span class="admin_err" id="effectDateMsg" ><?php if(isset($effectDateMsg_php)){echo $effectDateMsg_php;} ?></span>
 										<div>
 	
 										<hr>
 										
 										<div>
-											<label class="admin_label">Remarks<label class="mandatory_field">*</label> : </label> 
-											<textarea id="id_commentDetail" name="commentDetail" placeholder="Your opinion ... " maxlength="1000" value=""></textarea>
-											<span class="admin_err" id="telMsg" ><?php if(isset($telMsg_php)){echo $telMsg_php;} ?></span>
+											<label class="admin_label">Remarks : </label> 
+											<textarea class="admin_textarea" id="id_remarks" name="remarks" maxlength="1000" value="" style="width:50%"></textarea>
 										<div>
 	
-										<div>
-											<label class="admin_label">Tags<label class="mandatory_field">*</label> : </label> 
-											<textarea id="id_commentDetail" name="commentDetail" placeholder="Your opinion ... " maxlength="1000" value=""></textarea>
-											<span class="admin_err" id="telMsg" ><?php if(isset($telMsg_php)){echo $telMsg_php;} ?></span>
+										<div style="display:inline;">
+											<label class="admin_label">Tags : </label> 											
+											<div class="food_tag"><div data-tags-input-name="tag" id="tagBox"></div></div>
 										<div>
 										
 										<hr>

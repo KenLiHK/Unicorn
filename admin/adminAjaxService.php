@@ -2,6 +2,9 @@
 
 include_once("../common/functions.php");
 
+checkLogon();
+checkAdmin();
+
 //Receive Ajax call with parameter email2Check and check if the received Email exist in Database USER table.
 if(isset($_POST['emailUserID2Check']))
 {

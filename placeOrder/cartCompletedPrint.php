@@ -157,7 +157,7 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 						<div>
 							<div>
 								<div>
-									<span style="display:inline; font-size: 24pt;"><img src="../resources/cs5281unicorn2_cvY_6.ico" alt="Logo"> Unicorn Restaurant</span>
+									<span style="display:inline; font-size: 24pt;"><img src="../resources/systemImg/cs5281unicorn2_cvY_6.ico" alt="Logo"> Unicorn Restaurant</span>
 								</div>
 							
 								<!-- ******** [START] Alert Message Display ******** -->

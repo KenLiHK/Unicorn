@@ -44,12 +44,15 @@
 			$stmt = $dbconnection->prepare("INSERT INTO `user` (`user_id`, `img_path`, `sex`, `privilege`, `eng_surname`, `eng_middle_name`, 
 				`eng_name`, `email`, `tel`, `address_1`, `address_2`, `address_3`, `address_4`, `last_login_date`, 
 				`reset`, `locked`, `password`, `reg_token`, `effect_date`, `expiry_date`, `remark`, `create_date`, `update_date`) 
-				VALUES (:userID, NULL, :sex, 'U', :engSurname, :engMidName, 
+				VALUES (:userID, :imgPath, :sex, 'U', :engSurname, :engMidName, 
 				:engName, :email, :tel, 
 				:address1, :address2, :address3, :address4, NULL, 
 				'N', 'N', :encrypttedPassword, :regToken, '" . $now . "', NULL, NULL,'" . $now . "', '" . $now . "')");
 		
+			$defaultImgPath = "/resources/userProfileImg/default.jpg";
+			
 			$stmt->bindParam(':userID', 			$user->getUserID());
+			$stmt->bindParam(':imgPath', 			$defaultImgPath);
 			$stmt->bindParam(':sex', 				$user->getSex());
 			$stmt->bindParam(':engSurname', 		$user->getEngSurname());
 			$stmt->bindParam(':engMidName', 		$user->getEngMidName());
@@ -145,7 +148,7 @@
 			$dbconnection = db_connect();
 		
 			//Prepared SQL statement
-			$sql = "SELECT USER_ID, EMAIL FROM UNICORN.USER WHERE EMAIL=:email and REG_TOKEN=:regToken";
+			$sql = "SELECT USER_ID, EMAIL, PRIVILEGE FROM UNICORN.USER WHERE EMAIL=:email and REG_TOKEN=:regToken";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':email' => $email, ':regToken' => $regToken);
 			$stmt->execute($paramArray);
@@ -154,6 +157,7 @@
 			$column_arr = array();
 			$column_arr[] = $fetch['USER_ID'];
 			$column_arr[] = $fetch['EMAIL'];
+			$column_arr[] = $fetch['PRIVILEGE'];
 			
 			return $column_arr;
 		}catch(PDOException $e){
@@ -776,14 +780,14 @@
 	}
 	//[END] Comment function
 	
-	//[START] Notificationfunction
+	//[START] Notification function
 	function db_select_notification_by_UserID($userID)
 	{
 		try {
 			$dbconnection = db_connect();
 			
 			//Prepared SQL statement
-			$sql = "select un.notification_id, un.create_date, un.status, n.subject, n.content 
+			$sql = "select un.notification_id, un.create_date, un.status, n.subject, n.content, n.type 
 					from user_notification un, notification n 
 					where un.notification_id = n.notification_id and un.user_id = :userID 
 					order by un.create_date desc;";
@@ -848,7 +852,8 @@
 	    //close db connection to release memory
 	    $dbconnection = null;
 	}
-	//[END] Notificationfunction
+	//[END] Notification function
+		
 	/*
 	//Not prefer to use the following function, we should use prepared statement to prevent SQL Injection hacking
 	function db_insert($sql)
@@ -869,4 +874,29 @@
 		$dbconnection = null;
 	}
 	*/
+	
+	
+	//[START] Admin functions
+	function db_select_food_by_FoodCat_FoodName($foodCat, $foodName)
+	{
+	    try {
+	        $dbconnection = db_connect();
+	        
+	        //Prepared SQL statement
+	        $sql = "SELECT * FROM UNICORN.FOOD WHERE FOOD_CATEGORY=:foodCat AND FOOD_NAME=:foodName";
+	        $stmt = $dbconnection->prepare($sql);
+	        $paramArray = array(':foodCat' => $foodCat);
+	        $paramArray = array(':foodName' => $foodName);
+	        $stmt->execute($paramArray);
+	        
+	        return $stmt->rowCount();
+	    }catch(PDOException $e){
+	        go_to_exception_page("db_select_food_by_FoodCat_FoodName() -> ".$e);
+	    }
+	    
+	    //close db connection to release memory
+	    $dbconnection = null;
+	}
+	
+	//[END] Admin functions
 ?>
