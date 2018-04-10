@@ -20,7 +20,7 @@ if(isset($_SESSION['login_user_id'])){
 
 	<title>Unicorn Restaurant - Home</title>
 <style>
-******** [START] Recommend page style definition ********/
+/******** [START] Recommend page style definition ********/
 #itemCount {
   position: absolute;
   display: none;
@@ -39,7 +39,7 @@ if(isset($_SESSION['login_user_id'])){
   width: 210px;
   position: relative;
 }
-******** [END] Recommend page style definition ********/
+/******** [END] Recommend page style definition ********/
 </style>
 	<?php include_once("../import.php");?>
 	
