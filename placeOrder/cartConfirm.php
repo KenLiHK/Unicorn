@@ -1,8 +1,9 @@
 <?php
 include_once("../common/functions.php");
 
+healthCheckDB();
+healthCheckDBTables();
 checkLogon();
-
 check_session_timeout();
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -137,9 +138,12 @@ if (!empty($_POST["ConfirmBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
      */
     
     $_orderStatus = "OS21";
+    
+    /*
     if($_paymentMethod == "CA"){
     	$_orderStatus = "OS11";
     }
+    */
     
     $_order = new Order("", $userID, $_orderStatus, $_deliveryTimeslot, $now, $expiryDate, $_totalPaymentAmt, "0",
     		"", $_paymentMethod, $_cardType, $_creditCardNo, $_creditCardCVV, $_creditCardHolderName,
@@ -239,7 +243,7 @@ if (!empty($_POST["ConfirmBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 
 <html>
 	<head>
-		<meta charset="utf-8">
+		<meta charset="ASCII">
 		
 		<title>Unicorn Restaurant - Shopping Cart</title>
 		
@@ -375,8 +379,8 @@ if (!empty($_POST["ConfirmBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
                                   </div>
                                   
 								  <div>								  	  
-									  <input class="placeOrder_button" type="submit" id="ConfirmBtn" name="ConfirmBtn" value="Confirm Payment">
 									  <input class="placeOrder_button" type="submit" id="CancelBtn" name="CancelBtn" value="Cancel">
+									  <input class="placeOrder_button" type="submit" id="ConfirmBtn" name="ConfirmBtn" value="Confirm Payment">
 								   </div>				
 								</div>
 								<!-- ******** [END] Shopping Cart Division ******** -->

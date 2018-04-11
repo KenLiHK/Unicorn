@@ -2,8 +2,9 @@
 
 include_once("../common/functions.php");
 
+healthCheckDB();
+healthCheckDBTables();
 checkLogon();
-
 check_session_timeout();
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -447,7 +448,7 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 											<label class="update_user_profile_label">Profile Image : </label>
 											<label class="update_user_profile_label3">
 												<?php if($imgPath != ""){ ?>
-												<img class="profileIcon" src="<?php echo $imgPath; ?>" alt="User Profile Icon">
+												<img class="profileIcon" src="<?php echo UNICORN_ROOT . $imgPath; ?>" alt="User Profile Icon">
 												<?php }else { ?>
 												<img class="profileIcon" src="../resources/userProfileImg/default.jpg" alt="User Profile Icon">
 												<?php } ?>
@@ -556,9 +557,9 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 										<br>
 	
 										<hr>
-										<div class="button_alignment">
-											<input class="profile_button" type="submit" name="saveProfile" value="Save Profile">
-											<input class="profile_button" type="button" name="cancel2UpdateProfile" value="Cancel" onclick="goToUserProfile();">				
+										<div class="button_alignment">											
+											<input class="profile_button" type="button" name="cancel2UpdateProfile" value="Cancel" onclick="goToUserProfile();">	
+											<input class="profile_button" type="submit" name="saveProfile" value="Save Profile">			
 										</div>
 									</div>
 								<!-- ******** [END] User Profile Division ******** -->

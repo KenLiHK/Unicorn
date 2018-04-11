@@ -4,6 +4,8 @@ include_once("../common/functions.php");
 // custom functions
 //include_once("./comment_function.php");
 
+healthCheckDB();
+healthCheckDBTables();
 checkLogon();
 check_session_timeout();
 
@@ -118,7 +120,6 @@ if (!empty($_POST["submitCom"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 								<!-- ******** User Logged In & New Order ******** -->
 								<?php if(isset($userOrdered) && count($userOrdered) > 0){ ?>
 	                        <!-- ******** COMMENT 0 - INPUT ******** -->
-									<!--<form name="commentForm" method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" onsubmit="return formSubmit()">-->
 									<form name="commentForm">
 										<!--comment section-->
 										<div class="comment-container">
@@ -166,7 +167,7 @@ if (!empty($_POST["submitCom"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
                                 					<select id="id_selectedOrder" name="selectedOrder" style="width:150px;">
                                 						<?php
                                 						for ($row = 0; $row < count($userOrdered); $row++) {
-                                						    $orderID = $userOrdered[$row]["ORDER_ID"];
+                                						    $orderID = $userOrdered[$row]["order_id"];
                                 						    echo "<option value=" . $orderID . ">" . $orderID . "</option>";
                                 						}                                						                                						
                                 						?>                  

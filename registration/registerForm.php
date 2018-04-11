@@ -2,6 +2,8 @@
 
 include_once("../common/functions.php");
 
+healthCheckDB();
+healthCheckDBTables();
 check_session_timeout();
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -234,6 +236,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	if($telMsg_php == "" && !empty($tel)) {		
 		if (!is_numeric($tel)) {
 			$telMsg_php = "[E020] Contact Phone No. must be numeric!";
+		}else if(strlen($tel) < 8){
+		    $telMsg_php = "[E026] Contact Phone No. must be at least 8 digits!";
 		}
 	}
 	

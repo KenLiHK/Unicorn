@@ -37,15 +37,15 @@ $privilege = isset($_SESSION['login_user_privilege']) ? $_SESSION['login_user_pr
 											<span class="menu-title-text"> Search Dish </span>
 										</a>
 									</li>				
-		
-									<?php if($_isLogon) {?>		
+									
 									<li class="nav-item mt-auto">
 										<a href="../placeOrder/cart.php">
 											<i class="menu-icon fa fa-shopping-cart fa-1x"></i>
 											<span class="menu-title-text"> Place Order </span>
 										</a>
 									</li>
-
+									
+									<?php if($_isLogon) {?>		
 									<li class="nav-item mt-auto">
 										<a href="../comment/comment_section.php">
 											<i class="menu-icon fa fa-comments fa-1x"></i>

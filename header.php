@@ -9,6 +9,11 @@ $_isLogon = checkUserLogon();
 ?>
 
 <!-- ******** [START] Navigation Header Bar ******** -->
+<noscript>
+    <div class="noscriptmsg">
+    <meta http-equiv="refresh" content="1; URL=../exception/noJavaScriptException.php">
+    </div>
+</noscript>
 <script type="text/javascript">
 
     function countFoodFromCart($foodID)
@@ -129,7 +134,7 @@ $_isLogon = checkUserLogon();
 	  setTimeout(function() {
 		  document.getElementById("loading").style.display = "none";
 		  document.getElementById("app").style.display = "";
-		}, 300);
+		}, 100);
 	}
 
 	function hideProgress() {
@@ -199,14 +204,14 @@ $_isLogon = checkUserLogon();
 	<div>							
 		<div class="header-right">
 			<div>
+					<a href="../placeOrder/cart.php"><span id="itemCount"></span><span class="fa fa-shopping-cart fa-2x"></span></a> <span>&nbsp;</span>
 				<?php if($_isLogon) {
 				        $_userID = $_SESSION['login_user_id'];
 				    ?>		
-					<a href="../placeOrder/cart.php"><span id="itemCount"></span><span class="fa fa-shopping-cart fa-2x"></span></a> <span>&nbsp;</span>
 					<a href="../notification/notification.php"><span id="notiItemCount"></span><i class="fa fa-envelope fa-2x"></i> </a> <span>&nbsp;</span>
 					<a href="../userProfile/userProfile.php"><i class="fa fa-profile fa-1x"></i><span style="font-size:20px;"><?php echo $_userID;?></span></a> <span>&nbsp;</span>
 					<a href="../login/logout.php"><i class="fa fa-sign-out fa-1x"></i> Logout </a> <span>&nbsp;</span>
-				<?php 	}else{ ?>
+				<?php 	}else{ ?>					
 					<a href="../login/login.php"><i class="fa fa-sign-in fa-1x"> Login </i></a> <span>&nbsp;</span>
 					<a href="../registration/registerForm.php"><i class="fa fa-user-plus fa-1x"> Sign-up </i></a> <span>&nbsp;</span>
 				<?php	} ?>

@@ -2,8 +2,9 @@
 
 include_once("../common/functions.php");
 
+healthCheckDB();
+healthCheckDBTables();
 checkLogon();
-
 check_session_timeout();
 
 if (session_status() == PHP_SESSION_NONE) {

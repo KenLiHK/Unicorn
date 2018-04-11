@@ -1,0 +1,11 @@
+@charset "UTF-8";
+
+input.noti_button {
+	text-align: center;
+	background-color: skyblue;
+	color: #fff;
+	border: none;
+}
+
+
+

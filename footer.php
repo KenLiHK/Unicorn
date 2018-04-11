@@ -1,6 +1,4 @@
-<?php
-
-?>
+<?php ?>
 
 <!-- ******** [START] Footer ******** -->
 <div id="footer">

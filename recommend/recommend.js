@@ -384,8 +384,8 @@ function prepareFoodDetail($_oriPrice, $_disPrice, $_imgPath, $_cateName, $_food
 	'				<div class="col-6 b-r-1 py-3" onclick="addToCart(\''+ $_section + "_" + $_foodId + '\')">									' +
 	'					<div class="font-weight-bold" id="add'+ $_section + "_" + $_foodId + '"><h1 class="fa fa-cart-plus fa-2x"></h1></div>		    ' +	
 	'				</div>																									                    ' +
-	'				<div class="col-6 py-3 text-right" onclick="substractFromCart(\''+ $_section + "_" + $_foodId + '\')">											' +
-	'					<div class="font-weight-bold" id="minus'+ $_section + "_" + $_foodId + '"><h1 class="fa fa-cart-arrow-down fa-2x"></h1></div>	' +
+	'				<div>											' +
+	'					<div></div>	' +
 	'				</div>																									                    ' +
 	'			</div>																										                    ' +
 	'		</div>																											                    ' +

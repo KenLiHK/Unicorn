@@ -2,10 +2,13 @@
 
 include_once("../common/functions.php");
 
+healthCheckDB();
+healthCheckDBTables();
+
 if( isset($_GET["reg_token"]) && !empty($_GET["reg_token"]) && isset($_GET["email"]) && !empty($_GET["email"]) ){
     //Receive reg_token from GET request
-    $_reg_token = mysql_escape_string($_GET['reg_token']); //Escape special character to prevent SQL injection
-	$_email = mysql_escape_string($_GET['email']); //Escape special character to prevent SQL injection	
+    $_reg_token = $_GET['reg_token'];
+	$_email = $_GET['email'];	
 	
 	//Check if this email and regToken existed in database USER table
 	$_user_in_db = array();

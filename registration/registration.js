@@ -291,18 +291,17 @@ function regFormValidate(){
 			}
 			isValid = false;
 		}
-		/*
+		
 		else{
 			if(_telDigitOnly.length != 8){
-				document.getElementById("telMsg").innerHTML = "[E022] Contact Phone No. must be 8 digits!";				
+				document.getElementById("telMsg").innerHTML = "[E026] Contact Phone No. must be at least 8 digits!";				
 				
 				if(isValid){
 					document.forms["regForm"]["tel"].focus();   
 				}
 				isValid = false;
 			}
-		}
-		*/
+		}		
     }
 	// ******** [END] Contact phone number validation ********
 

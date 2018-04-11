@@ -1,6 +1,9 @@
-﻿<?php
+<?php
 
 include_once("../common/functions.php");
+
+healthCheckDB();
+healthCheckDBTables();
 
 if (session_status() == PHP_SESSION_NONE) {
 	session_start();
@@ -58,7 +61,9 @@ if(isset($_GET["logoutMsg"])){
 								<?php if(isset($_logoutMsg) && $_logoutMsg!= ""){?>
 								<label><span style="color:red"><?php echo $_logoutMsg;?></span></label>
 								<?php }else {?>
-								<label>Logout successfully!</label>
+								<br><br>
+								<label><h1>Logout successfully!</h1></label>
+								<p style="margin-bottom: 10em;>
 								<?php }?>									
 								<!-- ******** [END] Logout Division ******** -->
 								

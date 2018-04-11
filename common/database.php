@@ -1,6 +1,6 @@
 <?php
 	include_once("entity.php");
-
+		
     function go_to_exception_page($exceptionMsg)
     {
         if (session_status() == PHP_SESSION_NONE) {
@@ -9,16 +9,43 @@
         
         $_SESSION['exception_msg'] = $exceptionMsg;
         //go to success page
-        header('Location: ../exception/exception.php');
-        exit;        
+        $url = "../exception/exception.php";
+        
+        if (!headers_sent())
+        {            
+            header('Location: '.$url);
+            exit;
+        }
+        else
+        {
+            echo '<script type="text/javascript">';
+            echo 'window.location.href="'.$url.'";';
+            echo '</script>';
+            echo '<noscript>';
+            echo '<meta http-equiv="refresh" content="0;url='.$url.'" />';
+            echo '</noscript>'; exit;
+        }     
     }
     
 	function db_connect()
 	{
+	    /*
 		$servername = "localhost";
 		$username = "root";
 		$password = "";
 		$dbname = "unicorn";
+		
+	    $servername = "localhost";
+	    $username = "id5362689_unicornuser";
+	    $password = "!@QW12qw";
+		$dbname = "id5362689_unicorn";
+		*/
+	    
+	    $servername = "localhost";
+	    $username = "root";
+	    $password = "";
+	    $dbname = "unicorn";
+		
 		$dbconnection=null;
 	
 		try {
@@ -33,6 +60,29 @@
 		}
 	}
 
+	function healthCheckDB(){
+	    $dbconnection = db_connect();
+	    //close db connection to release memory
+	    $dbconnection = null;	    
+	}
+	
+	function healthCheckDBTables(){
+	    try {
+	        $dbconnection = db_connect();
+	        
+	        $tableArray = ['unicorn_user', 'food', 'food_tag', 'order', 'order_detail', 'comment', 'notification', 'user_notification', 'sys_config'];
+	        for ($index = 0; $index < count($tableArray); $index++) {
+	            $tableName = $tableArray[$index];
+	           //Prepared SQL statement
+	           $sql = "select 1 from `$tableName` limit 1";
+	           $stmt = $dbconnection->prepare($sql);	     
+	           $stmt->execute();
+	        }
+	    }catch(PDOException $e){
+	        go_to_exception_page("healthCheckDBTables() -> ".$e);
+	    }
+	}
+	
 	//[START] Registration function
 	function db_insert_user($user)
 	{
@@ -41,30 +91,44 @@
 			$now = date("Y-m-d h:i:sa");
 		
 			//Prepared SQL statement
-			$stmt = $dbconnection->prepare("INSERT INTO `user` (`user_id`, `img_path`, `sex`, `privilege`, `eng_surname`, `eng_middle_name`, 
+			$stmt = $dbconnection->prepare("insert into `unicorn_user` (`user_id`, `img_path`, `sex`, `privilege`, `eng_surname`, `eng_middle_name`, 
 				`eng_name`, `email`, `tel`, `address_1`, `address_2`, `address_3`, `address_4`, `last_login_date`, 
 				`reset`, `locked`, `password`, `reg_token`, `effect_date`, `expiry_date`, `remark`, `create_date`, `update_date`) 
-				VALUES (:userID, :imgPath, :sex, 'U', :engSurname, :engMidName, 
+				values (:userID, :imgPath, :sex, 'U', :engSurname, :engMidName, 
 				:engName, :email, :tel, 
 				:address1, :address2, :address3, :address4, NULL, 
 				'N', 'N', :encrypttedPassword, :regToken, '" . $now . "', NULL, NULL,'" . $now . "', '" . $now . "')");
 		
 			$defaultImgPath = "/resources/userProfileImg/default.jpg";
 			
-			$stmt->bindParam(':userID', 			$user->getUserID());
+			$_userID                 = $user->getUserID();
+			$_sex                    = $user->getSex();
+			$_engSurname             = $user->getEngSurname();
+			$_engMidName             = $user->getEngMidName();
+			$_engName                = $user->getEngName();
+			$_email                  = $user->getEmail();
+			$_tel                    = $user->getTel();
+			$_address1               = $user->getAddress1();
+			$_address2               = $user->getAddress2();
+			$_address3               = $user->getAddress3();
+			$_address4               = $user->getAddress4();
+			$_encrypttedPassword     = $user->getEncrypttedPassword();
+			$_regToken               = $user->getRegToken();
+			
+			$stmt->bindParam(':userID', 			$_userID);
 			$stmt->bindParam(':imgPath', 			$defaultImgPath);
-			$stmt->bindParam(':sex', 				$user->getSex());
-			$stmt->bindParam(':engSurname', 		$user->getEngSurname());
-			$stmt->bindParam(':engMidName', 		$user->getEngMidName());
-			$stmt->bindParam(':engName', 			$user->getEngName());
-			$stmt->bindParam(':email', 				$user->getEmail());
-			$stmt->bindParam(':tel', 				$user->getTel());
-			$stmt->bindParam(':address1', 			$user->getAddress1());
-			$stmt->bindParam(':address2', 			$user->getAddress2());
-			$stmt->bindParam(':address3', 			$user->getAddress3());
-			$stmt->bindParam(':address4', 			$user->getAddress4());
-			$stmt->bindParam(':encrypttedPassword', $user->getEncrypttedPassword());
-			$stmt->bindParam(':regToken', 			$user->getRegToken());
+			$stmt->bindParam(':sex', 				$_sex);
+			$stmt->bindParam(':engSurname', 		$_engSurname);
+			$stmt->bindParam(':engMidName', 		$_engMidName);
+			$stmt->bindParam(':engName', 			$_engName);
+			$stmt->bindParam(':email', 				$_email);
+			$stmt->bindParam(':tel', 				$_tel);
+			$stmt->bindParam(':address1', 			$_address1);
+			$stmt->bindParam(':address2', 			$_address2);
+			$stmt->bindParam(':address3', 			$_address3);
+			$stmt->bindParam(':address4', 			$_address4);
+			$stmt->bindParam(':encrypttedPassword', $_encrypttedPassword);
+			$stmt->bindParam(':regToken', 			$_regToken);
 			
 			//execute prepared sql statement to insert user table
 			$stmt->execute();
@@ -85,13 +149,13 @@
 			$dbconnection = db_connect();
 		
 			//Prepared SQL statement
-			$sql = "SELECT USER_ID FROM UNICORN.USER WHERE USER_ID=:userID";
+			$sql = "select user_id from `unicorn_user` where user_id=:userID";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':userID' => $userID);
 			$stmt->execute($paramArray);
 			$fetch = $stmt->fetch();
 			
-			echo $fetch['USER_ID'];
+			echo $fetch['user_id'];
 		}catch(PDOException $e){
 		    go_to_exception_page("db_select_user_by_UserID() -> ".$e);
 		}
@@ -106,13 +170,13 @@
 			$dbconnection = db_connect();
 		
 			//Prepared SQL statement
-			$sql = "SELECT EMAIL FROM UNICORN.USER WHERE EMAIL=:email";
+			$sql = "select email from `unicorn_user` where email=:email";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':email' => $email);
 			$stmt->execute($paramArray);
 			$fetch = $stmt->fetch();
 			
-			return $fetch['EMAIL'];
+			return $fetch['email'];
 		}catch(PDOException $e){
 		    go_to_exception_page("db_select_user_by_Email() -> ".$e);
 		}
@@ -127,13 +191,13 @@
 			$dbconnection = db_connect();
 			
 			//Prepared SQL statement
-			$sql = "SELECT EMAIL FROM UNICORN.USER WHERE EMAIL=:email and USER_ID!=:userID";
+			$sql = "select email from `unicorn_user` where email=:email and user_id!=:userID";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':email' => $email, ':userID' => $userID);
 			$stmt->execute($paramArray);
 			$fetch = $stmt->fetch();
 			
-			return $fetch['EMAIL'];
+			return $fetch['email'];
 		}catch(PDOException $e){
 			go_to_exception_page("db_select_user_by_Email_UserID() -> ".$e);
 		}
@@ -148,16 +212,16 @@
 			$dbconnection = db_connect();
 		
 			//Prepared SQL statement
-			$sql = "SELECT USER_ID, EMAIL, PRIVILEGE FROM UNICORN.USER WHERE EMAIL=:email and REG_TOKEN=:regToken";
+			$sql = "select user_id, email, privilege from `unicorn_user` where email=:email and reg_token=:regToken";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':email' => $email, ':regToken' => $regToken);
 			$stmt->execute($paramArray);
 			$fetch = $stmt->fetch();
 			
 			$column_arr = array();
-			$column_arr[] = $fetch['USER_ID'];
-			$column_arr[] = $fetch['EMAIL'];
-			$column_arr[] = $fetch['PRIVILEGE'];
+			$column_arr[] = $fetch['user_id'];
+			$column_arr[] = $fetch['email'];
+			$column_arr[] = $fetch['privilege'];
 			
 			return $column_arr;
 		}catch(PDOException $e){
@@ -174,7 +238,7 @@
 			$dbconnection = db_connect();
 		
 			//Prepared SQL statement
-			$sql = "UPDATE USER SET REG_TOKEN='' WHERE EMAIL=:email and REG_TOKEN=:regToken";
+			$sql = "update `unicorn_user` set reg_token = '' where email=:email and reg_token=:regToken";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':email' => $email, ':regToken' => $regToken);
 			$stmt->execute($paramArray);
@@ -195,7 +259,7 @@
 			$now = date("Y-m-d h:i:sa");
 			
 			//Prepared SQL statement
-			$sql = "UPDATE USER SET last_login_date='".$now."' WHERE EMAIL=:email and REG_TOKEN=:regToken";
+			$sql = "update `unicorn_user` set last_login_date='".$now."' where email=:email and reg_token=:regToken";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':email' => $email, ':regToken' => $regToken);
 			$stmt->execute($paramArray);
@@ -218,16 +282,16 @@
 			$encryptedPassword = md5($password);
 		
 			//Prepared SQL statement
-			$sql = "SELECT USER_ID, EMAIL, PRIVILEGE FROM UNICORN.USER WHERE (USER_ID = :userIdOrEmail or EMAIL=:userIdOrEmail) and PASSWORD=:encryptedPassword";
+			$sql = "select user_id, email, privilege from `unicorn_user` where (user_id = :userIdOrEmail or email=:userIdOrEmail) and password=:encryptedPassword";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':userIdOrEmail' => $userIdOrEmail, ':encryptedPassword' => $encryptedPassword);
 			$stmt->execute($paramArray);
 			$fetch = $stmt->fetch();
 			
 			$column_arr = array();
-			$column_arr[] = $fetch['USER_ID'];
-			$column_arr[] = $fetch['EMAIL'];
-			$column_arr[] = $fetch['PRIVILEGE'];
+			$column_arr[] = $fetch['user_id'];
+			$column_arr[] = $fetch['email'];
+			$column_arr[] = $fetch['privilege'];
 			
 			return $column_arr;
 		}catch(PDOException $e){
@@ -245,16 +309,16 @@
 			$encryptedPassword = md5($password);
 			
 			//Prepared SQL statement
-			$sql = "SELECT USER_ID, EMAIL, PRIVILEGE FROM UNICORN.USER WHERE (USER_ID = :userIdOrEmail or EMAIL=:userIdOrEmail)";
+			$sql = "select user_id, email, privilege from `unicorn_user` where (user_id = :userIdOrEmail or email=:userIdOrEmail)";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':userIdOrEmail' => $userIdOrEmail);
 			$stmt->execute($paramArray);
 			$fetch = $stmt->fetch();
 			
 			$column_arr = array();
-			$column_arr[] = $fetch['USER_ID'];
-			$column_arr[] = $fetch['EMAIL'];
-			$column_arr[] = $fetch['PRIVILEGE'];
+			$column_arr[] = $fetch['user_id'];
+			$column_arr[] = $fetch['email'];
+			$column_arr[] = $fetch['privilege'];
 			
 			return $column_arr;
 		}catch(PDOException $e){
@@ -272,7 +336,7 @@
 			$now = date("Y-m-d h:i:sa");
 			
 			//Prepared SQL statement
-			$sql = "UPDATE USER SET last_login_date='".$now."' WHERE EMAIL=:email";
+			$sql = "update `unicorn_user` set last_login_date='".$now."' where email=:email";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':email' => $email);
 			$stmt->execute($paramArray);
@@ -294,7 +358,7 @@
 			$dbconnection = db_connect();
 			
 			//Prepared SQL statement
-			$sql = "SELECT * FROM UNICORN.USER WHERE USER_ID=:userID";
+			$sql = "select * from `unicorn_user` where user_id=:userID";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':userID' => $userID);
 			$stmt->execute($paramArray);
@@ -318,7 +382,7 @@
 			$encrypttedPasswordTmp 	= $user->getEncrypttedPassword();
 			
 			//Prepared SQL statement
-			$sql = $sql . "UPDATE UNICORN.USER SET 					       " ;
+			$sql = $sql . "update `unicorn_user` set 					       " ;
 			
 			if(isset($imgPathTmp) && $imgPathTmp != ""){
 				$sql = $sql . "	      img_path=:imgPath, 			   " ;
@@ -338,7 +402,7 @@
 			$sql = $sql . "		     address_2=:address2,            " ;
 			$sql = $sql . "		     address_3=:address3,            " ;
 			$sql = $sql . "		     address_4=:address4             " ;
-			$sql = $sql . "	     WHERE user_id=:userID               " ;
+			$sql = $sql . "	     where user_id=:userID               " ;
 			
 			echo $sql;
 			
@@ -353,17 +417,29 @@
 				$stmt->bindParam(':newPass', 			$encrypttedPasswordTmp);
 			}
 			
-			$stmt->bindParam(':email', 				$user->getEmail());
-			$stmt->bindParam(':sex', 				$user->getSex());
-			$stmt->bindParam(':engSurname', 		$user->getEngSurname());
-			$stmt->bindParam(':engMidName', 		$user->getEngMidName());
-			$stmt->bindParam(':engName', 			$user->getEngName());
-			$stmt->bindParam(':tel', 				$user->getTel());
-			$stmt->bindParam(':address1', 			$user->getAddress1());
-			$stmt->bindParam(':address2', 			$user->getAddress2());
-			$stmt->bindParam(':address3', 			$user->getAddress3());
-			$stmt->bindParam(':address4', 			$user->getAddress4());
-			$stmt->bindParam(':userID', 			$user->getUserID());
+			$_email                  = $user->getEmail();
+			$_sex                    = $user->getSex();
+			$_engSurname             = $user->getEngSurname();
+			$_engMidName             = $user->getEngMidName();
+			$_engName                = $user->getEngName();
+			$_tel                    = $user->getTel();
+			$_address1               = $user->getAddress1();
+			$_address2               = $user->getAddress2();
+			$_address3               = $user->getAddress3();
+			$_address4               = $user->getAddress4();
+			$_userID                 = $user->getUserID();
+			
+			$stmt->bindParam(':email', 				$_email);
+			$stmt->bindParam(':sex', 				$_sex);
+			$stmt->bindParam(':engSurname', 		$_engSurname);
+			$stmt->bindParam(':engMidName', 		$_engMidName);
+			$stmt->bindParam(':engName', 			$_engName);
+			$stmt->bindParam(':tel', 				$_tel);
+			$stmt->bindParam(':address1', 			$_address1);
+			$stmt->bindParam(':address2', 			$_address2);
+			$stmt->bindParam(':address3', 			$_address3);
+			$stmt->bindParam(':address4', 			$_address4);
+			$stmt->bindParam(':userID', 			$_userID);
 			
 			$stmt->execute();
 			return $stmt->rowCount();
@@ -383,8 +459,8 @@
 			$dbconnection = db_connect();
 
 			//Prepared SQL statement
-			$sql = "delete from unicorn.notification n where n.notification_id in 
-			(select un.notification_id from unicorn.user_notification un where un.status = :status and un.update_date = :updateDate)";
+			$sql = "delete from `notification` n where n.notification_id in 
+			(select un.notification_id from user_notification un where un.status = :status and un.update_date = :updateDate)";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':status' => $status, ':updateDate' => $updateDate);
 			$stmt->execute($paramArray);
@@ -413,7 +489,7 @@
 
 			//Prepared SQL statement
 			$inConditions = join(',', array_fill(0, count($foodIDList), '?'));
-			$sql = "SELECT FOOD_ID, FOOD_CATEGORY, FOOD_NAME, PRICE FROM UNICORN.FOOD WHERE FOOD_ID IN (".$inConditions.") ORDER BY FOOD_CATEGORY, FOOD_NAME";
+			$sql = "select food_id, food_category, food_name, price from `food` where food_id in (".$inConditions.") order by food_category, food_name";
 			$stmt = $dbconnection->prepare($sql);
 			$stmt->execute($foodIDList);
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC); 
@@ -429,10 +505,10 @@
 				for ($index = 0; $index< count($orderDetail4Display_array); $index++) {
 					$orderDetail4Display = $orderDetail4Display_array[$index];
 										
-					if($foodRow["FOOD_ID"] == $orderDetail4Display->getFoodID()){
-						$orderDetail4Display->setFoodCategory($foodRow["FOOD_CATEGORY"]);
-						$orderDetail4Display->setFoodName($foodRow["FOOD_NAME"]);
-						$orderDetail4Display->setPrice($foodRow["PRICE"]);
+					if($foodRow["food_id"] == $orderDetail4Display->getFoodID()){
+						$orderDetail4Display->setFoodCategory($foodRow["food_category"]);
+						$orderDetail4Display->setFoodName($foodRow["food_name"]);
+						$orderDetail4Display->setPrice($foodRow["price"]);
 						
 						$orderDetail_array[] = $orderDetail4Display;
 						break;
@@ -462,7 +538,7 @@
 	        
 	        //Prepared SQL statement
 	        $inConditions = join(',', array_fill(0, count($foodIDList), '?'));
-	        $sql = "SELECT FOOD_ID, FOOD_CATEGORY, FOOD_NAME, PRICE FROM UNICORN.FOOD WHERE FOOD_ID IN (".$inConditions.")";
+	        $sql = "select food_id, food_category, food_name, price from `food` where food_id in (".$inConditions.")";
 	        $stmt = $dbconnection->prepare($sql);
 	        $stmt->execute($foodIDList);
 	        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -478,9 +554,9 @@
 	            for ($index = 0; $index< count($orderDetail4Display_array); $index++) {
 	                $orderDetail4Display = $orderDetail4Display_array[$index];
 	                
-	                if($foodRow["FOOD_ID"] == $orderDetail4Display->getFoodID()){
-	                    $orderDetail4Display->setFoodCategory($foodRow["FOOD_CATEGORY"]);
-	                    $orderDetail4Display->setFoodName($foodRow["FOOD_NAME"]);
+	                if($foodRow["food_id"] == $orderDetail4Display->getFoodID()){
+	                    $orderDetail4Display->setFoodCategory($foodRow["food_category"]);
+	                    $orderDetail4Display->setFoodName($foodRow["food_name"]);
 	                    
 	                    $orderDetail_array[] = $orderDetail4Display;
 	                    break;
@@ -503,15 +579,15 @@
 	        $dbconnection = db_connect();
 	        
 	        //Prepared SQL statement
-	        $sql = "select concat(address_1, ',', address_2, ',', address_3, ',', address_4) as ADDRESS, TEL from unicorn.user WHERE user_id=:userID";
+	        $sql = "select concat(address_1, ',', address_2, ',', address_3, ',', address_4) as address, tel from `unicorn_user` where user_id=:userID";
 	        $stmt = $dbconnection->prepare($sql);
 	        $paramArray = array(':userID' => $userID);
 	        $stmt->execute($paramArray);
 	        $fetch = $stmt->fetch();
 	        
 	        $column_arr = array();
-	        $column_arr[] = $fetch['ADDRESS'];
-	        $column_arr[] = $fetch['TEL'];
+	        $column_arr[] = $fetch['address'];
+	        $column_arr[] = $fetch['tel'];
 	        
 	        return $column_arr;
 	    }catch(PDOException $e){
@@ -528,7 +604,7 @@
 	        $dbconnection = db_connect();
 	        
 	        //Prepared SQL statement
-	        $sql = "SELECT * FROM UNICORN.ORDER WHERE ORDER_ID=:orderID";
+	        $sql = "select * from `order` where order_id = :orderID";
 	        $stmt = $dbconnection->prepare($sql);
 	        $paramArray = array(':orderID' => $orderID);
 	        $stmt->execute($paramArray);
@@ -549,7 +625,7 @@
 	        $dbconnection = db_connect();
 	        
 	        //Prepared SQL statement
-	        $sql = "SELECT * FROM UNICORN.ORDER_DETAIL WHERE ORDER_ID=:orderID";
+	        $sql = "select * from `order_detail` where order_id=:orderID";
 	        $stmt = $dbconnection->prepare($sql);
 	        $paramArray = array(':orderID' => $orderID);
 	        $stmt->execute($paramArray);
@@ -571,34 +647,55 @@
 			$now = date("Y-m-d h:i:sa");
 			
 			//Prepared SQL statement
-			$stmt = $dbconnection->prepare("INSERT INTO `order` (`order_id`, `user_id`, `status`, `delivery_timeslot`, `order_effect_date`,
+			$stmt = $dbconnection->prepare("insert into `order` (`order_id`, `user_id`, `status`, `delivery_timeslot`, `order_effect_date`,
 				`order_expiry_date`, `total_payment_amt`, `total_discount_amt`, `payment_date`, `payment_channel`,
 				`credit_card_type`, `credit_card_no`, `credit_card_security_code`, `credit_card_holder_name`,
 				`credit_card_expiry_date`, `cheque_no`, `remark`, `create_date`, `update_date`)
-				VALUES(NULL, :userID, :status, :deliveryTimeslot, :orderEffectDate,
+				values(NULL, :userID, :status, :deliveryTimeslot, :orderEffectDate,
 				:orderExpiryDate, :totalPaymentAmt, :totalDiscountAmt, :paymentDate, :paymentChannel,
 				:creditCardType, :creditCardNo, :creditCardSecurityCode, :creditCardHolderName,
 				:creditCardExpiryDate, :chequeNo, :remark, :createDate, :updateDate)");
 			
 			//$stmt->bindParam(':orderID', 					$order->getOrderID()); //auto increased by MySQL database
-			$stmt->bindParam(':userID', 					$order->getUserID());
-			$stmt->bindParam(':status', 					$order->getStatus());
-			$stmt->bindParam(':deliveryTimeslot', 			$order->getDeliveryTimeslot());
-			$stmt->bindParam(':orderEffectDate', 			$order->getOrderEffectDate());
-			$stmt->bindParam(':orderExpiryDate', 			$order->getOrderExpiryDate());
-			$stmt->bindParam(':totalPaymentAmt', 			$order->getTotalPaymentAmt());
-			$stmt->bindParam(':totalDiscountAmt', 			$order->getTotalDiscountAmt());
-			$stmt->bindParam(':paymentDate', 				$order->getPaymentDate());
-			$stmt->bindParam(':paymentChannel', 			$order->getPaymentChannel());
-			$stmt->bindParam(':creditCardType', 			$order->getCreditCardType());
-			$stmt->bindParam(':creditCardNo', 				$order->getCreditCardNo());
-			$stmt->bindParam(':creditCardSecurityCode', 	$order->getCreditCardSecurityCode());
-			$stmt->bindParam(':creditCardHolderName', 		$order->getCreditCardHolderName());
-			$stmt->bindParam(':creditCardExpiryDate', 		$order->getCreditCardExpiryDate());
-			$stmt->bindParam(':chequeNo', 					$order->getChequeNo());
-			$stmt->bindParam(':remark', 					$order->getRemark());
-			$stmt->bindParam(':createDate', 				$order->getCreateDate());
-			$stmt->bindParam(':updateDate', 				$order->getUpdateDate());		
+			
+			$_userID                         = $order->getUserID();
+			$_status                         = $order->getStatus();
+			$_deliveryTimeslot               = $order->getDeliveryTimeslot();
+			$_orderEffectDate                = $order->getOrderEffectDate();
+			$_orderExpiryDate                = $order->getOrderExpiryDate();
+			$_totalPaymentAmt                = $order->getTotalPaymentAmt();
+			$_totalDiscountAmt               = $order->getTotalDiscountAmt();
+			$_paymentDate                    = $order->getPaymentDate();
+			$_paymentChannel                 = $order->getPaymentChannel();
+			$_creditCardType                 = $order->getCreditCardType();
+			$_creditCardNo                   = $order->getCreditCardNo();
+			$_creditCardSecurityCode         = $order->getCreditCardSecurityCode();
+			$_creditCardHolderName           = $order->getCreditCardHolderName();
+			$_creditCardExpiryDate           = $order->getCreditCardExpiryDate();
+			$_chequeNo                       = $order->getChequeNo();
+			$_remark                         = $order->getRemark();
+			$_createDate                     = $order->getCreateDate();
+			$_updateDate                     = $order->getUpdateDate();	
+			
+			
+			$stmt->bindParam(':userID', 					$_userID);
+			$stmt->bindParam(':status', 					$_status);
+			$stmt->bindParam(':deliveryTimeslot', 			$_deliveryTimeslot);
+			$stmt->bindParam(':orderEffectDate', 			$_orderEffectDate);
+			$stmt->bindParam(':orderExpiryDate', 			$_orderExpiryDate);
+			$stmt->bindParam(':totalPaymentAmt', 			$_totalPaymentAmt);
+			$stmt->bindParam(':totalDiscountAmt', 			$_totalDiscountAmt);
+			$stmt->bindParam(':paymentDate', 				$_paymentDate);
+			$stmt->bindParam(':paymentChannel', 			$_paymentChannel);
+			$stmt->bindParam(':creditCardType', 			$_creditCardType);
+			$stmt->bindParam(':creditCardNo', 				$_creditCardNo);
+			$stmt->bindParam(':creditCardSecurityCode', 	$_creditCardSecurityCode);
+			$stmt->bindParam(':creditCardHolderName', 		$_creditCardHolderName);
+			$stmt->bindParam(':creditCardExpiryDate', 		$_creditCardExpiryDate);
+			$stmt->bindParam(':chequeNo', 					$_chequeNo);
+			$stmt->bindParam(':remark', 					$_remark);
+			$stmt->bindParam(':createDate', 				$_createDate);
+			$stmt->bindParam(':updateDate', 				$_updateDate);		
 			
 			$stmt->execute();
 			$result = $dbconnection->lastInsertId();			
@@ -618,18 +715,26 @@
 			$now = date("Y-m-d h:i:sa");
 			
 			//Prepared SQL statement
-			$stmt = $dbconnection->prepare("INSERT INTO `order_detail` (`order_id`, `food_id`, `qty`, `payment_amt`,
+			$stmt = $dbconnection->prepare("insert into `order_detail` (`order_id`, `food_id`, `qty`, `payment_amt`,
 				`discount_amt`, `create_date`, `update_date`)
-				VALUES(:orderID, :foodID, :qty, :paymentAmt,
+				values(:orderID, :foodID, :qty, :paymentAmt,
 				:discountAmt, :createDate, :updateDate)");
 			
-			$stmt->bindParam(':orderID', 					$orderDetail->getOrderID());
-			$stmt->bindParam(':foodID', 					$orderDetail->getFoodID());
-			$stmt->bindParam(':qty', 						$orderDetail->getQty());
-			$stmt->bindParam(':paymentAmt', 				$orderDetail->getPaymentAmt());
-			$stmt->bindParam(':discountAmt', 				$orderDetail->getDiscountAmt());
-			$stmt->bindParam(':createDate', 				$orderDetail->getCreateDate());
-			$stmt->bindParam(':updateDate', 				$orderDetail->getUpdateDate());
+			$_orderID                    = $orderDetail->getOrderID();
+			$_foodID                     = $orderDetail->getFoodID();
+			$_qty                        = $orderDetail->getQty();
+			$_paymentAmt                 = $orderDetail->getPaymentAmt();
+			$_discountAmt                = $orderDetail->getDiscountAmt();
+			$_createDate                 = $orderDetail->getCreateDate();
+			$_updateDate                 = $orderDetail->getUpdateDate();
+			
+			$stmt->bindParam(':orderID', 					$_orderID);
+			$stmt->bindParam(':foodID', 					$_foodID);
+			$stmt->bindParam(':qty', 						$_qty);
+			$stmt->bindParam(':paymentAmt', 				$_paymentAmt);
+			$stmt->bindParam(':discountAmt', 				$_discountAmt);
+			$stmt->bindParam(':createDate', 				$_createDate);
+			$stmt->bindParam(':updateDate', 				$_updateDate);
 			
 			$stmt->execute();
 			$result = $dbconnection->lastInsertId();
@@ -649,17 +754,23 @@
 			$now = date("Y-m-d h:i:sa");
 			
 			//Prepared SQL statement
-			$stmt = $dbconnection->prepare("INSERT INTO `notification` (`notification_id`, `type`, `subject`, `content`,
+			$stmt = $dbconnection->prepare("insert into `notification` (`notification_id`, `type`, `subject`, `content`,
 				`create_date`, `update_date`)
-				VALUES(NULL, :type, :subject, :content,
+				values(NULL, :type, :subject, :content,
 				:createDate, :updateDate)");
 			
 			//$stmt->bindParam(':notification_id', 			$notification->getNotificationID()); //automatically increased by MySQL DB
-			$stmt->bindParam(':type', 						$notification->getType());
-			$stmt->bindParam(':subject', 					$notification->getSubject());
-			$stmt->bindParam(':content', 					$notification->getContent());
-			$stmt->bindParam(':createDate', 				$notification->getCreateDate());
-			$stmt->bindParam(':updateDate', 				$notification->getUpdateDate());
+			$_type                         = $notification->getType();
+			$_subject                      = $notification->getSubject();
+			$_content                      = $notification->getContent();
+			$_createDate                   = $notification->getCreateDate();
+			$_updateDate                   = $notification->getUpdateDate();
+			
+			$stmt->bindParam(':type', 						$_type);
+			$stmt->bindParam(':subject', 					$_subject);
+			$stmt->bindParam(':content', 					$_content);
+			$stmt->bindParam(':createDate', 				$_createDate);
+			$stmt->bindParam(':updateDate', 				$_updateDate);
 
 			$stmt->execute();
 			$result = $dbconnection->lastInsertId();
@@ -679,16 +790,22 @@
 			$now = date("Y-m-d h:i:sa");
 			
 			//Prepared SQL statement
-			$stmt = $dbconnection->prepare("INSERT INTO `user_notification` (`notification_id`, `user_id`, `status`, 
+			$stmt = $dbconnection->prepare("insert into `user_notification` (`notification_id`, `user_id`, `status`, 
 				`create_date`, `update_date`)
-				VALUES(:notificationID, :userID, :status,
+				values(:notificationID, :userID, :status,
 				:createDate, :updateDate)");
 			
-			$stmt->bindParam(':notificationID', 			$userNotification->getNotificationID());
-			$stmt->bindParam(':userID', 					$userNotification->getUserID());
-			$stmt->bindParam(':status', 					$userNotification->getStatus());
-			$stmt->bindParam(':createDate', 				$userNotification->getCreateDate());
-			$stmt->bindParam(':updateDate', 				$userNotification->getUpdateDate());
+			$_notificationID          = $userNotification->getNotificationID();
+			$_userID                  = $userNotification->getUserID();
+			$_status                  = $userNotification->getStatus();
+			$_createDate              = $userNotification->getCreateDate();
+			$_updateDate              = $userNotification->getUpdateDate();
+			
+			$stmt->bindParam(':notificationID', 			$_notificationID);
+			$stmt->bindParam(':userID', 					$_userID);
+			$stmt->bindParam(':status', 					$_status);
+			$stmt->bindParam(':createDate', 				$_createDate);
+			$stmt->bindParam(':updateDate', 				$_updateDate);
 			
 			$stmt->execute();
 			$result = $dbconnection->lastInsertId();
@@ -709,13 +826,12 @@
 	        $dbconnection = db_connect();
 	        
 	        //Prepared SQL statement
-	        $sql = "SELECT ORDER_ID FROM UNICORN.ORDER WHERE USER_ID=:userID ORDER BY ORDER_ID DESC LIMIT 5";
+	        $sql = "select order_id from `order` where user_id=:userID order by order_id desc limit 5";
 	        $stmt = $dbconnection->prepare($sql);
 	        $paramArray = array(':userID' => $userID);
 	        $stmt->execute($paramArray);
 	        $resultArray = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	        
-	        $dbconnection = null;
 	        return $resultArray;
 	    }catch(PDOException $e){
 	        go_to_exception_page("db_select_order_by_UserID() -> ".$e);
@@ -731,19 +847,26 @@
 	        $dbconnection = db_connect();
 	        
 	        //Prepared SQL statement
-	        $stmt = $dbconnection->prepare("INSERT INTO `comment` (`comment_id`, `user_id`, `order_id`,
+	        $stmt = $dbconnection->prepare("insert into `comment` (`comment_id`, `user_id`, `order_id`,
                 `rating`,`content`,
 				`create_date`, `update_date`)
-				VALUES(NULL, :userID, :orderID,
+				values(NULL, :userID, :orderID,
                 :rating, :content,
 				:createDate, :updateDate)");
 	        
-	        $stmt->bindParam(':userID', 					$commentObj->getUserID());
-	        $stmt->bindParam(':orderID', 					$commentObj->getOrderID());
-	        $stmt->bindParam(':rating', 		            $commentObj->getRating());
-	        $stmt->bindParam(':content', 					$commentObj->getContent());
-	        $stmt->bindParam(':createDate', 				$commentObj->getCreateDate());
-	        $stmt->bindParam(':updateDate', 				$commentObj->getUpdateDate());
+	        $_userID                    = $commentObj->getUserID();
+	        $_orderID                   = $commentObj->getOrderID();
+	        $_rating                    = $commentObj->getRating();
+	        $_content                   = $commentObj->getContent();
+	        $_createDate                = $commentObj->getCreateDate();
+	        $_updateDate                = $commentObj->getUpdateDate();
+	        
+	        $stmt->bindParam(':userID', 					$_userID);
+	        $stmt->bindParam(':orderID', 					$_orderID);
+	        $stmt->bindParam(':rating', 		            $_rating);
+	        $stmt->bindParam(':content', 					$_content);
+	        $stmt->bindParam(':createDate', 				$_createDate);
+	        $stmt->bindParam(':updateDate', 				$_updateDate);
 	        
 	        $stmt->execute();
 	        $result = $dbconnection->lastInsertId();
@@ -764,7 +887,7 @@
 			$dbconnection = db_connect();
 			
 			//Prepared SQL statement
-			$sql = "SELECT * FROM UNICORN.COMMENT WHERE USER_ID=:userID ORDER BY COMMENT_ID DESC LIMIT 5";
+			$sql = "select * from `comment` where user_id=:userID order by comment_id desc limit 5";
 			$stmt = $dbconnection->prepare($sql);
 			$paramArray = array(':userID' => $userID);
 			$stmt->execute($paramArray);
@@ -788,7 +911,7 @@
 			
 			//Prepared SQL statement
 			$sql = "select un.notification_id, un.create_date, un.status, n.subject, n.content, n.type 
-					from user_notification un, notification n 
+					from `user_notification` un, `notification` n 
 					where un.notification_id = n.notification_id and un.user_id = :userID 
 					order by un.create_date desc;";
 			$stmt = $dbconnection->prepare($sql);
@@ -811,13 +934,18 @@
 			$dbconnection = db_connect();
 			
 			//Prepared SQL statement
-			$sql = "UPDATE USER_NOTIFICATION SET STATUS = :status, UPDATE_DATE = :updateDate WHERE NOTIFICATION_ID= :notificationID AND USER_ID = :userID";
+			$sql = "update `user_notification` set status = :status, update_date = :updateDate where notification_id = :notificationID and user_id = :userID";
 			$stmt = $dbconnection->prepare($sql);
 			
-			$stmt->bindParam(':userID', 					$notificationObj->getUserID());
-			$stmt->bindParam(':notificationID', 			$notificationObj->getNotificationID());
-			$stmt->bindParam(':status', 		            $notificationObj->getStatus());
-			$stmt->bindParam(':updateDate', 				$notificationObj->getUpdateDate());
+			$_userID                    = $notificationObj->getUserID();
+			$_notificationID            = $notificationObj->getNotificationID();
+			$_status                    = $notificationObj->getStatus();
+			$_updateDate                = $notificationObj->getUpdateDate();
+			
+			$stmt->bindParam(':userID', 					$_userID);
+			$stmt->bindParam(':notificationID', 			$_notificationID);
+			$stmt->bindParam(':status', 		            $_status);
+			$stmt->bindParam(':updateDate', 				$_updateDate);
 			
 			$stmt->execute();
 			return $stmt->rowCount();
@@ -838,7 +966,7 @@
 	        
 	        //Prepared SQL statement
 	        $sql = "select *
-					from user_notification 
+					from `user_notification` 
 					where status = 'NS01' and user_id = :userID";
 	        $stmt = $dbconnection->prepare($sql);
 	        $paramArray = array(':userID' => $userID);
@@ -883,7 +1011,7 @@
 	        $dbconnection = db_connect();
 	        
 	        //Prepared SQL statement
-	        $sql = "SELECT * FROM UNICORN.FOOD WHERE FOOD_CATEGORY=:foodCat AND FOOD_NAME=:foodName";
+	        $sql = "select * from `food` where food_category=:foodCat and food_name=:foodName";
 	        $stmt = $dbconnection->prepare($sql);
 	        $paramArray = array(':foodCat' => $foodCat);
 	        $paramArray = array(':foodName' => $foodName);

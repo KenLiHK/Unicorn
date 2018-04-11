@@ -1,6 +1,4 @@
-<?php
-
-?>
+<?php ?>
 
 <!-- ******** [START] import ******** -->
 		<!-- Using Icon library and refer to https://www.w3schools.com/w3css/w3css_icons.asp -->

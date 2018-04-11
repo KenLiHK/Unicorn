@@ -1,8 +1,9 @@
 <?php
 include_once("../common/functions.php");
 
-checkLogon();
-
+healthCheckDB();
+healthCheckDBTables();
+//checkLogon();
 check_session_timeout();
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -45,7 +46,12 @@ $_creditCardHolderNameDisabled = "disabled";
 $_creditCardExpiryDateDisabled = "disabled";
 $_chequeNoDisabled = "disabled";
 
-if (!empty($_POST["SubmitBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {             
+if (!empty($_POST["SubmitBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {       
+    if(!isset($_SESSION['login_user_id'])){
+        $cartMsg_php = "[E218] Please login first!";
+        $isFormDataValid = false;
+    }
+    
 	// ******** [START] Quantity validation ********
 	if(isset($_POST['selectedFood'])){
 		$_selectedFood = $_POST['selectedFood'];
@@ -498,7 +504,7 @@ if (!empty($_POST["SubmitBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 								<?php if(isset($cartInfoMsg_php) && !empty($cartInfoMsg_php)){ ?>
 												<span class="cart_info" id="cartInfoMsg" ><?php if(isset($cartInfoMsg_php)){echo $cartInfoMsg_php;} ?></span>
 								<?php }else if(isset($cartMsg_php) && !empty($cartMsg_php)){ ?>
-												<span class="cart_err" id="cartMsg" ><?php if(isset($cartMsg_php)){echo $cartMsg_php;} ?></span>";
+												<span class="cart_err" id="cartMsg" ><?php if(isset($cartMsg_php)){echo $cartMsg_php;} ?></span>
 								<?php }else{
 											if(isset($userID)){ ?>
 												<span class='badge badge-pill badge-success'>Welcome <?php if(isset($userID)){echo $userID;} ?></span> We promise to deliver the freshest foods to you as soon as possible.

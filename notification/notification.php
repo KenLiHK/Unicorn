@@ -2,7 +2,7 @@
 
 include_once("../common/functions.php");
 
-
+healthCheckDB();
 checkLogon();
 check_session_timeout();
 

@@ -79,8 +79,12 @@ function clickCancel(){
 }
 
 function resetErrMsg(){
-	document.getElementById("cartInfoMsg").innerHTML = "";
-	document.getElementById("cartMsg").innerHTML = "";
+	if(document.getElementById("cartInfoMsg") != undefined){
+		document.getElementById("cartInfoMsg").innerHTML = "";
+	}
+	if(document.getElementById("cartMsg") != undefined){
+		document.getElementById("cartMsg").innerHTML = "";
+	}
 	document.getElementById("creditCardNoMsg").innerHTML = "";
 	document.getElementById("chequeNoMsg").innerHTML = "";
 	document.getElementById("creditCardCVVMsg").innerHTML = "";

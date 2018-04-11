@@ -229,7 +229,10 @@ function db_select_all_food_cat($cat)
 {
 	try {
 		$dbconnection = db_connect();
-		$stmt = $dbconnection->prepare("select distinct `food_name` as `food_des` from `food` where `food_category` = :cat and `available` = 'Y'");
+		$stmt = $dbconnection->prepare("select distinct fd.`food_name` as `food_des` from `food` fd where fd.`food_category` = :cat and fd.`available` = 'Y'
+                                        union all
+                                        select distinct ft.`tag_des` as `food_des` from `food` fd, `food_tag` ft where fd.`food_category` = :cat and fd.`available` = 'Y'
+                                        and fd.`food_id` = ft.`food_id`");
 		$stmt->bindParam(":cat", $cat);
 		$stmt->execute();
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -247,7 +250,7 @@ function db_select_food_by_food_category_name($foodCate, $foodName)
 {
 	try {
 		$dbconnection = db_connect();
-		$stmt = $dbconnection->prepare("select * from `food` where `food_category` like :cat and `food_name` like :name and `available` = 'Y'");
+		$stmt = $dbconnection->prepare("select  fd.* from `food` fd, `food_tag` ft where fd.`food_category` like :cat and (fd.`food_name` like :name or ft.`tag_des` like :name) and fd.`available` = 'Y' group by fd.`food_category`, fd.`food_name`");
 		$paramArray = array(":cat" => "%" . $foodCate . "%", ":name" => "%" . $foodName. "%");
 		$stmt->execute($paramArray);
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);

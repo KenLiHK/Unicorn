@@ -1,6 +1,9 @@
-﻿<?php
+<?php
 
 include_once("../common/functions.php");
+
+healthCheckDB();
+healthCheckDBTables();
 
 check_session_timeout();
 

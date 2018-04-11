@@ -2,8 +2,6 @@
 
 include_once("../common/functions.php");
 
-checkLogon();
-
 check_session_timeout();
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -63,16 +61,22 @@ function update_noti($notiID){
 }
 
 if(isset($_POST['notification2Count'])){
-    $userID= $_SESSION['login_user_id'];
-    count_Notification_by_UserID($userID);
+    $userID = isset($_SESSION['login_user_id']) ? $_SESSION['login_user_id'] : "";
+    $count = 0;
+    if($userID != ""){
+        $count = count_Notification_by_UserID($userID);
+    }
+    
+    if($count > 0){
+        echo $count;
+    }else{
+        echo 0;
+    }
     exit();
 }
 
 function count_Notification_by_UserID($userID){
-    echo get_notification_count_by_userID($userID);        
+    return get_notification_count_by_userID($userID);        
 }
 
 ?>
-
-
-
