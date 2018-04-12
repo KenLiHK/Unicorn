@@ -70,6 +70,13 @@ input.admin_input {
 	text-align: left;
 }
 
+.admin_select {
+	display: inline-block;
+	width: 100%;
+	padding-left: 5px;
+	text-align: left;
+}
+
 input.admin_input2 {
 	display: inline-block;
 	width: 45%;

@@ -280,7 +280,7 @@
 		try {
 			$dbconnection = db_connect();		
 			$encryptedPassword = md5($password);
-						
+		
 			//Prepared SQL statement
 			$sql = "select user_id, email, privilege from `unicorn_user` where (user_id = :userIdOrEmail or email=:userIdOrEmail) and password=:encryptedPassword";
 			$stmt = $dbconnection->prepare($sql);
@@ -292,7 +292,7 @@
 			$column_arr[] = $fetch['user_id'];
 			$column_arr[] = $fetch['email'];
 			$column_arr[] = $fetch['privilege'];
-						
+			
 			return $column_arr;
 		}catch(PDOException $e){
 			go_to_exception_page("db_select_user_by_UserID_or_Email_Password() -> ".$e);
@@ -1003,24 +1003,6 @@
 	}
 	*/
 	
-	//[START] Recommendation home functions
-	function db_select_all_food_category_name()
-	{
-	    try {
-	        $dbconnection = db_connect();
-	        $stmt = $dbconnection->prepare("SELECT distinct `food_category` FROM `food` where `available` = 'Y'");
-	        $stmt->execute();
-	        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-	        $dbconnection = null;
-	        return $results;
-	        
-	    } catch (PDOException $e) {
-	        go_to_exception_page("db_select_all_food_category_name() -> ".$e);
-	    }
-	    
-	    $dbconnection = null;
-	}
-	//[END] Recommendation home functions
 	
 	//[START] Admin functions
 	function db_select_food_by_FoodCat_FoodName($foodCat, $foodName)

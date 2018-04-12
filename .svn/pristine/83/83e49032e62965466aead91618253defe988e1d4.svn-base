@@ -61,8 +61,6 @@ $repeatNewPassMsg_php = "";
 
 
 if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
-    $isFormDataValid = true;
-
 	$userID			= optimizateInput($_POST["userID"]);
 	$email 			= optimizateInput($_POST["email"]);
 	
@@ -113,9 +111,9 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 			$currentPassMsg_php = "[E716] Current password must be input!";
 		}
 		
-		$_currentPassCorrect = db_select_user_by_UserID_or_Email_Password($userID_In_Session, $currentPass);	
-
-		if(!isset($_currentPassCorrect) || $_currentPassCorrect[0] == ""){
+		$_currentPassCorrect = db_select_user_by_UserID_or_Email_Password($userID_In_Session, $currentPass);
+		
+		if(!isset($_currentPassCorrect)){
 			$currentPassMsg_php = "[E725] Current password is wrong!";
 		}
 		
@@ -167,7 +165,6 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 			$isFormDataValid = false;
 		}
 	}
-		
 	// ******** [END] Password validation ********
 	
 	if(empty($engSurname)) {

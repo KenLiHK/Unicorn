@@ -101,7 +101,34 @@ $privilege = isset($_SESSION['login_user_privilege']) ? $_SESSION['login_user_pr
 											<span class="menu-title-text"> Add Food </span>
 										</a>
 									</li>
-																																			
+									
+									<li class="nav-item mt-auto">
+										<a href="../admin/updateFood.php">
+											<i class="menu-icon fa fa-edit fa-1x"></i>
+											<span class="menu-title-text"> Update Food </span>
+										</a>
+									</li>
+									
+									<li class="nav-item mt-auto">
+										<a href="../admin/updateOrder.php">
+											<i class="menu-icon fa fa-cutlery fa-1x"></i>
+											<span class="menu-title-text"> Update Order </span>
+										</a>
+									</li>
+									
+									<li class="nav-item mt-auto">
+										<a href="../admin/addStaff.php">
+											<i class="menu-icon fa fa-address-book-o fa-1x"></i>
+											<span class="menu-title-text"> Add Staff </span>
+										</a>
+									</li>
+									
+									<li class="nav-item mt-auto">
+										<a href="../admin/updateStaff.php">
+											<i class="menu-icon fa fa-address-book fa-1x"></i>
+											<span class="menu-title-text"> Update Staff </span>
+										</a>
+									</li>																																				
 									<?php }?>									
 								</ul>
 							</div>

@@ -1,7 +1,8 @@
 /******** [START] Admin functions JavaScript ********/
 
-$(document).ready(function(){
+$(document).ready(function(){	
 	tagging();
+	prepareFoodCat();
     showItemCount();
 });
 
@@ -9,5 +10,251 @@ function tagging(){
 	$('#tagBox').tagging(); 
 }
 
+function prepareFoodCat(){
+    var availableFoodCat = [];
+    var $foodCatSection = "";
+	$.ajax(
+	        {
+	            type:'post',
+	            url:'adminAjaxService.php',
+	            data:{
+	                getExistingFoodCat:true
+	            },
+	            dataType:'json',
+	            success:function(result){
+	            	$foodCatSection += '<select class="admin_select" id="id_foodCatSel" name="foodCatSel">	            			 ';
+	            	$foodCatSection += '       <option value=""></option>                                        ';
+
+	                if(result["code"] == 0){	                    
+	                    $.each(result["data"],function(i,n){
+	                        var $foodCat 	= n["food_category"];	                        
+	                        $foodCatSection += '<option value="' + $foodCat + '">' + $foodCat + '</option>       ';	                        
+	                        availableFoodCat.push($foodCat);
+	                    }); 
+	                }
+	                
+	                $foodCatSection += '</select>											                     ';
+	                $('#foodCat-section').append($foodCatSection);
+	                
+	            }
+	        }
+	    )
+	    
+	  $( function() {
+		    $( "#id_foodCat" ).autocomplete({
+		      source: availableFoodCat
+		    });
+		  } );
+}
+
+function clickExistedCat(){	
+	document.getElementById("id_foodCat").value = "";
+    document.getElementById('id_foodCat').disabled = true;
+    document.getElementById('id_foodCatSel').disabled = false;
+}
+
+function clickNewCat(){	
+	document.getElementById("id_foodCat").value = "";
+    document.getElementById('id_foodCat').disabled = false;
+    document.getElementById('id_foodCatSel').selectedIndex = 0;
+    document.getElementById('id_foodCatSel').disabled = true;
+}
+
+function resetErrMsg(){
+	document.getElementById("foodImgInfoMsg").innerHTML = "";
+	document.getElementById("foodImgMsg").innerHTML = "";
+	document.getElementById("foodCatMsg").innerHTML = "";
+	document.getElementById("foodNameInfoMsg").innerHTML = "";
+	document.getElementById("foodNameMsg").innerHTML = "";	
+	document.getElementById("priceMsg").innerHTML = "";
+	document.getElementById("discountMsg").innerHTML = "";
+	document.getElementById("effectDateMsg").innerHTML = "";
+	
+}
+
+function formSubmit(){
+	resetErrMsg();
+	var isValid = addFoodFormValidate();
+	if(!isValid){
+		return false;
+	}
+}
+
+function addFoodFormValidate(){
+	var isValid = true;
+	
+	var _cateType 				= document.forms["addFoodForm"]["cateType"].value.trim();
+	var _foodCatSel 			= document.forms["addFoodForm"]["foodCatSel"].value.trim();	
+	var _foodCat				= document.forms["addFoodForm"]["foodCat"].value.trim();
+	var _foodName	 			= document.forms["addFoodForm"]["foodName"].value.trim();
+	var _available	 			= document.forms["addFoodForm"]["available"].value.trim();
+	var _price		 			= document.forms["addFoodForm"]["price"].value.trim();
+	var _discount 				= document.forms["addFoodForm"]["discount"].value.trim();
+	var _fromDate				= document.forms["addFoodForm"]["fromDate"].value.trim();
+	var _toDate 				= document.forms["addFoodForm"]["toDate"].value.trim();
+	var _remarks 				= document.forms["addFoodForm"]["remarks"].value.trim();
+	var _tagBox 				= document.getElementById("tagBox").value.trim();
+
+	
+	// ******** [START] Food category validation ********	
+    if (_cateType == "ex" && _foodCatSel = "") {
+		document.getElementById("foodCatMsg").innerHTML = 								"[E901] Food category must be selected!";	
+		isValid = false;
+    }
+    
+    if (_cateType == "nw" && _foodCat = "") {
+		document.getElementById("foodCatMsg").innerHTML = 								"[E902] Food category must be input!";	
+		if(isValid){
+			document.forms["addFoodForm"]["foodCat"].focus();
+		}
+		isValid = false;
+    }
+    // ******** [END] Food category validation ********
+    
+    // ******** [START] Food name validation ********
+    
+    
+    // ******** [END] Food name validation ********
+    
+	var paymentMethodList = document.getElementsByName('paymentMethod');
+	var _creditCardNo = creditCardUnformatting(document.getElementById("creditCardNo").value.trim());
+	var _creditCardCVV = document.getElementById("creditCardCVV").value.trim();
+	var _creditCardHolderName = document.getElementById("creditCardHolderName").value.trim();
+	var _creditCardExpiryDate = creditCardExpiryDateUnformatting(document.getElementById("creditCardExpiryDate").value.trim());
+	var _chequeNo = document.getElementById("chequeNo").value.trim();
+	
+	var _paymentMethod;
+	for(var i = 0; i < paymentMethodList.length; i++){
+	    if(paymentMethodList[i].checked){
+	    	_paymentMethod = paymentMethodList[i].value;
+	    }
+	}
+
+    if (_paymentMethod == "CR") {
+    	if(_creditCardNo == ""){
+			document.getElementById("creditCardNoMsg").innerHTML = 					"[E203] Credit card no. must be input!";
+			document.getElementById("creditCardNo").focus();
+	        isValid = false;
+    	}else {    		 
+    		var regularExpress4CreditCardNo = /^\d+$/;		
+    		var isValidCreditCardNo = regularExpress4CreditCardNo.test(_creditCardNo);
+      
+    		if(!isValidCreditCardNo){
+	    		document.getElementById("creditCardNoMsg").innerHTML = 				"[E204] Credit card no. must be numeric!";				
+		   		document.getElementById("creditCardNo").focus();
+	            isValid = false;
+    		}else if(_creditCardNo.length != 16){
+        		document.getElementById("creditCardNoMsg").innerHTML = 				"[E205] Credit card no. length must be 16 digits!";
+        		document.getElementById("creditCardNo").focus();
+                isValid = false;
+        	}
+    	}
+    	
+    	if(_creditCardCVV == ""){
+			document.getElementById("creditCardCVVMsg").innerHTML = 				"[E206] Credit card CVV no. must be input!";
+			if(isValid){
+				document.getElementById("creditCardCVV").focus();
+			}
+	        isValid = false;
+    	}else {    		 
+    		var regularExpress4CreditCardCVV = /^\d+$/;		
+    		var isValidCreditCardCVV = regularExpress4CreditCardCVV.test(_creditCardCVV);
+      
+    		if(!isValidCreditCardCVV){
+	    		document.getElementById("creditCardCVVMsg").innerHTML = 			"[E207] Credit card CVV no. must be numeric!";				
+	    		if(isValid){
+	    			document.getElementById("creditCardCVV").focus();
+	    		}
+	            isValid = false;
+    		}else if(_creditCardCVV.length != 3){
+        		document.getElementById("creditCardCVVMsg").innerHTML = 			"[E208] Credit card CVV no. length must be 3 digits!";
+	    		if(isValid){
+	    			document.getElementById("creditCardCVV").focus();
+	    		}
+                isValid = false;
+        	}
+    	}
+    	
+    	if(_creditCardHolderName == ""){
+			document.getElementById("creditCardHolderNameMsg").innerHTML = 			"[E209] Credit card holder name must be input!";
+			if(isValid){
+				document.getElementById("creditCardHolderName").focus();
+			}
+	        isValid = false;
+    	}
+    	
+    	if(_creditCardExpiryDate == ""){
+			document.getElementById("creditCardExpiryDateMsg").innerHTML = 			"[E210] Credit card expiry date must be input!";
+			if(isValid){
+				document.getElementById("creditCardExpiryDate").focus();
+			}
+	        isValid = false;
+    	}else {    		 
+    		var regularExpress4creditCardExpiryDate = /^\d+$/;		
+    		var isValidcreditCardExpiryDate = regularExpress4creditCardExpiryDate.test(_creditCardExpiryDate);
+      
+    		if(!isValidcreditCardExpiryDate){
+	    		document.getElementById("creditCardExpiryDateMsg").innerHTML = 		"[E211] Credit card expiry date must be numeric!";				
+	    		if(isValid){
+	    			document.getElementById("creditCardExpiryDate").focus();
+	    		}
+	            isValid = false;
+    		}else if(_creditCardExpiryDate.length != 4){
+        		document.getElementById("creditCardExpiryDateMsg").innerHTML = 		"[E212] Credit card expiry date must be 4 digits!";
+	    		if(isValid){
+	    			document.getElementById("creditCardExpiryDate").focus();
+	    		}
+                isValid = false;
+        	}else{
+        		var _mm = parseInt(_creditCardExpiryDate.substring(0, 2));
+        		var _yy = parseInt(_creditCardExpiryDate.substring(2, 4));
+        		var _yyyy = new Date().getFullYear() + "";
+        		var _currentYear = parseInt(_yyyy.substring(2, 4));
+        		
+        		if(_mm <= 0 || _mm > 12 || _yy < _currentYear){
+	        		document.getElementById("creditCardExpiryDateMsg").innerHTML = 	"[E213] Credit card expiry date is invalid!";
+		    		if(isValid){
+		    			document.getElementById("creditCardExpiryDate").focus();
+		    		}
+	                isValid = false;
+        		}
+        	}
+    	}
+    } else if(_paymentMethod == "CH") {
+       	if(_chequeNo == ""){
+			document.getElementById("chequeNoMsg").innerHTML = 						"[E214] Cheque no. must be input!";
+			if(isValid){
+				document.getElementById("chequeNo").focus();
+			}
+	        isValid = false;
+    	}else {
+    		var _chequeNoDigitOnly = _chequeNo.trim().replace(/\D/g, ""); //replace all characters except numeric characters
+    		var regularExpress4ChequeNo = /^\d+$/;		
+    		var isValidChequeNo = regularExpress4ChequeNo.test(_chequeNoDigitOnly);
+      
+    		if(!isValidChequeNo){
+	    		document.getElementById("chequeNoMsg").innerHTML = 					"[E215] Cheque no. must be numeric!";	
+	    		if(isValid){
+	    			document.getElementById("chequeNo").focus();
+	    		}
+	            isValid = false;
+    		}else if(_chequeNo.length != 10){
+        		document.getElementById("chequeNoMsg").innerHTML = 					"[E216] Cheque no. length must be 10 digits!";
+        		if(isValid){
+        			document.getElementById("chequeNo").focus();
+        		}
+                isValid = false;
+        	}
+    	}
+    } else if(_paymentMethod == "CA") {
+    	//do nothing
+    } else {
+		document.getElementById("cartMsg").innerHTML = 								"[E217] System error, please try again later!";	
+		isValid = false;
+    }
+    // ******** [END] Payment validation ********
+    
+    return isValid;
+}
 /******** [END] Admin functions JavaScript ********/
 

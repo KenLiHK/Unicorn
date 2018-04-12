@@ -21,7 +21,28 @@ if(isset($_SESSION['login_user_id'])){
 	<meta charset="utf-8">
 
 	<title>Unicorn Restaurant - Home</title>
+<style>
+******** [START] Recommend page style definition ********/
+#itemCount {
+  position: absolute;
+  display: none;
+  top: -10px;
+  left: -10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: red;
+  color: white;
+  text-align: center;
+}
 
+#cart-container {
+  float: right;
+  width: 210px;
+  position: relative;
+}
+******** [END] Recommend page style definition ********/
+</style>
 	<?php include_once("../import.php");?>
 	
 	<link rel="stylesheet" href="../unicorn.css" type="text/css">

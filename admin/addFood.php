@@ -2,14 +2,13 @@
 
 include_once("../common/functions.php");
 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 checkLogon();
 checkAdmin();
-
 check_session_timeout();
-
-if (session_status() == PHP_SESSION_NONE) {
-	session_start();
-}
 
 if(isset($_SESSION['login_user_id'])){
 	$userID_In_Session = $_SESSION['login_user_id'];
@@ -304,15 +303,9 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 										</div>	
 										<hr>
 										<div>
-											<label class="admin_label">Food Category<label class="mandatory_field">*</label> : </label> 										
-											<select id="id_foodCat" name="foodCat" style="width:150px;">
-                                				<?php
-                                				for ($row = 0; $row < count($userOrdered); $row++) {
-                                					$orderID = $userOrdered[$row]["ORDER_ID"];
-                                					echo "<option value=" . $orderID . ">" . $orderID . "</option>";
-                                				}                                						                                						
-                                				?>                  
-                                    		</select>						
+											<label class="admin_label">Food Category<label class="mandatory_field">*</label> : </label>
+											<input type="radio" name="cateType" id="id_type1" value="ex" onclick="clickExistedCat()" checked ><div style="display: inline-block; width:15%" id="foodCat-section"></div> 									
+											<input type="radio" name="cateType" id="id_type2" value="nw" onclick="clickNewCat()"><input class="admin_input ui-widget" type="text" id="id_foodCat" name="foodCat" maxlength="20" placeholder="New food category..." value="<?php if(isset($newCat)){echo $newCat;} ?>" disabled >					
 											<span class="admin_err" id="foodCatMsg" ><?php if(isset($foodCatMsg_php)){echo $foodCatMsg_php;} ?></span>
 										<div>
 										
@@ -333,7 +326,7 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 										
 										<div>
 											<label class="admin_label">Price<label class="mandatory_field">*</label> : </label> 
-											<input type="text" id="id_price" name="price" maxlength="10" value="<?php if(isset($price)){echo $price;} ?>" >
+											<input type="number" id="id_price" name="price" step="1" min="1" max="5000" value="<?php if(isset($price)){echo $price;} ?>" >
 											<span class="admin_err" id="priceMsg" ><?php if(isset($priceMsg_php)){echo $priceMsg_php;} ?></span>
 										<div>
 	
@@ -354,7 +347,7 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 										
 										<div>
 											<label class="admin_label">Remarks : </label> 
-											<textarea class="admin_textarea" id="id_remarks" name="remarks" maxlength="1000" value="" style="width:50%"></textarea>
+											<textarea class="admin_textarea" id="id_remarks" name="remarks" maxlength="1000" value="<?php if(isset($remarks)){echo $remarks;} ?>" style="width:50%"></textarea>
 										<div>
 	
 										<div style="display:inline;">

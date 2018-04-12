@@ -5,31 +5,38 @@ include_once("../common/functions.php");
 checkLogon();
 checkAdmin();
 
-//Receive Ajax call with parameter email2Check and check if the received Email exist in Database USER table.
-if(isset($_POST['emailUserID2Check']))
-{
-	$emailUserID2Check= $_POST['emailUserID2Check'];
-	//echo $emailUserID2Check;
-	checkEmail($emailUserID2Check);
-	exit();
+if(isset($_POST['getExistingFoodCat'])){
+    load_All_Food_Name_Cat();
+    exit();
 }
 
-function checkEmail($emailUserID2Check)
-{
-	//javascript object {email:_email, userID:_userID}
-	$data_array = json_decode(json_encode($emailUserID2Check), true);
-	$email= $data_array['email'];
-	$userID= $data_array['userID'];
-	
-	$_email = db_select_user_by_Email_UserID($email, $userID);
-	if(isset($_email))
-	{
-		echo "Y"; //Found Email in DB
-	}
-	else
-	{
-		echo "N"; //NOT found Email in DB
-	}
+function load_All_Food_Name_Cat(){
+    $res = db_select_all_food_category_name();
+    echo results_jsonEncode($res);
+}
+
+function results_jsonEncode($oriResArray){
+    $api_output = array(
+        'data'=>array(),
+        'message'=>'',
+        'code'=>2
+    );
+    if(!is_array($oriResArray)){
+        $api_output['message'] = '<span style="color:red;">[E901] The result from sql is not an array!</span>';
+        $api_output['code'] = 1;
+    }
+    else if(count($oriResArray) == 0){
+        $api_output['message'] = '<span style="color:red;">[E902] No results!</span>';
+        $api_output['code'] = 2;
+    }
+    else{
+        $api_output['data'] = $oriResArray;
+        $api_output['message'] = '';
+        $api_output['code'] = 0;
+    }
+    $json_print = json_encode($api_output, JSON_PRETTY_PRINT);
+    return $json_print;
+    
 }
 
 ?>

@@ -1,0 +1,17 @@
+eclipse.preferences.version=1
+encoding//login/login.php=US-ASCII
+encoding//login/loginFake.php=US-ASCII
+encoding//login/logout.php=US-ASCII
+encoding//notification/notificationService.php=US-ASCII
+encoding//placeOrder/cartConfirm.php=US-ASCII
+encoding//recommend/cartAjaxService.php=US-ASCII
+encoding//recommend/recom_home.php=US-ASCII
+encoding//recommend/recommendService.php=US-ASCII
+encoding//registration/activateService.php=US-ASCII
+encoding//userProfile/updateUserProfile.php=US-ASCII
+encoding//userProfile/userProfile.php=US-ASCII
+encoding//userProfile/userProfileAjaxService.php=US-ASCII
+encoding/<project>=US-ASCII
+encoding/leftPanel.php=US-ASCII
+encoding/recommend=UTF-8
+encoding/userProfile=UTF-8
