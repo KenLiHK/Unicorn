@@ -1027,11 +1027,12 @@
 	{
 	    try {
 	        $dbconnection = db_connect();
-	        	        
+	        
 	        //Prepared SQL statement
 	        $sql = "select * from `food` where food_category=:foodCat and food_name=:foodName";
 	        $stmt = $dbconnection->prepare($sql);
-	        $paramArray = array(':foodCat' => $foodCat, ':foodName' => $foodName);
+	        $paramArray = array(':foodCat' => $foodCat);
+	        $paramArray = array(':foodName' => $foodName);
 	        $stmt->execute($paramArray);
 	        
 	        return $stmt->rowCount();
@@ -1043,54 +1044,5 @@
 	    $dbconnection = null;
 	}
 	
-	
-	function db_insert_food($foodObj)
-	{
-	    try {
-	        $dbconnection = db_connect();
-	        
-	        //Prepared SQL statement
-	        $stmt = $dbconnection->prepare("insert into `food` (`food_id`, `food_category`, `food_name`, `available`, `price`, `discount`,
-				`discount_effect_date`, `discount_expiry_date`, `img_path`, `remark`, `create_date`, `update_date`)
-				values (NULL, :foodCat, :foodName, :available, :price, :discount, 
-                        :discDffDate, :discExpDate, :imgPath, :remark, :createDate, :updateDate)");
-	        
-	        $defaultImgPath = "/resources/foodImg/defaultFood.jpg";
-	        
-	        $_foodCat                   = $foodObj->getFoodCategory();
-	        $_foodName                  = $foodObj->getFoodName();
-	        $_available                 = $foodObj->getAvailable();
-	        $_price                     = $foodObj->getPrice();
-	        $_discount                  = $foodObj->getDiscount();
-	        $_discDffDate               = $foodObj->getDiscountEffectDate();
-	        $_discExpDate               = $foodObj->getDiscountExpiryDate();
-	        $_imgPath                   = $foodObj->getImgPath();
-	        $_remark                    = $foodObj->getRemark();
-	        $_createDate                = $foodObj->getCreateDate();
-	        $_updateDate                = $foodObj->getUpdateDate();
-	        
-	        $stmt->bindParam(':foodCat', 			$_foodCat);
-	        $stmt->bindParam(':foodName', 			$_foodName);
-	        $stmt->bindParam(':available', 		    $_available);
-	        $stmt->bindParam(':price', 		        $_price);
-	        $stmt->bindParam(':discount', 			$_discount);
-	        $stmt->bindParam(':discDffDate', 		$_discDffDate);
-	        $stmt->bindParam(':discExpDate', 		$_discExpDate);
-	        $stmt->bindParam(':imgPath', 			$_imgPath);
-	        $stmt->bindParam(':remark', 			$_remark);
-	        $stmt->bindParam(':createDate', 		$_createDate);
-	        $stmt->bindParam(':updateDate', 		$_updateDate);
-	        
-	        $stmt->execute();
-	        $result = $dbconnection->lastInsertId();
-	        
-	        return $result;
-	    }catch(PDOException $e){
-	        go_to_exception_page("db_insert_food() -> ".$e);
-	    }
-	    
-	    //close db connection to release memory
-	    $dbconnection = null;
-	}
 	//[END] Admin functions
 ?>

@@ -1,0 +1,126 @@
+/******** [START] Admin style ********/
+label.admin_label {
+	display: inline-block;	
+	width: 23%;
+	text-align: right;
+	font-weight:bold;
+}
+
+label.admin_label2 {
+	display: inline-block;	
+	width: 23%;
+	text-align: right;
+	margin-right: 0.5em;
+}
+
+label.admin_label3 {
+	display: inline-block;
+	width: 30%;
+	padding-left: 5px;
+	text-align: left;
+}
+
+.admin_label {
+	display: inline-block;	
+	width: 30%;
+	text-align: right;
+	font-weight:bold;
+}
+
+.admin_label2 {
+	display: inline-block;
+	width: 30%;
+	padding-left: 5px;
+	text-align: left;
+	font-weight:bold;
+}
+
+.admin_info {
+	float: left;
+	width: 80%
+}	
+
+.admin_photo {
+	float: right;
+	width: 20%
+}	
+
+.adminIcon {
+	width: 150;
+	height: 150;
+	border: 4px solid #dedede;
+}
+
+input.admin_button {
+	width: 20%;
+	margin-right: 2.5em;
+	margin-bottom: 2.5em;
+	display: inline-block;
+	height: 50px;
+	text-align: center;
+	background-color: skyblue;
+	color: #fff;
+	border: none;
+}
+
+input.admin_input {
+	display: inline-block;
+	width: 30%;
+	padding-left: 5px;
+	text-align: left;
+}
+
+.admin_select {
+	display: inline-block;
+	width: 100%;
+	padding-left: 5px;
+	text-align: left;
+}
+
+input.admin_input2 {
+	display: inline-block;
+	width: 45%;
+	margin-left: 5%;
+	padding-left: 5px;
+	text-align: left;
+}
+
+.button_alignment {
+	text-align: center;
+}
+
+.stop_floating_alignment{
+	clear: both;
+}
+
+span.admin_err {
+	color: red;
+}
+
+span.admin_info {
+	color: green;
+}
+
+label.mandatory_field {
+	color:red;
+	font-size:15px;
+}
+
+input.admin_radio[type=radio] {
+	zoom: 2;
+}
+
+input.admin_textarea {
+	display: inline-block;
+	width: 50%;
+	padding-left: 5px;
+	text-align: left;
+}
+
+.food_tag {
+	display: inline-block;	
+	width: 50%;
+	text-align: left;
+	font-weight:bold;
+}
+/******** [END] Admin style ********/

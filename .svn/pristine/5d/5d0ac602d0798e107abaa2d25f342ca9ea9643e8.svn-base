@@ -97,7 +97,7 @@ $privilege = isset($_SESSION['login_user_privilege']) ? $_SESSION['login_user_pr
 
 									<li class="nav-item mt-auto">
 										<a href="../admin/addFood.php">
-											<i class="menu-icon fa fa-gear fa-1x"></i>
+											<i class="menu-icon fa fa-clone fa-1x"></i>
 											<span class="menu-title-text"> Add Food </span>
 										</a>
 									</li>

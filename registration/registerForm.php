@@ -305,12 +305,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			
 			//go to success page
 			header('Location: ./registerSuccess.php');
+			unset($_POST);
 			exit;
 		} else {
 			//echo "result message=".$result;
 			//echo "Problem in user account registration. Please try again!";
 			
 			header('Location: ./registerFailure.php');
+			unset($_POST);
 			exit;
 		}
 	}

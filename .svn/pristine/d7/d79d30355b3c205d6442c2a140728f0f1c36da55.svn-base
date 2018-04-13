@@ -39,22 +39,4 @@ function results_jsonEncode($oriResArray){
     
 }
 
-if(isset($_POST['foodCatName2Check'])){
-    $FoodCatName= $_POST['foodCatName2Check'];
-    $data_array = json_decode(json_encode($FoodCatName), true);    
-    $foodCate = $data_array['foodCate'];
-    $foodName = $data_array['foodName'];  
-    
-    $count = count_Food_By_Food_Cat_Name($foodCate, $foodName);
-    
-    if(isset($count) && $count >= 0){
-        echo $count;
-    }else{
-        echo -1;
-    }
-    exit();
-}
-
-
-
 ?>

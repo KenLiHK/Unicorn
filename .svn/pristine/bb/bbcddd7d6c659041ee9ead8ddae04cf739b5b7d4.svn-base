@@ -326,11 +326,9 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 		if(isset($result)) {
 			$successMsg= "[I702] Update user profile successfully!";
 			header('Location: ./userProfile.php?successMsg='.$successMsg);
-			unset($_POST);
 			exit;
 		} else {
 			$userProfileMsg_php = "[E712] Update user profile failed, please try again later!";
-			unset($_POST);
 		}
 	}else{
 		if (session_status() == PHP_SESSION_NONE) {

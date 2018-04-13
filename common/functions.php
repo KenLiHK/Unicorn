@@ -378,9 +378,19 @@
 	function get_notification_count_by_userID($userID){
 	    return db_select_notification_count_by_UserID($userID);
 	}
-	//[END] Notificationfunction
+	//[END] Notification function
 	
+	//[START] Admin function
+	function count_Food_By_Food_Cat_Name($foodCate, $foodName){
+	    
+	    return db_select_food_by_FoodCat_FoodName($foodCate, $foodName);
+	}
 	
+	function add_food($foodObj){
+	    
+	    return db_insert_food($foodObj);
+	}
+	//[END] Admin function
 	
 	/*
 	test_smtp();
