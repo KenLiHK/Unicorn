@@ -1,9 +1,8 @@
 <?php
 include_once("../common/functions.php");
 
-healthCheckDB();
-healthCheckDBTables();
 checkLogon();
+
 check_session_timeout();
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -120,7 +119,8 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 	        $_creditCardNoTmp = $_creditCardNoTmp.substr($_creditCardNo, $i, 4);
 	    }
 	}
-	$_creditCardNo = $_creditCardNoTmp;	
+	$_creditCardNo = $_creditCardNoTmp;
+
 }
 ?>
 
@@ -130,7 +130,7 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 		
 		<title>Unicorn Restaurant - Shopping Cart</title>
 		
-		<?php include_once("../import.php");?>
+
 
 		<link rel="stylesheet" href="../unicorn.css" type="text/css">
 		<link rel="stylesheet" href="./placeOrder.css" type="text/css">
@@ -140,22 +140,25 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 
 	<body>	
 		<form name="cartForm" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" onsubmit="return confirmFormSubmit()">
-			<div id="loading"></div>
-			<div id="app"  style="display:none;" >						
+
+			<div id="app">						
 				<div>
 				
-					<?php include_once("../leftPanel.php");?>
+
 					
 					
 					
 					<!-- ******** [START] Right panel ******** -->
 					<div id="right-panel" class="right-panel">
 						
-						<?php include_once("../header.php");?>	
+
 						
 						<!-- ******** [START] Navigation Body ******** -->
 						<div>
 							<div>
+								<div>
+									<span style="display:inline; font-size: 24pt;"><img src="../resources/cs5281unicorn2_cvY_6.ico" alt="Logo"> Unicorn Restaurant</span>
+								</div>
 							
 								<!-- ******** [START] Alert Message Display ******** -->
 								<div id="alertMsg" class="alert mt-4 alert-success">
@@ -262,14 +265,11 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
                                   </div>
                                   
 								  <div id="actionBtn">								  	  
-									  <input class="placeOrder_button" type="submit" id="okBtn" name="okBtn" value="OK">
-									  <input class="placeOrder_button" type="button" id="printBtn" name="printBtn" value="Print" onclick="gotoPrintVersion(<?php echo $_placedOrderID;?>)">
-									  <input type="hidden" id="placedOrderID" name="placedOrderID" value="<?php echo $_placedOrderID;?>">
-								   </div>				
-								</div>
+									  <input class="placeOrder_button" type="button" id="printBtn" name="printBtn" value="Print" onclick="printOrder()">
+								   </div>
 								<!-- ******** [END] Shopping Cart Division ******** -->
 								
-								<?php include_once("../footer.php");?>			
+			
 								
 								
 								

@@ -18,7 +18,7 @@ $privilege = isset($_SESSION['login_user_privilege']) ? $_SESSION['login_user_pr
 							<!-- ******** [START] Logo ******** -->
 							<div class="navbar-header">
 								<a href="../recommend/recom_home.php" class="navbar-brand">
-									<img src="../resources/systemImg/cs5281unicorn2_6.png" alt="Logo" class="float-left">
+									<img src="../resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
 								</a> 
 							</div>
 							<!-- ******** [END] Logo ******** -->
@@ -37,22 +37,22 @@ $privilege = isset($_SESSION['login_user_privilege']) ? $_SESSION['login_user_pr
 											<span class="menu-title-text"> Search Dish </span>
 										</a>
 									</li>				
-									
+		
+									<?php if($_isLogon) {?>		
 									<li class="nav-item mt-auto">
 										<a href="../placeOrder/cart.php">
 											<i class="menu-icon fa fa-shopping-cart fa-1x"></i>
 											<span class="menu-title-text"> Place Order </span>
 										</a>
 									</li>
-									
+
 									<li class="nav-item mt-auto">
 										<a href="../comment/comment_section.php">
 											<i class="menu-icon fa fa-comments fa-1x"></i>
 											<span class="menu-title-text"> Comment </span>
 										</a>
-									</li>
+									</li>															
 									
-									<?php if($_isLogon) {?>
 									<li class="nav-item mt-auto">
 										<a href="../notification/notification.php">
 											<i class="menu-icon fa fa-envelope fa-1x"></i>
@@ -97,11 +97,38 @@ $privilege = isset($_SESSION['login_user_privilege']) ? $_SESSION['login_user_pr
 
 									<li class="nav-item mt-auto">
 										<a href="../admin/addFood.php">
-											<i class="menu-icon fa fa-gear fa-1x"></i>
+											<i class="menu-icon fa fa-clone fa-1x"></i>
 											<span class="menu-title-text"> Add Food </span>
 										</a>
 									</li>
-																																			
+									
+									<li class="nav-item mt-auto">
+										<a href="../admin/updateFood.php">
+											<i class="menu-icon fa fa-edit fa-1x"></i>
+											<span class="menu-title-text"> Update Food </span>
+										</a>
+									</li>
+									
+									<li class="nav-item mt-auto">
+										<a href="../admin/updateOrder.php">
+											<i class="menu-icon fa fa-cutlery fa-1x"></i>
+											<span class="menu-title-text"> Update Order </span>
+										</a>
+									</li>
+									
+									<li class="nav-item mt-auto">
+										<a href="../admin/addStaff.php">
+											<i class="menu-icon fa fa-address-book-o fa-1x"></i>
+											<span class="menu-title-text"> Add Staff </span>
+										</a>
+									</li>
+									
+									<li class="nav-item mt-auto">
+										<a href="../admin/updateStaff.php">
+											<i class="menu-icon fa fa-address-book fa-1x"></i>
+											<span class="menu-title-text"> Update Staff </span>
+										</a>
+									</li>																																				
 									<?php }?>									
 								</ul>
 							</div>

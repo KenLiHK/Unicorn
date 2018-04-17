@@ -5,6 +5,75 @@
 		echo "I AM RUNNING <br>";
 	}
 	
+	/** Strips the data from any malicious attempts
+	 * @param any input
+	 * @return clean data
+	*/
+	function test_data($data) {
+	  $data = trim($data);
+	  $data = stripslashes($data);
+	  $data = htmlspecialchars($data);
+	  return $data;
+	}	
+	
+	/** Return last OrderID from db Comment table
+	 * @param UserID (currently logged user)
+	 * @return OrderID from Comment for UserID
+	*/
+	function db_get_last_OrderID_from_Comment($user_id)
+	{
+		
+		try {
+			// connect
+			$dbconnection = db_connect();
+			// query the last order_id for "user_id"
+			$sql = "SELECT order_id FROM UNICORN.COMMENT WHERE user_id='$user_id' ORDER BY create_date DESC LIMIT 1";
+			$stmt = $dbconnection->query($sql);
+
+			// result
+			$OrderIDfetch = $stmt->fetch();
+		
+			// disconnect
+			$dbconnection = null;
+
+			// return value
+			return $OrderIDfetch['order_id'];
+
+	    }catch(PDOException $e){
+			return -1;
+	        go_to_exception_page("db_get_last_OrderID_from_Comment() -> get data -> ".$e);
+	    }
+	}
+	
+	/** Return last OrderID from db Order table
+	 * @param UserID (currently logged user)
+	 * @return OrderID from Order for UserID
+	*/
+	function db_get_last_OrderID_from_Order($user_id)
+	{
+		
+		try {
+			// connect
+			$dbconnection = db_connect();
+			// query the last order_id for "user_id"
+			$sql = "SELECT order_id FROM UNICORN.ORDER WHERE user_id='$user_id' ORDER BY create_date DESC LIMIT 1";
+			$stmt = $dbconnection->query($sql);
+
+			// result
+			$OrderIDfetch = $stmt->fetch();
+		
+			// disconnect
+			$dbconnection = null;
+
+			// return value
+			return $OrderIDfetch['order_id'];
+
+	    }catch(PDOException $e){
+			return -1;
+	        go_to_exception_page("db_get_last_OrderID_from_Comment() -> get data -> ".$e);
+	    }
+	}
+	
 	
 	/** Returns last order ID for the user
 	 !!! should I check here whether the user is logged in ? whether there is outstanding order ?
@@ -17,7 +86,7 @@
 			// connect
 			$dbconnection = db_connect();
 			// query
-			$sql = "SELECT order_id FROM order_table WHERE user_id='$user_id' ORDER BY order_id DESC LIMIT 1";
+			$sql = "SELECT order_id FROM UNICORN.ORDER WHERE user_id='$user_id' ORDER BY order_id DESC LIMIT 1";
 			$stmt = $dbconnection->query($sql);
 
 			// result
@@ -37,24 +106,29 @@
 	
 	
 	/** Returns array of 5 latest items according to orderID
-	 * @param ID of order to be
+	 * @param ID of order get the list of $max_count foods from
+    * @param maximum number of foods retrieved
 	 * @return array of FoodIDs (up to 5) of items in current order
 	*/
-	function getFoodIDWithOrderID($order_id)
+	function getFoodIDWithOrderID($order_id, $max_count)
 	{
 		try {
 			// connect
 			$dbconnection = db_connect();
 			// query
-			$sql = "SELECT food_id FROM order_detail WHERE order_id='$order_id' LIMIT 5";
+			$sql = "SELECT food_id FROM order_detail WHERE order_id='$order_id' LIMIT $max_count";
 			$stmt = $dbconnection->query($sql);
 			
 			// return Array initialization
-			$out['0'] = -1;
-			$out['1'] = -1;
-			$out['2'] = -1;
-			$out['3'] = -1;
-			$out['4'] = -1;
+         for ($i = 0; $i < $max_count; $i++){
+            $out[$i] = -1;
+            
+         }
+			//$out['0'] = -1;
+			//$out['1'] = -1;
+			//$out['2'] = -1;
+			//$out['3'] = -1;
+			//$out['4'] = -1;
 			// local variable
 			$x = 0;
 			
@@ -65,11 +139,12 @@
 				
 				//echo "out = " . $out[$x] . "<br>";
 				
-				// prevent overflow (I am so sorry for this kind of lazy programming :(, but it is very easy to handle )
-				$x = $x + 1;
-				if( $x == 4){
+				// prevent overflow
+				if( $x == $max_count){
 					break;
 				}
+            $x = $x + 1;
+            
 			}
 			
 			// disconnect
@@ -126,13 +201,16 @@
 			// connect
 	        $dbconnection = db_connect();
 			
+			// conversion
+			$int_rating = (int)$rating;
+			
 	        //prepared SQL statement
 			$sql = "INSERT INTO comment (USER_ID, ORDER_ID, RATING, CONTENT, CREATE_DATE)
-			VALUES ('$user_id', '$order_id', '$rating', '$content', '$create_date')";
+			VALUES ('$user_id', '$order_id', '$int_rating', '$content', '$create_date')";
 	        $stmt = $dbconnection->prepare($sql);
 			// execute 
 			if ( $stmt->execute() === TRUE) {
-				echo "New record created successfully"  . "<br>";
+				//echo "New record created successfully"  . "<br>";
 			} else {
 				echo "Error: " . $sql . "<br>";
 			}
@@ -150,10 +228,9 @@
 		try {
 			// connect
 	        $dbconnection = db_connect();
-			
-			
+
 			// query
-			$sql = "SELECT user_id, order_id, rating, content, create_date FROM comment ORDER BY comment_id DESC LIMIT $number_of_comments";
+			$sql = "SELECT user_id, order_id, rating, content, create_date FROM comment ORDER BY create_date DESC LIMIT $number_of_comments";
 			$stmt = $dbconnection->query($sql);
 			
 			// number of fetched rows
@@ -163,7 +240,7 @@
 			for($x = 0; $x <= ($num_of_rows - 1); $x++){
 				$row = $stmt->fetch();
 				$user_id[$x]     = $row['user_id'];
-				$order_id[$x]     = $row['order_id'];
+				$order_id[$x]    = $row['order_id'];
 				$rating[$x]      = $row['rating'];
 				$content[$x]     = $row['content'];
 				$create_date[$x] = $row['create_date'];
@@ -183,7 +260,7 @@
 				$content[$y]     = 'DB out of data';
 				$create_date[$y] = 'DB out of data';
 				
-				echo 'Not enough data in databace' . '<br>';
+				//echo 'Not enough data in database' . '<br>';
 			}
 			
 			// fetch value
@@ -191,106 +268,18 @@
 			
 
 	    }catch(PDOException $e){
-	        go_to_exception_page("testComment() -> set data -> ".$e);
+	        go_to_exception_page("fetchComments() -> set data -> ".$e);
 	    }
 		
 		// disconnect
 		$dbconnection = null;
+      
+      // number of comments fetched
+      //echo 'number of rows ' .$num_of_rows. '<br>';
+      return $num_of_rows;
 		
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//////////////////////////////////////////////// TO BE DELETED
-	
-	function testComment()
-	{
-		// Store to DB
-	    try {
-	        $dbconnection = db_connect();
-	        //Prepared SQL statement
-			$sql = "INSERT INTO comment (USER_ID, RATING, CONTENT)
-			VALUES ('1', '3', 'this is some text written by user')";
-	        $stmt = $dbconnection->prepare($sql);
-			// Execute 
-			if ( $stmt->execute() === TRUE) {
-				echo "New record created successfully"  . "<br>";
-			} else {
-				echo "Error: " . $sql . "<br>";
-			}
-	    }catch(PDOException $e){
-	        //echo "<br>" . $e->getMessage();
-	        go_to_exception_page("testComment() -> set data -> ".$e);
-	    }
-		
-		// Query DB
-	    try {
-			$dbconnection = db_connect();
-			
-			// select last New
-			/*
-			$sql = "SELECT TOP(5) COMMENT_ID, USER_ID, RATING, CONTENT 
-					FROM comment WHERE COMMENT_ID=5 
-					Order By OrderDate DESC";
-					*/
-			/*$sql = "SELECT TOP 1 * FROM comment
-					ORDER BY COMMENT_ID DESC";*/
-			// select with simple condition
-			$sql = "SELECT COMMENT_ID, USER_ID, RATING, CONTENT FROM comment order by comment_id desc";
-			//$sql = "SELECT MAX(COMMENT_ID) FROM comment";
-			// select all
-			//$sql = "SELECT * FROM comment";
-			$stmt = $dbconnection->query($sql);
-			
-			// get result
-			while ($row = $stmt->fetch())
-			{
-				echo $row['COMMENT_ID'] . "<br>";
-				/*
-				if( $row['COMMENT_ID'] == 2){
-					echo " distinguish this entry <br>";
-					echo $row['COMMENT_ID'] . "   " . $row['USER_ID'] . "   " . $row['RATING'] . "   " . $row['CONTENT'] . "   "  . "<br>";
-				}else{
-					echo $row['COMMENT_ID'] . "   " . $row['USER_ID'] . "   " . $row['RATING'] . "   " . $row['CONTENT'] . "   "  . "<br>";
-				}*/
-			}
-			echo "CHECKPOINT" . "<br>";
-			
-			/*
-			if ($result->num_rows > 0) {
-				// output data of each row
-				while ($row = $stmt->fetch())
-				{
-					echo $row['USER_ID'] . "\n";
-				}
-			} else {
-				echo "0 results";
-			}*/
-	    }catch(PDOException $e){
-	        //echo "<br>" . $e->getMessage();
-	        go_to_exception_page("testComment() -> get data -> ".$e);
-	    }
 
-	    // Close DB connection
-	    $dbconnection = null;	
-	}
 
 ?>

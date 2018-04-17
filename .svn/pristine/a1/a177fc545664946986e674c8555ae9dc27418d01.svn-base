@@ -29,34 +29,24 @@ function searchByCookieValue(){
 function loadSec(){
     $('#id_foodCategory').change(
             function prepareSearchBox(){
-            	var $foodCate = document.getElementById("id_foodCategory").value.trim();
-            	var $foodName = document.getElementById("id_searchFood").value.trim();
-            	
-            	$('#search-result').empty();
-            	
+            	var $foodCate = document.getElementById("id_foodCategory").value;
+            	var $foodName = document.getElementById("id_searchFood").value;
+
             	if($foodCate == ""){
             		liveSearch();
             		if($foodName == ""){
                 		$('#search-result').empty();
-                	}else{                		
+                	}else{
                 		searchFoodByFoodCateName("", $foodName);
                 	}
             	}else{
-            		if($foodCate =="All"){
-            			liveSearch();
-            		}else{
-            			liveSearchByCat($foodCate);
-            		}
-            		if($foodName == ""){            			
+            		liveSearchByCat($foodCate);
+            		if($foodName == ""){
             			searchFoodByFoodCateName($foodCate, "");
-                	}else{                		
+                	}else{
                 		searchFoodByFoodCateName($foodCate, $foodName);
                 	}
             		$.cookie('unicornCookie', $foodCate, (30 * 24 * 3600));
-            	}
-            	
-            	if($foodCate == "" && $foodName == ""){
-            		$('#search-result').empty();
             	}
      });
 }
@@ -64,68 +54,52 @@ function loadSec(){
 function loadSearchBox(){
     $('#id_searchFood').on('input',
     //$(':regex(id,^id_searchFood$)').change(
-        function searchFood(){
-        	var $foodCate = document.getElementById("id_foodCategory").value.trim();
-        	var $foodName = document.getElementById("id_searchFood").value.trim();
-        	
-        	$('#search-result').empty();
-        	
-        	if($foodCate == ""){
-        		if($foodName == ""){
-        			$('#search-result').empty();
+            function searchFood(){
+            	var $foodCate = document.getElementById("id_foodCategory").value;
+            	var $foodName = document.getElementById("id_searchFood").value;
+            	
+            	if($foodCate == ""){
+            		if($foodName == ""){
+                		$('#search-result').empty();
+                	}else{
+                		searchFoodByFoodCateName("", $foodName);
+                	}
             	}else{
-            		searchFoodByFoodCateName("", $foodName);
+            		if($foodName == ""){
+            			searchFoodByFoodCateName($foodCate, "");
+                	}else{
+                		searchFoodByFoodCateName($foodCate, $foodName);
+                	}
+            		$.cookie('unicornCookie', $foodCate, (30 * 24 * 3600));
             	}
-        	}else{
-        		if($foodName == ""){
-        			searchFoodByFoodCateName($foodCate, "");
-            	}else{
-            		searchFoodByFoodCateName($foodCate, $foodName);
-            	}
-        		$.cookie('unicornCookie', $foodCate, (30 * 24 * 3600));
-        	}
      });
 }
-
-function loadSearchBoxChange($_foodName){
-    //$('#id_searchFood').blur(
-    //$(':regex(id,^id_searchFood$)').change(
-        //function searchFood(){
-        	var $foodCate = document.getElementById("id_foodCategory").value.trim();
-        	var $foodName = $_foodName; //document.getElementById("id_searchFood").value.trim();
-        	
-        	$('#search-result').empty();
-        	
-        	if($foodCate == ""){
-        		if($foodName == ""){
-        			$('#search-result').empty();
-            	}else{
-            		searchFoodByFoodCateName("", $foodName);
-            	}
-        	}else{
-        		if($foodName == ""){
-        			searchFoodByFoodCateName($foodCate, "");
-            	}else{
-            		searchFoodByFoodCateName($foodCate, $foodName);
-            	}
-        		$.cookie('unicornCookie', $foodCate, (30 * 24 * 3600));
-        	}
-     //});
-}
-
-function resetSearchResult(){
-	var $foodCate = document.getElementById("id_foodCategory").value.trim();
-	var $foodName = document.getElementById("id_searchFood").value.trim();
-	
-	if($foodCate == "" && $foodName == ""){
-		$('#search-result').empty();
-	}
-} 
 
 function addCartAnimate($foodId){
         var cart = $('span.fa-shopping-cart');
         var imgId = "#img" + $foodId;
-        var imgtodrag = $(imgId);              
+        var imgtodrag = $(imgId);
+        
+        /*
+         *         var imgIdT1 = "#imgSearch_" + $foodId;
+        var imgIdT2 = "#imgFoodCate_" + $foodId;
+        var imgIdT3 = "#imgFoodRec_" + $foodId;
+        if(imgtodrag.offset() != undefined){
+        	imgId = imgIdT1;
+        }else{
+        	imgtodrag = $(imgIdT2);
+        	if(imgtodrag.offset() != undefined){
+        		imgId = imgIdT2;
+            }else{
+            	imgtodrag = $(imgIdT3);
+            	if(imgtodrag.offset() != undefined){
+            		imgId = imgIdT3;	
+                }
+            }	
+        }
+        imgtodrag = $(imgId);
+        */
+        
                 
         if (imgtodrag) {
             var imgclone = imgtodrag.clone()
@@ -166,7 +140,7 @@ function addCartAnimate($foodId){
 
 function addToCart($foodId){
 	if($foodId != undefined && $foodId != null && $foodId != ""){						    
-	    //addCartAnimate($foodId);
+	    addCartAnimate($foodId);
 	    var n = $foodId.indexOf("_");
 	    var tmpFoodId = $foodId.substr(n+1);
 	    addFoodToCartInSync(tmpFoodId, 1);
@@ -221,9 +195,8 @@ function searchFoodByFoodCateName($foodCate, $foodName){
                         intColor++;
                     });
                 }               
-                $('#search-result').empty();
+            	
                 $('#search-result').append($searchResult);
-                resetSearchResult();
             }
         }
     )
@@ -244,7 +217,6 @@ function prepareSearchSection(){
             success:function(result){
             	$searchSection += '<select class="foodCategorySel" id="id_foodCategory" name="foodCategory">	                                      ';
             	$searchSection += '       <option value=""></option>                                                                                  ';
-            	$searchSection += '       <option value="All">All</option>                                                                                  ';
             	
                 if(result["code"]!=0){
                     //If the results of query is abnormal, display error msg given by backend.
@@ -290,11 +262,7 @@ function liveSearch(){
 	    
 	  $( function() {
 		    $( "#id_searchFood" ).autocomplete({
-		      source: availableTags,
-		      select: function(event, ui) {
-		    	  var foodName = ui.item.value;
-		    	  loadSearchBoxChange(foodName);
-		      }
+		      source: availableTags
 		    });
 		  } );
 }
@@ -323,11 +291,7 @@ function liveSearchByCat($catName){
 	    
 	  $( function() {
 		    $( "#id_searchFood" ).autocomplete({
-		      source: availableTags,
-		      select: function(event, ui) {
-		    	  var foodName = ui.item.value;
-		    	  loadSearchBoxChange(foodName);
-		      }
+		      source: availableTags
 		    });
 		  } );
 }
@@ -417,7 +381,7 @@ function prepareFoodDetail($_oriPrice, $_disPrice, $_imgPath, $_cateName, $_food
 	'				</div>																									                    ' +
 	'			</div>																										                    ' +	
 	'			<div class="row">																							                    ' +
-	'				<div class="col-6 b-r-1 py-3" style="cursor:pointer;" onclick="addToCart(\''+ $_section + "_" + $_foodId + '\')">									' +
+	'				<div class="col-6 b-r-1 py-3" onclick="addToCart(\''+ $_section + "_" + $_foodId + '\')">									' +
 	'					<div class="font-weight-bold" id="add'+ $_section + "_" + $_foodId + '"><h1 class="fa fa-cart-plus fa-2x"></h1></div>		    ' +	
 	'				</div>																									                    ' +
 	'				<div>											' +

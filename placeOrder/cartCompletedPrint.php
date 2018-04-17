@@ -49,14 +49,12 @@ $_placedOrderID = "";
 
 if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {    
     header('Location: ../recommend/recom_home.php');
-    unset($_POST);
     exit;  
 }else if (!empty($_POST["printBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 	if(isset($_POST["placedOrderID"])){
 		$_placedOrderIDTmp = htmlspecialchars($_POST["placedOrderID"]);
 	}
 	header('Location: ../placeOrder/cartCompletedPrint.php?placedOrderID='.$_placedOrderIDTmp);
-	unset($_POST);
 	exit;
 }else{	
 	if(isset($_GET["placedOrderID"])){
@@ -66,12 +64,9 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
     if($_placedOrderID == ""){
         //go back to cart.php
         header('Location: ./cart.php');
-        unset($_POST);
-        unset($_GET);
         exit;
     }else{
     	$cartInfoMsg_php = "[I201] Placed order successfully! The order number is " . $_placedOrderID . " !";
-    	unset($_GET);
     }
     
     if (session_status() == PHP_SESSION_NONE) {

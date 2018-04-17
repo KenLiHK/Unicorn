@@ -45,6 +45,11 @@
 		$privilege   = $_user_in_db[2];
 		
 		if(isset($_user_in_db)){
+		    //User ID and email is case sensitive
+		    if($userIdOrEmail != $userID && $userIdOrEmail != $email){
+		        return "false";	//login failure
+		    }
+		    
 			$_updated_row_count = db_update_user_lastLoginTime_by_Email($email);
 			
 			if(isset($_updated_row_count) && $_updated_row_count > 0){
@@ -66,6 +71,11 @@
 		$privilege   = $_user_in_db[2];
 		
 		if(isset($_user_in_db)){
+		    //User ID and email is case sensitive
+		    if($userIdOrEmail != $userID && $userIdOrEmail != $email){
+		        return "false";	//login failure
+		    }
+		    
 			$_updated_row_count = db_update_user_lastLoginTime_by_Email($email);
 			
 			if(isset($_updated_row_count) && $_updated_row_count > 0){

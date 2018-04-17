@@ -58,8 +58,8 @@ function db_select_latestOrderId_byUserId($userId)
             $dbconnection = db_connect();
 
             //prepare SQL statement
-            $stmt = $dbconnection->prepare("select `order_id` from `order` where `user_id`= :userId
-                        and `status` = 'OS31' order by `order_id` desc limit 1");
+            $stmt = $dbconnection->prepare("SELECT `order_id` FROM `order` WHERE `user_id`= :userId
+                        AND `status` = 'OS31' ORDER BY `order_id` DESC LIMIT 1");
             $stmt->bindParam(":userId", $userId);
             //execute statement
             $stmt->execute();
@@ -84,8 +84,8 @@ function db_select_food_list_byCateName($cate)
     } else {
         try {
             $dbconnection = db_connect();
-            $stmt = $dbconnection->prepare("select * from `food`
-                    where `food_category` = :cate and `available` = 'Y'");
+            $stmt = $dbconnection->prepare("SELECT * FROM `food`
+                    WHERE `food_category` = :cate AND `available` = 'Y'");
             $stmt->bindParam(":cate", $cate);
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -105,7 +105,7 @@ function db_select_allAvailCategories()
 {
     try {
         $dbconnection = db_connect();
-        $stmt = $dbconnection->prepare("select * from `food` where `available` = 'Y' group by food_category, food_name order by food_category asc");
+        $stmt = $dbconnection->prepare("SELECT * FROM `food` WHERE `available` = 'Y' group by food_category, food_name order by food_category asc");
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $dbconnection = null;
@@ -128,10 +128,10 @@ function db_select_orderFoodCateList_byOrderId($orderId)
     else{
         try {
             $dbconnection = db_connect();
-            $stmt = $dbconnection->prepare("select distinct `food`.`food_category` from `order_detail` 
-											left join `food` on `food`.`food_id` = `order_detail`.`food_id` 
-											where `order_detail`.`order_id` = :orderId 
-											order by `food`.`food_id` desc");
+            $stmt = $dbconnection->prepare("SELECT DISTINCT `food`.`food_category` FROM `order_detail` 
+											LEFT JOIN `food` ON `food`.`food_id` = `order_detail`.`food_id` 
+											WHERE `order_detail`.`order_id` = :orderId 
+											ORDER BY `food`.`food_id` DESC");
             $stmt->bindParam(":orderId", $orderId);
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -154,9 +154,9 @@ function db_select_food_list_byTagName($tagName)
     } else {
         try {
             $dbconnection = db_connect();
-            $stmt = $dbconnection->prepare("select fd.* 
-											from `food` fd left join `food_tag`ft on fd.`food_id` = ft.`food_id` 
-											where ft.`tag_des` = :tagName and fd.`available` = 'Y' order by ft.`update_date` desc limit 4");
+            $stmt = $dbconnection->prepare("SELECT fd.* 
+											FROM `food` fd LEFT JOIN `food_tag`ft ON fd.`food_id` = ft.`food_id` 
+											WHERE ft.`tag_des` = :tagName and fd.`available` = 'Y' ORDER BY ft.`update_date` DESC LIMIT 4");
             $stmt->bindParam(":tagName", $tagName);
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -176,7 +176,7 @@ function db_select_highest_Price_food_list()
 {
 	try {
 		$dbconnection = db_connect();
-		$stmt = $dbconnection->prepare("select * from `food` fd where fd.`available` = 'Y' order by fd.`price` desc limit 10");
+		$stmt = $dbconnection->prepare("SELECT * FROM `food` fd where fd.`available` = 'Y' ORDER BY fd.`price` DESC LIMIT 10");
 		$stmt->execute();
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$dbconnection = null;
@@ -186,6 +186,23 @@ function db_select_highest_Price_food_list()
 		go_to_exception_page("db_select_highest_Price_food_list() -> ".$e);
 	}
 	
+	$dbconnection = null;
+}
+
+function db_select_all_food_category_name()
+{
+	try {
+		$dbconnection = db_connect();
+		$stmt = $dbconnection->prepare("SELECT distinct `food_category` FROM `food` where `available` = 'Y'");
+		$stmt->execute();
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$dbconnection = null;
+		return $results;
+		
+	} catch (PDOException $e) {
+		go_to_exception_page("db_select_all_food_category_name() -> ".$e);
+	}
+		
 	$dbconnection = null;
 }
 
@@ -231,10 +248,6 @@ function db_select_all_food_cat($cat)
 
 function db_select_food_by_food_category_name($foodCate, $foodName)
 {
-    if($foodCate == "All"){
-        $foodCate = "";
-    }
-    
 	try {
 	    $sql = "select  fd.* from `food` fd, `food_tag` ft 
                 where fd.`food_category` like :cat and (fd.`food_name` like :name or ft.`tag_des` like :name) 

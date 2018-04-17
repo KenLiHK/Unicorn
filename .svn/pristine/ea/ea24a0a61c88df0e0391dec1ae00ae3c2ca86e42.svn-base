@@ -2,186 +2,88 @@
  * Created by pcc on 06/03/2018.
  */
 
-document.write("<script type='text/javascript' src='../unicorn.js'></script>");
-document.write("<script type='text/javascript' src='../jq_plugins.js'></script>");
+document.write("<script language='javascript' src='../unicorn.js'></script>");
+document.write("<script language='javascript' src='jq_plugins.js'></script>");
 
 
 $(document).ready(function(){
+    //document.getElementById("food-cont").innerHTML="";
 	prepareSearchSection();
 	liveSearch();
 	loadRecomFood();
     loadAllCateFood();
-    loadSec();
-    loadSearchBox();
-    searchByCookieValue();
-    showItemCount();
+   
 });
 
+$(window).on('load',function(){
+    //a 3rd jquery plgin for reg validation
+    $(':regex(id,^addSearch_[0-9]*$)').click(
+        function addToCart(){
+        //add food to cart
+        alert("aa" + this.id);
+        var foodIdIndex = this.id.indexOf("_");
+        var foodId = this.id.substr(foodIdIndex+1);
+        alert("aa2" + foodId);
+        //addFoodToCart(foodId, 1);
+        addFoodToCartInSync(foodId, 1);
+        alert('Successfully added!'); //need to add logic, display different msg depending on returnValue
+    });
+    
+    $(':regex(id,^minusFoodCate_[0-9]*$)').click(
+            function substractFromCart(){
+            //remove food from cart
+            alert("aa" + this.id);
+            var foodIdIndex = this.id.indexOf("_");
+            var foodId = this.id.substr(foodIdIndex+1);
+            alert("aa2" + foodId);
+            //substractFoodFromCart(foodId, 1);
+            substractFoodFromCartInSync(foodId, 1);
+            alert('Successfully substracted!'); //need to add logic, display different msg depending on returnValue
+     });
 
-function searchByCookieValue(){
-	var $foodCate = $.cookie("unicornCookie");
-
-	if($foodCate != ""){
-		searchFoodByFoodCateName($foodCate, "");
-	}
-}
-
-function loadSec(){
-    $('#id_foodCategory').change(
+    $(':regex(id,^id_foodCategory$)').change(
             function prepareSearchBox(){
-            	var $foodCate = document.getElementById("id_foodCategory").value.trim();
-            	var $foodName = document.getElementById("id_searchFood").value.trim();
-            	
-            	$('#search-result').empty();
-            	
+            	var $foodCate = document.getElementById(this.id).value;
+            	var $foodName = document.getElementById("id_searchFood").value;
+
             	if($foodCate == ""){
             		liveSearch();
             		if($foodName == ""){
                 		$('#search-result').empty();
-                	}else{                		
+                	}else{
                 		searchFoodByFoodCateName("", $foodName);
                 	}
             	}else{
-            		if($foodCate =="All"){
-            			liveSearch();
-            		}else{
-            			liveSearchByCat($foodCate);
-            		}
-            		if($foodName == ""){            			
+            		liveSearchByCat($foodCate);
+            		if($foodName == ""){
             			searchFoodByFoodCateName($foodCate, "");
-                	}else{                		
+                	}else{
                 		searchFoodByFoodCateName($foodCate, $foodName);
                 	}
-            		$.cookie('unicornCookie', $foodCate, (30 * 24 * 3600));
             	}
+     });
+    
+    $(':regex(id,^id_searchFood$)').on('input',
+    //$(':regex(id,^id_searchFood$)').change(
+            function searchFood(){
+            	var $foodCate = document.getElementById("id_foodCategory").value;
+            	var $foodName = document.getElementById("id_searchFood").value;
             	
-            	if($foodCate == "" && $foodName == ""){
-            		$('#search-result').empty();
+            	if($foodCate == ""){
+            		if($foodName == ""){
+                		$('#search-result').empty();
+                	}else{
+                		searchFoodByFoodCateName("", $foodName);
+                	}
+            	}else{
+            		if($foodName == ""){
+            			searchFoodByFoodCateName($foodCate, "");
+                	}else{
+                		searchFoodByFoodCateName($foodCate, $foodName);
+                	}
             	}
      });
-}
-
-function loadSearchBox(){
-    $('#id_searchFood').on('input',
-    //$(':regex(id,^id_searchFood$)').change(
-        function searchFood(){
-        	var $foodCate = document.getElementById("id_foodCategory").value.trim();
-        	var $foodName = document.getElementById("id_searchFood").value.trim();
-        	
-        	$('#search-result').empty();
-        	
-        	if($foodCate == ""){
-        		if($foodName == ""){
-        			$('#search-result').empty();
-            	}else{
-            		searchFoodByFoodCateName("", $foodName);
-            	}
-        	}else{
-        		if($foodName == ""){
-        			searchFoodByFoodCateName($foodCate, "");
-            	}else{
-            		searchFoodByFoodCateName($foodCate, $foodName);
-            	}
-        		$.cookie('unicornCookie', $foodCate, (30 * 24 * 3600));
-        	}
-     });
-}
-
-function loadSearchBoxChange($_foodName){
-    //$('#id_searchFood').blur(
-    //$(':regex(id,^id_searchFood$)').change(
-        //function searchFood(){
-        	var $foodCate = document.getElementById("id_foodCategory").value.trim();
-        	var $foodName = $_foodName; //document.getElementById("id_searchFood").value.trim();
-        	
-        	$('#search-result').empty();
-        	
-        	if($foodCate == ""){
-        		if($foodName == ""){
-        			$('#search-result').empty();
-            	}else{
-            		searchFoodByFoodCateName("", $foodName);
-            	}
-        	}else{
-        		if($foodName == ""){
-        			searchFoodByFoodCateName($foodCate, "");
-            	}else{
-            		searchFoodByFoodCateName($foodCate, $foodName);
-            	}
-        		$.cookie('unicornCookie', $foodCate, (30 * 24 * 3600));
-        	}
-     //});
-}
-
-function resetSearchResult(){
-	var $foodCate = document.getElementById("id_foodCategory").value.trim();
-	var $foodName = document.getElementById("id_searchFood").value.trim();
-	
-	if($foodCate == "" && $foodName == ""){
-		$('#search-result').empty();
-	}
-} 
-
-function addCartAnimate($foodId){
-        var cart = $('span.fa-shopping-cart');
-        var imgId = "#img" + $foodId;
-        var imgtodrag = $(imgId);              
-                
-        if (imgtodrag) {
-            var imgclone = imgtodrag.clone()
-                .offset({
-                top: imgtodrag.offset().top,
-                left: imgtodrag.offset().left
-            })
-                .css({
-                'opacity': '0.5',
-                    'position': 'absolute',
-                    'height': '150px',
-                    'width': '150px',
-                    'z-index': '100'
-            })
-                .appendTo($('body'))
-                .animate({
-                'top': cart.offset().top + 10,
-                    'left': cart.offset().left + 10,
-                    'width': 75,
-                    'height': 75
-            }, 1000, 'easeInOutExpo');
-            
-            setTimeout(function () {
-                cart.effect("shake", {
-                    times: 2
-                }, 200);
-            }, 1500);
-
-            imgclone.animate({
-                'width': 0,
-                    'height': 0
-            }, function () {
-                $(this).detach()
-            });
-        }
-}
-
-
-function addToCart($foodId){
-	if($foodId != undefined && $foodId != null && $foodId != ""){						    
-	    //addCartAnimate($foodId);
-	    var n = $foodId.indexOf("_");
-	    var tmpFoodId = $foodId.substr(n+1);
-	    addFoodToCartInSync(tmpFoodId, 1);
-		showItemCount();
-	}
-}
-
-function substractFromCart($foodId){
-	if($foodId != undefined && $foodId != null && $foodId != ""){
-	    var n = $foodId.indexOf("_");
-	    var tmpFoodId = $foodId.substr(n+1);
-	    substractFoodFromCartInSync(tmpFoodId, 1);
-	    showItemCount();
-	}
-}
+});
 
 function searchFoodByFoodCateName($foodCate, $foodName){
 	var $searchResult = "";
@@ -221,9 +123,8 @@ function searchFoodByFoodCateName($foodCate, $foodName){
                         intColor++;
                     });
                 }               
-                $('#search-result').empty();
+            	
                 $('#search-result').append($searchResult);
-                resetSearchResult();
             }
         }
     )
@@ -236,15 +137,13 @@ function prepareSearchSection(){
         {
             type:'post',
             url:'recommendService.php',
-            async: false,
             data:{
                 prepareCate:true
             },
             dataType:'json',
             success:function(result){
             	$searchSection += '<select class="foodCategorySel" id="id_foodCategory" name="foodCategory">	                                      ';
-            	$searchSection += '       <option value=""></option>                                                                                  ';
-            	$searchSection += '       <option value="All">All</option>                                                                                  ';
+            	$searchSection += '       <option value=""></option>                                                                             ';
             	
                 if(result["code"]!=0){
                     //If the results of query is abnormal, display error msg given by backend.
@@ -290,11 +189,7 @@ function liveSearch(){
 	    
 	  $( function() {
 		    $( "#id_searchFood" ).autocomplete({
-		      source: availableTags,
-		      select: function(event, ui) {
-		    	  var foodName = ui.item.value;
-		    	  loadSearchBoxChange(foodName);
-		      }
+		      source: availableTags
 		    });
 		  } );
 }
@@ -323,11 +218,7 @@ function liveSearchByCat($catName){
 	    
 	  $( function() {
 		    $( "#id_searchFood" ).autocomplete({
-		      source: availableTags,
-		      select: function(event, ui) {
-		    	  var foodName = ui.item.value;
-		    	  loadSearchBoxChange(foodName);
-		      }
+		      source: availableTags
 		    });
 		  } );
 }
@@ -400,33 +291,33 @@ function prepareFoodDetail($_oriPrice, $_disPrice, $_imgPath, $_cateName, $_food
 	var li_cont = "";
 
 	li_cont +=	
-	'<div class="col-sm-6 col-lg-3">																						                    ' +
-	'	<div class="card">																									                    ' +
-	'		<div class="card-header text-white bg-flat-color-' + $_intColor + '">											                    ' +
-	'			<div class="font-weight-bold-img" align="center">																                    ' +
-	'				<img id="img'+ $_section + "_" + $_foodId +'" class="font-weight-bold-height" src="'+ $_imgPath +'" alt="'+ $_foodName +'" >						                    ' +
-	'			</div>																										                    ' +
-	'		</div>																											                    ' +
-	'		<div class="card-body py-0 px-4 b-t-1">																			                    ' +
-	'			<div class="row">																							                    ' +
-	'				<div class="col-6 b-r-1 py-3">																			                    ' +
-	'					<div class="font-weight-bold-height2">'+ $_foodName + '</div>												            ' +
-	'				</div>																									                    ' +	
-	'				<div class="col-6 py-3 text-right">																		                    ' +
-	'					<div class="font-weight-bold-height2">$'+ $_oriPrice +'</div>												            ' +		
-	'				</div>																									                    ' +
-	'			</div>																										                    ' +	
-	'			<div class="row">																							                    ' +
-	'				<div class="col-6 b-r-1 py-3" style="cursor:pointer;" onclick="addToCart(\''+ $_section + "_" + $_foodId + '\')">									' +
-	'					<div class="font-weight-bold" id="add'+ $_section + "_" + $_foodId + '"><h1 class="fa fa-cart-plus fa-2x"></h1></div>		    ' +	
-	'				</div>																									                    ' +
-	'				<div>											' +
-	'					<div></div>	' +
-	'				</div>																									                    ' +
-	'			</div>																										                    ' +
-	'		</div>																											                    ' +
-	'	</div>																												                    ' +
-	'</div>	                            																					                    ' ;
+	'<div class="col-sm-6 col-lg-3">																						' +
+	'	<div class="card">																									' +
+	'		<div class="card-header text-white bg-flat-color-' + $_intColor + '">											' +
+	'			<div class="font-weight-bold" align="center">																' +
+	'				<img class="font-weight-bold-height" src="'+ $_imgPath +'" alt="'+ $_foodName +'" >						' +
+	'			</div>																										' +
+	'		</div>																											' +
+	'		<div class="card-body py-0 px-4 b-t-1">																			' +
+	'			<div class="row">																							' +
+	'				<div class="col-6 b-r-1 py-3">																			' +
+	'					<div class="font-weight-bold-height2">'+ $_foodName + '</div>												' +
+	'				</div>																									' +	
+	'				<div class="col-6 py-3 text-right">																		' +
+	'					<div class="font-weight-bold-height2">$'+ $_disPrice +'</div>												' +		
+	'				</div>																									' +
+	'			</div>																										' +	
+	'			<div class="row">																							' +
+	'				<div class="col-6 b-r-1 py-3">																			' +
+	'					<div class="font-weight-bold" id="add'+ $_section + "_" + $_foodId + '"><h1 class="fa fa-cart-plus"></h1></div>		' +	
+	'				</div>																									' +
+	'				<div class="col-6 py-3 text-right">																		' +
+	'					<div class="font-weight-bold" id="minus'+ $_section + "_" + $_foodId + '"><h1 class="fa fa-cart-arrow-down"></h1></div>	' +
+	'				</div>																									' +
+	'			</div>																										' +
+	'		</div>																											' +
+	'	</div>																												' +
+	'</div>	                            																					' ;
 	
 	/*
     //console.log(n["food_id"]);
@@ -454,7 +345,7 @@ function prepareFoodDetail($_oriPrice, $_disPrice, $_imgPath, $_cateName, $_food
     return li_cont;
 }
 
-/*
+
 //Call service to get food details by a specific categoryName and load the food details
 //This currrent method requires 1 network request for each category, it can be refined by selecting ALL food one time and load food from the result food array without ask for more network request
 function loadCateFood(cateName){
@@ -506,7 +397,7 @@ function loadCateFood(cateName){
     return li_cont;
 
 }
-*/
+
 
 function loadRecomFood(){
     var li_cont = "";
@@ -559,57 +450,55 @@ function loadRecomFood(){
 /******** [START] Place order JavaScript ********/
 function addFoodToCart($foodID, $qty)
 {
-	if(($foodID == undefined || $foodID == null || $foodID == "") && ($qty == undefined || $qty == null || $qty == "")){
-		return;
-	}
-	
 	var _foodData = {"foodID":$foodID, "qty":$qty}; 
-	$.ajax(
-		{
-			type: 'post',
-			url: 'cartAjaxService.php',
-			
-			data: {
-				foodData2Add:_foodData
-			},
-			
-			success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+	if(_foodData)
+	{
+		$.ajax(
 			{
-				return response;
+				type: 'post',
+				url: './cartAjaxService.php',
+				
+				data: {
+					foodData2Add:_foodData
+				},
+				
+				success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+				{
+					return response;
+				}
 			}
-		}
-	);
+		);
+	}
 }
 
 function addFoodToCartInSync($foodID, $qty)
 {
-	if(($foodID == undefined || $foodID == null || $foodID == "") && ($qty == undefined || $qty == null || $qty == "")){
-		return;
-	}
-	
 	var _foodData = {"foodID":$foodID, "qty":$qty}; 
 	$.extend({
 	    addResponse: function() 
 	    {
-			var result = null;
-			$.ajax(
-				{
-					type: 'post',
-					url: 'cartAjaxService.php',
-					
-					async: false,
-					
-					data: {
-						foodData2Add:_foodData
-					},
-					
-					success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+			if(_foodData)
+			{
+				var result = null;
+				$.ajax(
 					{
-						result = response;
+						type: 'post',
+						url: './cartAjaxService.php',
+						
+						async: false,
+						
+						data: {
+							foodData2Add:_foodData
+						},
+						
+						success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+						{
+							result = response;
+						}
 					}
-				}
-			);
-			return result;
+				);
+				return result;
+			}
 	    }
 	});
 	
@@ -618,61 +507,115 @@ function addFoodToCartInSync($foodID, $qty)
 
 function substractFoodFromCart($foodID, $qty)
 {
-	if(($foodID == undefined || $foodID == null || $foodID == "") && ($qty == undefined || $qty == null || $qty == "")){
-		return;
-	}
-	
 	var _foodData = {"foodID":$foodID, "qty":$qty}; 
-	$.ajax(
-		{
-			type: 'post',
-			url: 'cartAjaxService.php',
-			
-			data: {
-				foodData2Substract:_foodData
-			},
-			
-			success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+	if(_foodData)
+	{
+		$.ajax(
 			{
-				return response;
+				type: 'post',
+				url: './cartAjaxService.php',
+				
+				data: {
+					foodData2Substract:_foodData
+				},
+				
+				success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+				{
+					return response;
+				}
 			}
-		}
-	);
+		);
+	}
 }
 
 function substractFoodFromCartInSync($foodID, $qty)
 {
-	if(($foodID == undefined || $foodID == null || $foodID == "") && ($qty == undefined || $qty == null || $qty == "")){
-		return;
-	}
-	
 	var _foodData = {"foodID":$foodID, "qty":$qty}; 
 	$.extend({
 		substractResponse: function() 
 	    {
-			var result = null;
-			$.ajax(
-				{
-					type: 'post',
-					url: 'cartAjaxService.php',
-					
-					async: false,
-					
-					data: {
-						foodData2Substract:_foodData
-					},
-					
-					success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+			if(_foodData)
+			{
+				var result = null;
+				$.ajax(
 					{
-						result = response;
+						type: 'post',
+						url: './cartAjaxService.php',
+						
+						async: false,
+						
+						data: {
+							foodData2Substract:_foodData
+						},
+						
+						success: function (response) //0: false (failed to add food to session) / 1: true (add food to session successfully)
+						{
+							result = response;
+						}
 					}
-				}
-			);
-			return result;
+				);
+				return result;
+			}
 	    }
 	});
 	
 	return $.substractResponse();
 }
 
+function countFoodFromCart($foodID)
+{
+	var _foodData = {"foodID":$foodID}; //if foodID == "ALL", then sum all food's quantity
+	if(_foodData)
+	{
+		$.ajax(
+			{
+				type: 'post',
+				url: './cartAjaxService.php',
+				
+				data: {
+					foodID2Count:_foodData
+				},
+				
+				success: function (qty) 
+				{
+					return qty;
+				}
+			}
+		);
+	}
+}
+
+function countFoodFromCartInSync($foodID)
+{
+	var _foodData = {"foodID":$foodID}; //if foodID == "ALL", then sum all food's quantity
+	$.extend({
+		countResponse: function() 
+	    {
+			if(_foodData)
+			{
+				var result = null;
+				$.ajax(
+					{
+						type: 'post',
+						url: './cartAjaxService.php',
+						
+						async: false,
+						
+						data: {
+							foodID2Count:_foodData
+						},
+						
+						success: function (qty) 
+						{
+							result = qty;
+						}
+					}
+				);
+				return result;
+			}
+	    }
+	});
+	
+	return $.countResponse();
+}
 /******** [END] Place order JavaScript ********/

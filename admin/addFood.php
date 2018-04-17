@@ -1,9 +1,7 @@
 <?php
 
 include_once("../common/functions.php");
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -44,7 +42,6 @@ $priceMsg_php           = "";
 
 
 if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
-	$isFormDataValid    = true;
     $catType 			= isset($_POST["catType"])         ? optimizateInput($_POST["catType"]) : "";
     $foodCatSel			= isset($_POST["foodCatSel"])      ? optimizateInput($_POST["foodCatSel"]) : "";
     $foodCat 			= isset($_POST["foodCat"])         ? optimizateInput($_POST["foodCat"]) : "";
@@ -59,19 +56,19 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
     //$effectDateFrom 	= optimizateInput($_POST["fromDate"]);
     //$effectDateTo 	= optimizateInput($_POST["toDate"]);	    
     $remarks 	        = isset($_POST["remarks"])         ? optimizateInput($_POST["remarks"]) : "";
-    $tags 		        = isset($_POST["tag"])             ? optimizateInput($_POST["tag"]) : "";
+    //$tags 		        = isset($_POST["tag"])             ? optimizateInput($_POST["tag"]) : "";
     
-    if($catType == "ex" && empty($foodCatSel)) {
+    if($catType = "ex" && empty($foodCatSel)) {
         $foodCatMsg_php =                                                          "[E901] Food category must be selected!";
         $isFormDataValid = false;
     }else{
         $fCat = $foodCatSel;
     }
 	
-	if($catType == "nw" && empty($foodCat)) {
+	if($catType = "nw" && empty($foodCat)) {
 	    $foodCatMsg_php =                                                          "[E902] Food category must be input!";
 	    $isFormDataValid = false;
-	}else if($catType == "nw" && !empty($foodCat)) {
+	}else{
 	    $fCat = $foodCat;
 	}
 	
@@ -109,7 +106,8 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 	        }
 	    }
 	}
-
+	
+		
 	// ******** [START] Upload file ********
 	if(isset($_FILES["foodImg"])){
 	    if($fCat == "" || $fName == ""){
@@ -130,7 +128,7 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
     		$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
     		$save_file = $target_dir . $fCatTmp . "_" . $fNameTmp . "." . $imageFileType;
     		$foodImgSaveName = $fCatTmp . "_" . $fNameTmp . "." . $imageFileType;
-    		$imgPath = "../resources/foodImg/" . $foodImgSaveName;
+    		$imgPath = "/resources/foodImg/" . $foodImgSaveName;
     		
     		// Check if image file is a actual image or fake image
     		if(isset($_POST["submit"])) {
@@ -187,23 +185,21 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 	    }
 	}
 	// ******** [END] Upload file ********
-
+			
 	if($isFormDataValid)
 	{		
 		$now = date("Y-m-d h:i:sa");
 		
-		$food2Persist = new Food("", $fCat, $fName, $available, $price, NULL, NULL, NULL, $imgPath, $remarks, $now, $now);
+		$food2Persist = new Food("", $fCat, $fName, $available, $price, NULL, NULL, NULL, $imgPath, $remark, $now, $now);
 		
 		$result = add_food($food2Persist);
 
 		if(isset($result) && $result > 0) {
-		    $addFoodInfoMsg_php=                                                      "[I903] Add food successfully!";
-			header('Location: ./addFood.php');
-			unset($_POST);
+		    $addFoodInfoMsg_php=                                                           "[I903] Add food successfully!";
+			header('Location: ./addFood.php?successMsg='.$successMsg);
 			exit;
 		} else {
-		    $addFoodMsg_php =                                                         "[E912] Update user profile failed, please try again later!";
-		    unset($_POST);
+		    $addFoodMsg_php =                                                      "[E912] Update user profile failed, please try again later!";
 		}
 	}
 }
@@ -351,6 +347,7 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 										<div style="display:inline;">
 											<label class="admin_label">Tags : </label> 											
 											<div class="food_tag"><div class="tag-box" data-no-duplicate="true" data-tags-input-name="tag" id="tagBox"></div></div>
+											<input type="hidden" id="id_tagInput" name="tagInput">
 										<div>
 										
 										<hr>

@@ -1,0 +1,16 @@
+.order{
+	margin:80px 10px 0px 200px;
+	width:400px; 
+	float:left;
+    border-collapse: collapse;
+}
+
+table,table tr th, table tr td { border:1px solid #ddd; }
+
+.info{
+	width:500px;
+	margin:80px 200px 0px 0px;
+	float:right;
+	border:1px solid #ddd;
+	padding:10px;
+}

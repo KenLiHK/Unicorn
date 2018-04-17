@@ -305,14 +305,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			
 			//go to success page
 			header('Location: ./registerSuccess.php');
-			unset($_POST);
 			exit;
 		} else {
 			//echo "result message=".$result;
 			//echo "Problem in user account registration. Please try again!";
 			
 			header('Location: ./registerFailure.php');
-			unset($_POST);
 			exit;
 		}
 	}
@@ -425,7 +423,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 									
 									<div>
 										<label class="reg_label">Contact Phone No.<label class="mandatory_field">*</label> : </label> 
-										<input class="reg_input" type="text" id="tel" name="tel" maxlength="50" value="<?php if(isset($tel)){echo $tel;} ?>" >
+										<input class="reg_input" type="text" id="tel" name="tel" maxlength="8" value="<?php if(isset($tel)){echo $tel;} ?>" >
 										<span class="reg_err" id="telMsg" ><?php if(isset($telMsg_php)){echo $telMsg_php;} ?></span>
 									<div>
 

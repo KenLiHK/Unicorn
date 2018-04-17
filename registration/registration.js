@@ -9,7 +9,9 @@ function formSubmit(){
 
 function resetErrMsg(){
 	document.getElementById("userIDMsg").innerHTML = "";
+	document.getElementById("userIDInfoMsg").innerHTML = "";
 	document.getElementById("emailMsg").innerHTML = "";
+	document.getElementById("emailInfoMsg").innerHTML = "";
 	document.getElementById("passMsg").innerHTML = "";
 	document.getElementById("repeatPassMsg").innerHTML = "";
 	document.getElementById("engSurnameMsg").innerHTML = "";
@@ -33,6 +35,8 @@ We have to implement javaScript client side validation in regFormValidation() fu
 */
 function regFormValidate(){
 	var isValid = true;
+	var isValidUserIDFormat = true;
+	var isValidEmailFormat = true;
 	var _userID = document.forms["regForm"]["userID"].value;
 	var _email = document.forms["regForm"]["email"].value;	
 	var _pass = document.forms["regForm"]["pass"].value;
@@ -48,54 +52,7 @@ function regFormValidate(){
 	var _tc = document.forms["regForm"]["tc"].checked;
 	
 	// ******** [START] User ID validation ********	
-	checkUserIDExist();
-	checkEmailExist();
-	
-    if (_userID == "") {
-		document.getElementById("userIDMsg").innerHTML = "[E001] User ID must be input!";				
-
-		if(isValid){
-			document.forms["regForm"]["userID"].focus();
-		}
-        isValid = false;
-    }
-	
-	if(_userID.length < 5 || _userID.length > 50){
-		document.getElementById("userIDMsg").innerHTML = "[E003] User ID length must be 5 - 50 characters!";	
-		
-		if(isValid){
-			document.forms["regForm"]["userID"].focus();   
-		}
-		isValid = false;
-	}
-
-	if (!_userID == "") {
-		var regularExpress4UserID = /^[A-Za-z]{1}/;		
-		var isValidUserID = regularExpress4UserID.test(_userID);
-		
-		if(!isValidUserID){
-			document.getElementById("userIDMsg").innerHTML = "[E004] The User ID must start with English alphabet!";	
-			
-			if(isValid){
-				document.forms["regForm"]["userID"].focus();   
-			}
-			isValid = false;
-		}
-	}
-
-	if (!_userID == "") {
-		var regularExpress4UserID = /^[A-Za-z0-9]/;		
-		var isValidUserID = regularExpress4UserID.test(_userID);
-		
-		if(!isValidUserID){
-			document.getElementById("userIDMsg").innerHTML = "[E005] The User ID must be composed of English alphabets or English alphabets and numbers!";	
-			
-			if(isValid){
-				document.forms["regForm"]["userID"].focus();   
-			}
-			isValid = false;
-		}
-	}	
+	isValid = checkUserIDValidInSync();
 	// ******** [END] User ID validation ********
 	
 	// ******** [START] Email validation ********
@@ -106,6 +63,7 @@ function regFormValidate(){
 			document.forms["regForm"]["email"].focus();  
 		}			
         isValid = false;
+        isValidEmailFormat = false;
     }
 	
 	//Validate email address format
@@ -120,9 +78,17 @@ function regFormValidate(){
 			if(isValid){
 				document.forms["regForm"]["email"].focus();  
 			}			
-			isValid = false;			
+			isValid = false;
+			isValidEmailFormat = false;
 		}
     }	
+    
+	if(isValidEmailFormat){
+		if(checkEmailExistInSync()){
+			document.forms["regForm"]["email"].focus();
+			isValid = false;
+		};
+	}
 	// ******** [END] Email validation ********
 	
 	// ******** [START] Password validation ********
@@ -359,6 +325,59 @@ function validateEmailFormat($_email){
 	return isEmailValid;
 }
 
+function validateUserID($_userID, $_formValidate){
+	isValid = true;
+	_userID = $_userID;
+	_formValidate = $_formValidate;
+	
+    if (_userID == "") {
+		document.getElementById("userIDMsg").innerHTML = "[E001] User ID must be input!";				
+
+		if(isValid && _formValidate){
+			document.forms["regForm"]["userID"].focus();
+		}
+        isValid = false;
+    }
+	
+	if(_userID.length < 5 || _userID.length > 50){
+		document.getElementById("userIDMsg").innerHTML = "[E003] User ID length must be 5 - 50 characters!";	
+		
+		if(isValid && _formValidate){
+			document.forms["regForm"]["userID"].focus();   
+		}
+		isValid = false;
+	}
+
+	if (!_userID == "") {
+		var regularExpress4UserID = /^[A-Za-z]{1}/;		
+		var isValidUserID = regularExpress4UserID.test(_userID);
+		
+		if(!isValidUserID){
+			document.getElementById("userIDMsg").innerHTML = "[E004] The User ID must start with English alphabet!";	
+			
+			if(isValid && _formValidate){
+				document.forms["regForm"]["userID"].focus();   
+			}
+			isValid = false;
+		}
+	}
+
+	if (!_userID == "") {
+		var regularExpress4UserID = /^[A-Za-z0-9]/;		
+		var isValidUserID = regularExpress4UserID.test(_userID);
+		
+		if(!isValidUserID){
+			document.getElementById("userIDMsg").innerHTML = "[E005] The User ID must be composed of English alphabets or English alphabets and numbers!";	
+			
+			if(isValid && _formValidate){
+				document.forms["regForm"]["userID"].focus();   
+			}
+			isValid = false;
+		}
+	}
+	return isValid;
+}
+
 /*
 Ajax call to check if USER ID and email already registered.
 */
@@ -388,28 +407,30 @@ function checkUserIDExist()
 	var _userID=document.getElementById("userID").value;
 	if(_userID)
 	{
-		$.ajax(
-			{
-				type: 'post',
-				url: './registerAjaxService.php',
-				
-				data: {
-					userID2Check:_userID
-				},
-				
-				success: function (response) 
+		if(validateUserID(_userID, false)){
+			$.ajax(
 				{
-					if(response=="N")
+					type: 'post',
+					url: './registerAjaxService.php',
+					
+					data: {
+						userID2Check:_userID
+					},
+					
+					success: function (response) 
 					{
-						document.getElementById("userIDInfoMsg").innerHTML="[I001] User ID is acceptable!";
-					}
-					else
-					{
-						document.getElementById("userIDMsg").innerHTML="[E002] The User ID is already in used; please try a different User ID!";
+						if(response=="N")
+						{
+							document.getElementById("userIDInfoMsg").innerHTML="[I001] User ID is acceptable!";
+						}
+						else
+						{
+							document.getElementById("userIDMsg").innerHTML="[E002] The User ID is already in used; please try a different User ID!";
+						}
 					}
 				}
-			}
-		);
+			);
+		}
 	}
 }
 
@@ -443,6 +464,83 @@ function checkEmailExist()
 			);
 		}else{
 			document.getElementById("emailMsg").innerHTML = "[E008] Invalid Email!";
+		}
+	}
+}
+
+function checkUserIDValidInSync()
+{
+	var _userID=document.getElementById("userID").value;
+	if(_userID)
+	{
+		if(validateUserID(_userID, true)){
+			$.ajax(
+				{
+					type: 'post',
+					url: './registerAjaxService.php',
+					async: false,
+					data: {
+						userID2Check:_userID
+					},
+					
+					success: function (response) 
+					{
+						if(response=="N")
+						{
+							document.getElementById("userIDInfoMsg").innerHTML="[I001] User ID is acceptable!";
+							return true;
+						}
+						else
+						{
+							document.getElementById("userIDMsg").innerHTML="[E002] The User ID is already in used; please try a different User ID!";
+							return false;
+						}
+					}
+				}
+			);
+		}else{
+			return false;
+		}
+	}else{
+		document.getElementById("userIDMsg").innerHTML = "[E001] User ID must be input!";				
+		document.forms["regForm"]["userID"].focus();
+		return false;
+	}
+}
+
+function checkEmailValidInSync()
+{
+	var _email=document.getElementById("email").value;
+	if(_email)
+	{
+		if(validateEmailFormat(_email)){
+			$.ajax(
+				{
+					type: 'post',
+					url: './registerAjaxService.php',
+					async: false,
+					data: {
+						email2Check:_email
+					},
+					
+					success: function (response) 
+					{
+						if(response=="N")
+						{
+							document.getElementById("emailInfoMsg").innerHTML="[I002] Email is acceptable!";
+							return true;
+						}
+						else
+						{
+							document.getElementById("emailMsg").innerHTML="[E007] Email is already registered, please register by other email!";
+							return false;
+						}
+					}
+				}
+			);
+		}else{
+			document.getElementById("emailMsg").innerHTML = "[E008] Invalid Email!";
+			return false;
 		}
 	}
 }

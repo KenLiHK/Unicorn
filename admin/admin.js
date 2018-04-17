@@ -8,7 +8,7 @@ $(document).ready(function(){
 });
 
 function tagging(){
-	$('#tagBox').tagging(); 
+	$('#tagBox').tagging();
 }
 
 function prepareFoodCat(){
@@ -69,7 +69,7 @@ function checkFoodCatNameExist(){
 	}else{
 		_cat = document.forms["addFoodForm"]["foodCat"].value.trim();
 	}
-	
+
 	if(_cat != "" && _foodName != "")
 	{
 		var _foodCatName = {"foodCate":_cat, "foodName":_foodName}; 
@@ -120,21 +120,20 @@ function resetErrMsg(){
 	document.getElementById("foodCatMsg").innerHTML = "";
 	document.getElementById("foodNameInfoMsg").innerHTML = "";
 	document.getElementById("foodNameMsg").innerHTML = "";	
-	document.getElementById("priceMsg").innerHTML = "";	
+	document.getElementById("priceMsg").innerHTML = "";
+	//document.getElementById("discountMsg").innerHTML = "";
+	//document.getElementById("effectDateMsg").innerHTML = "";	
 }
 
-function formSubmit(){
+function formSubmit(){	
 	resetErrMsg();
 	var isValid = addFoodFormValidate();
 	if(!isValid){
 		return false;
-	}else{
-		var isConfirmed = confirm("Confirm to add the food?");
-		return isConfirmed;
 	}
 }
 
-function addFoodFormValidate(){
+function addFoodFormValidate(){	
 	var isValid = true;
 	
 	var _cateType 				= document.forms["addFoodForm"]["cateType"].value.trim();
@@ -143,6 +142,9 @@ function addFoodFormValidate(){
 	var _foodName	 			= document.forms["addFoodForm"]["foodName"].value.trim();
 	var _available	 			= document.forms["addFoodForm"]["available"].value.trim();
 	var _price		 			= document.forms["addFoodForm"]["price"].value.trim();
+	//var _discount 				= document.forms["addFoodForm"]["discount"].value.trim();
+	//var _fromDate				= document.forms["addFoodForm"]["fromDate"].value.trim();
+	//var _toDate 				= document.forms["addFoodForm"]["toDate"].value.trim();
 	var _remarks 				= document.forms["addFoodForm"]["remarks"].value.trim();
 
 	

@@ -1,19 +1,6 @@
 <?php
 include_once("../common/functions.php");
 
-healthCheckDB();
-healthCheckDBTables();
-checkLogon();
-check_session_timeout();
-
-if (session_status() == PHP_SESSION_NONE) {
-	session_start();
-}
-
-if(isset($_SESSION['login_user_id'])){
-	$userID_In_Session = $_SESSION['login_user_id'];
-}
-
 $isFormDataValid = true;
 
 $cartInfoMsg_php = "";
@@ -25,7 +12,6 @@ $creditCardHolderNameMsg_php = "";
 $creditCardExpiryDateMsg_php = "";
 
 $_selectedFoodMap = [];
-$_selectedOrderDetailMap = [];
 $orderDetail4Display_array = [];
 $_address = "";
 $_tel = "";
@@ -45,29 +31,12 @@ $_chequeNoDisabled = "disabled";
 $_creditCardCVVDisabled = "disabled";
 $_creditCardHolderNameDisabled = "disabled";
 $_creditCardExpiryDateDisabled = "disabled";
-$_placedOrderID = "";
 
 if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {    
-    header('Location: ../recommend/recom_home.php');
+    header('Location: ../home.php');
     exit;  
-}else if (!empty($_POST["printBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
-	if(isset($_POST["placedOrderID"])){
-		$_placedOrderIDTmp = htmlspecialchars($_POST["placedOrderID"]);
-	}
-	header('Location: ../placeOrder/cartCompletedPrint.php?placedOrderID='.$_placedOrderIDTmp);
-	exit;
-}else{	
-	if(isset($_GET["placedOrderID"])){
-    	$_placedOrderID = htmlspecialchars($_GET["placedOrderID"]);
-	}
-	
-    if($_placedOrderID == ""){
-        //go back to cart.php
-        header('Location: ./cart.php');
-        exit;
-    }else{
-    	$cartInfoMsg_php = "[I201] Placed order successfully! The order number is " . $_placedOrderID . " !";
-    }
+}else{
+    $_placedOrderID = htmlspecialchars($_GET["placedOrderID"]);
     
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
@@ -82,13 +51,10 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
     unset($_SESSION['credit_card_expiry_date']);
     unset($_SESSION['cheque_no']);
     
-    $_orderInDB = get_order_info_by_orderID($_placedOrderID);
-    $orderDetail4Display_array = prepare_placed_order_detail_for_display($_placedOrderID);
-    
+	$orderDetail4Display_array = prepare_order_detail_for_display($_selectedFoodMap);
+	
 	//Retrieve user contact information (address and contact no.)
-    if(isset($_SESSION['login_user_id'])){
-    	$userID = $_SESSION['login_user_id'];
-    }
+	$userID = isset($_SESSION['login_user_id']) ? $_SESSION['login_user_id'] : "";
 	
 	if(isset($userID)){
 		$_result = array();
@@ -102,15 +68,13 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 		}
 	}
 	
-	$_deliveryTimeslot         = $_orderInDB -> getDeliveryTimeslot();
-	$_paymentMethod            = $_orderInDB -> getPaymentChannel();
-	$_cardType                 = $_orderInDB -> getCreditCardType();
-	$_creditCardNo             = $_orderInDB -> getCreditCardNo();
-	$_creditCardCVV            = $_orderInDB -> getCreditCardSecurityCode();
-	$_creditCardHolderName     = $_orderInDB -> getCreditCardHolderName();
-	$_creditCardExpiryDate     = $_orderInDB -> getCreditCardExpiryDate();
-	$_chequeNo                 = $_orderInDB -> getChequeNo();
-	
+	$_deliveryTimeslot      = isset($_SESSION['delivery_timeslot'])         ? $_SESSION['delivery_timeslot']        : "";
+	$_paymentMethod         = isset($_SESSION['payment_method'])            ? $_SESSION['payment_method']           : "";
+	$_cardType              = isset($_SESSION['card_type'])                 ? $_SESSION['card_type']                : "";
+	$_creditCardNo          = isset($_SESSION['credit_card_no'])            ? $_SESSION['credit_card_no']           : "";
+	$_creditCardCVV         = isset($_SESSION['credit_card_cvv'])           ? $_SESSION['credit_card_cvv']          : "";
+	$_creditCardHolderName  = isset($_SESSION['credit_card_holder_name'])   ? $_SESSION['credit_card_holder_name']  : "";
+	$_creditCardExpiryDate  = isset($_SESSION['credit_card_expiry_date'])   ? $_SESSION['credit_card_expiry_date']  : "";
 	$_creditCardNoTmp = "";
 	
 	for($i=0; $i<strlen($_creditCardNo); $i+=4){
@@ -120,7 +84,9 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 	        $_creditCardNoTmp = $_creditCardNoTmp.substr($_creditCardNo, $i, 4);
 	    }
 	}
-	$_creditCardNo = $_creditCardNoTmp;	
+	$_creditCardNo = $_creditCardNoTmp;
+		
+	$_chequeNo = isset($_SESSION['cheque_no']) ? $_SESSION['cheque_no'] : "";
 }
 ?>
 
@@ -130,47 +96,104 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 		
 		<title>Unicorn Restaurant - Shopping Cart</title>
 		
-		<?php include_once("../import.php");?>
-
-		<link rel="stylesheet" href="../unicorn.css" type="text/css">
-		<link rel="stylesheet" href="./placeOrder.css" type="text/css">
+		<!-- Using Icon library and refer to https://www.w3schools.com/w3css/w3css_icons.asp -->
+		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="../unicorn.css">
+		<link rel="stylesheet" href="./placeOrder.css">
+		
+		<!-- include jQuery for Ajax call -->
+		<script type="text/javascript" src="../jquery-3.3.1.min.js"></script>
 		<script type="text/javascript" src="../unicorn.js"></script>
-		<script type="text/javascript" src="./placeOrder.js"></script>    			
+		<script type="text/javascript" src="./placeOrder.js"></script>
 	</head>
 
 	<body>	
 		<form name="cartForm" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" onsubmit="return confirmFormSubmit()">
-			<div id="loading"></div>
-			<div id="app"  style="display:none;" >						
+			<div id="app">
 				<div>
 				
-					<?php include_once("../leftPanel.php");?>
+					<!-- ******** [START] Left panel ******** -->
+					<aside id="left-panel" class="left-panel">
+						<nav class="navbar navbar-expand-lg">
+						
+							<!-- ******** [START] Logo ******** -->
+							<div class="navbar-header">
+								<a href="#/" class="navbar-brand">
+									<img src="../resources/cs5281unicorn2_6.png" alt="Logo" class="float-left">
+								</a> 
+							</div>
+							<!-- ******** [END] Logo ******** -->
+							
+							
+							<!-- ******** [START] Left function menu ******** -->
+							<div id="main-menu" class="navbar-collapse">
+								<ul class="navbar-nav">
+									<h3 class="menu-title"> Unicorn Restaurant </h3>
+									
+									<li class="nav-item">
+										<a href="#/components/tables" class="">
+											<i class="menu-icon fa fa-search"></i>
+											<span class="menu-title-text"> Search Dish </span>
+										</a>
+									</li>				
+		
+									<li class="nav-item mt-auto">
+										<a>
+											<i class="menu-icon fa fa-shopping-cart"></i>
+											<span class="menu-title-text"> Place Order </span>
+										</a>
+									</li>
+											
+									<li class="nav-item">
+										<a href="#/components/icons" class="">
+											<i class="menu-icon fa fa-star"></i>
+											<span class="menu-title-text">Map</span>
+										</a>
+									</li>
+									
+								</ul>
+							</div>
+							<!-- ******** [END] Left function menul ******** -->
+							
+							
+							
+						</nav>
+						
+						<div></div>
+					</aside>
+					<!-- ******** [END] Left panel ******** -->
 					
 					
 					
 					<!-- ******** [START] Right panel ******** -->
 					<div id="right-panel" class="right-panel">
 						
-						<?php include_once("../header.php");?>	
+						
+						
+						<!-- ******** [START] Navigation Header Bar ******** -->			
+						<header id="header" class="header">
+							<div>							
+								<div class="header-right">
+									<div>
+										<a href="#"><i class="fa fa-power-off"></i> Logout </a> <span>&nbsp;</span>
+									</div>								
+								</div>						
+							</div>
+						</header>
+						<!-- ******** [START] Navigation Header Bar ******** -->
+						
+						
+						
 						
 						<!-- ******** [START] Navigation Body ******** -->
 						<div>
 							<div>
 							
 								<!-- ******** [START] Alert Message Display ******** -->
-								<div id="alertMsg" class="alert mt-4 alert-success">
-								<?php if(isset($cartInfoMsg_php) && !empty($cartInfoMsg_php)){ ?>
-												<span class="cart_info" id="cartInfoMsg" ><?php if(isset($cartInfoMsg_php)){echo $cartInfoMsg_php;} ?></span>
-								<?php }else if(isset($cartMsg_php) && !empty($cartMsg_php)){ ?>
-												<span class="cart_err" id="cartMsg" ><?php if(isset($cartMsg_php)){echo $cartMsg_php;} ?></span>";
-								<?php }else{
-											if(isset($userID)){ ?>
-												<span class='badge badge-pill badge-success'>Welcome <?php if(isset($userID)){echo $userID;} ?></span> We promise to deliver the freshest foods to you as soon as possible.
-								<?php 		}else{ ?>
-												<span class="cart_info" id="cartInfoMsg" >We promise to deliver the freshest foods to you as soon as possible.</span>
-								<?php }
-				 				}
-								?>
+								<div class="alert mt-4 alert-success">
+									<span class="cart_info" id="cartInfoMsg" ><?php if(isset($cartInfoMsg_php)){echo $cartInfoMsg_php;} ?></span>
+									<span class="cart_err" id="cartMsg" ><?php if(isset($cartMsg_php)){echo $cartMsg_php;} ?></span>
 								</div>
 								<!-- ******** [END] Alert Message Display ******** -->
 								
@@ -192,17 +215,17 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
                     				$_totalQty = 0;
                     				
                     				for ($row = 0; $row < count($orderDetail4Display_array); $row++) {
-                    				    $orderDetail4Display = $orderDetail4Display_array[$row];
+                    					$orderDetail4Display = $orderDetail4Display_array[$row];
 
-                    				    $_foodID            = $orderDetail4Display->getFoodID();
-                    				    $_foodCategory      = $orderDetail4Display->getFoodCategory();
-                    				    $_foodName          = $orderDetail4Display->getFoodName();
-                    				    $_price             = $orderDetail4Display->getPrice();
-                    				    $_qty               = $orderDetail4Display->getQty();
+                    					$_foodID = $orderDetail4Display->getFoodID();
+                    					$_foodCategory = $orderDetail4Display->getFoodCategory();
+                    					$_foodName = $orderDetail4Display->getFoodName();
+                    					$_price = $orderDetail4Display->getPrice();
+                    					$_qty = $orderDetail4Display->getQty();
+                    					$_subtotal = $_price * $_qty;
                     					
-                    				    $_subtotal          = $_price * $_qty;                    					
-                    					$_totalPrice        = $_totalPrice+ $_subtotal;
-                    					$_totalQty          = $_totalQty + $_qty;
+                    					$_totalPrice = $_totalPrice+ $_subtotal;
+                    					$_totalQty = $_totalQty + $_qty;
                     					
                     					echo "<div class='orderTableRow'>";
                     					echo "<div class='orderTableCell'>".$_foodCategory."</div>";
@@ -251,9 +274,9 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
                                             <input type="radio" id="paymentMethod1" name="paymentMethod" value="CR" onclick="clickCreditCard()" <?php if (isset($_paymentMethod) && $_paymentMethod=="CR") echo "checked";?> disabled>Credit Card <br>
                                             	<input class="cart_input_card_type" type="radio" id="cardType1" name="cardType" value="VS" onclick="clickVisaCard()" <?php if (isset($_cardType) && $_cardType=="VS") echo "checked";?> disabled>Visa Card
                                             	<input class="cart_input_card_type" type="radio" id="cardType2" name="cardType" value="MA" onclick="clickMasterCard()" <?php if (isset($_cardType) && $_cardType=="MA") echo "checked";?> disabled>Master Card <br>                                            
-                                            	<input class="cart_input" type="text" id="creditCardNo" name="creditCardNo" placeholder="Credit Card No." maxlength="19" value="<?php if(isset($_creditCardNo)){echo $_creditCardNo;} ?>" disabled onblur="creditCardFormatting()"><span class="cart_err" id="creditCardNoMsg" ><?php if(isset($creditCardNoMsg_php)){echo $creditCardNoMsg_php;} ?></span><br>                                            
+                                            	<input class="cart_input" type="text" id="creditCardNo" name="creditCardNo" placeholder="Credit Card No." maxlength="19" value="<?php if(isset($_creditCardNo)){echo $_creditCardNo;} ?>" disabled onblur="creditCardFormatting()"><span class="cart_err" id="creditCardNoMsg" ><?php if(isset($creditCardNoMsg_php)){echo $creditCardNoMsg_php;} ?></span>                                            
                                             	<input class="cart_input2" type="text" id="creditCardCVV" name="creditCardCVV" placeholder="Credit Card CVV" maxlength="3" value="<?php if(isset($_creditCardCVV)){echo $_creditCardCVV;} ?>" <?php if (isset($_creditCardCVVDisabled)) echo $_creditCardCVVDisabled;?>><span class="cart_err" id="creditCardCVVMsg" ><?php if(isset($creditCardCVVMsg_php)){echo $creditCardCVVMsg_php;} ?></span><br>
-                                            	<input class="cart_input" type="text" id="creditCardHolderName" name="creditCardHolderName" placeholder="Credit Card Holder Name" maxlength="50" value="<?php if(isset($_creditCardHolderName)){echo $_creditCardHolderName;} ?>" <?php if (isset($_creditCardHolderNameDisabled)) echo $_creditCardHolderNameDisabled;?>><span class="cart_err" id="creditCardHolderNameMsg" ><?php if(isset($creditCardHolderNameMsg_php)){echo $creditCardHolderNameMsg_php;} ?></span><br>
+                                            	<input class="cart_input" type="text" id="creditCardHolderName" name="creditCardHolderName" placeholder="Credit Card Holder Name" maxlength="50" value="<?php if(isset($_creditCardHolderName)){echo $_creditCardHolderName;} ?>" <?php if (isset($_creditCardHolderNameDisabled)) echo $_creditCardHolderNameDisabled;?>><span class="cart_err" id="creditCardHolderNameMsg" ><?php if(isset($creditCardHolderNameMsg_php)){echo $creditCardHolderNameMsg_php;} ?></span>
                                             	<input class="cart_input" type="text" id="creditCardExpiryDate" name="creditCardExpiryDate" placeholder="Credit Card Expiry Date (MM/YY)" maxlength="5" value="<?php if(isset($_creditCardExpiryDate)){echo $_creditCardExpiryDate;} ?>" <?php if (isset($_creditCardExpiryDateDisabled)) echo $_creditCardExpiryDateDisabled;?>><span class="cart_err" id="creditCardExpiryDateMsg" ><?php if(isset($creditCardExpiryDateMsg_php)){echo $creditCardExpiryDateMsg_php;} ?></span><br>                                				
                                             <input type="radio" id="paymentMethod2" name="paymentMethod" value="CA" onclick="clickCash()" <?php if (isset($_paymentMethod) && $_paymentMethod=="CA") echo "checked";?> disabled>Cash <br>
                                             <input type="radio" id="paymentMethod3" name="paymentMethod" value="CH" onclick="clickCheque()" <?php if (isset($_paymentMethod) && $_paymentMethod=="CH") echo "checked";?> disabled>Cheque <input class="cart_input3" type="text" id="chequeNo" name="chequeNo" placeholder="Cheque No." maxlength="10" value="<?php if(isset($_chequeNo)){echo $_chequeNo;} ?>" disabled><span class="cart_err" id="chequeNoMsg" ><?php if(isset($chequeNoMsg_php)){echo $chequeNoMsg_php;} ?></span><br>
@@ -261,15 +284,50 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
                                     </div>                  
                                   </div>
                                   
-								  <div id="actionBtn">								  	  
-									  <input class="placeOrder_button" type="submit" id="okBtn" name="okBtn" value="OK">
-									  <input class="placeOrder_button" type="button" id="printBtn" name="printBtn" value="Print" onclick="gotoPrintVersion(<?php echo $_placedOrderID;?>)">
-									  <input type="hidden" id="placedOrderID" name="placedOrderID" value="<?php echo $_placedOrderID;?>">
+								  <div>								  	  
+									  <input class="cart_input" type="submit" id="okBtn" name="okBtn" value="OK">
 								   </div>				
 								</div>
 								<!-- ******** [END] Shopping Cart Division ******** -->
 								
-								<?php include_once("../footer.php");?>			
+								<!-- ******** [START] Footer ******** -->						
+									<div class="col-md-12">
+										<div class="card">						
+											<div class="card-footer">
+												<ul>									
+													<li>
+														<div class="text-muted">Email</div>
+														<strong>cs5281unicorn@unicorn.com</strong>											
+													</li>
+													<li class="hidden-sm-down">
+														<div class="text-muted">Tel</div>
+														<strong>+852 5281-2018</strong>
+													</li>
+													<li class="hidden-sm-down">
+														<div class="text-muted">Fax</div>
+														<strong>+852 5281-2019</strong>
+													</li>												
+												</ul>
+												
+											</div>
+											
+											<div class="card-footer">										
+												<ul>
+													<li>
+														<div class="text-muted">Service Hour</div>
+														<strong>Monday - Sunday 09:00-23:00</strong>
+													</li>										
+													<li>
+														<div class="text-muted">Address</div>
+														<strong>Li Dak Sum Yip Yio Chin A Bldg 5606, Hong Kong</strong>
+													</li>
+												</ul>										
+											</div>
+											
+											
+										</div>
+									</div>
+								<!-- ******** [END] Footer ******** -->
 								
 								
 								

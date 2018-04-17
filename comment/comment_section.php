@@ -1,56 +1,129 @@
 <?php
 
+include_once("../common/database.php");
 include_once("../common/functions.php");
 // custom functions
-//include_once("./comment_function.php");
+include_once("./comment_function.php");
 
-healthCheckDB();
-healthCheckDBTables();
-checkLogon();
-check_session_timeout();
+// DEBUGGING
+$debuggingFlag = false; // enabled debug output
 
-$commentMsg_php 			= "";
-$commentInfoMsg_php 		= "";
-$num_of_comment_sections 	= 5;
-$userID 					= isset($_SESSION['login_user_id']) ? $_SESSION['login_user_id'] : "";
-$userLogged 				= checkUserLogon();
-$commentID 					= "";
-$userOrdered				= get_order_list_by_userID($userID);
 
-/*
-$rating             		= "";
-$selectedOrder      		= "";
-$comment            		= "";
-$isFormDataValid 			= "";
-$commentObj 				= "";
+// PARAMETERS
+/* this decides how many entries from database will be fetched*/
+$num_of_comment_sections = 5;
+/* decides how many food entries will be shown in the list*/
+$num_of_food_entries = 5;
+/* decides how many rating stars are displayed*/
+$num_of_ratings = 5;
 
-if (!empty($_POST["submitCom"]) && $_SERVER["REQUEST_METHOD"] == "POST") {    
-    $rating             = optimizateInput($_POST["rating"]);
-    $selectedOrder      = optimizateInput($_POST["selectedOrder"]);
-    $comment            = "";
 
-    $commentMsg_php 			= "";
-    $commentInfoMsg_php 		= "";
-    
-    if(!isset($_POST['commentDetail']) || $_POST['commentDetail'] == ""){
-        $commentMsg_php = 										"[E801] Comment must be input!";
-        $isFormDataValid = false;        
-    }else{
-    	$comment = optimizateInput($_POST["commentDetail"]);
-    	$isFormDataValid = true;
-    }
-    
-    if($isFormDataValid){
-        $now = date("Y-m-d h:i:sa");
-        
-        $commentObj = new Comment(NULL, $userID, $selectedOrder, $rating, $comment, $now, $now);
-        $commentID = save_comment($commentObj);
-        $commentInfoMsg_php = 									"[I801] Submit comment successfully!";
-    } 
-    $_POST = array();
-    $isFormDataValid 			= "";
+// VARIABLES
+// logic variables
+$userLogged = false;
+$userNoComment = false;
+// arrays for current comment
+$nowUserID;
+$nowArrayFood = array();
+$nowDate;
+// arrays for previous comments
+$prevArrayUserID   = array();
+$prevArrayOrderID  = array();
+$prevArrayRatings  = array();
+$prevArrayContent  = array();
+$prevArrayDates    = array();
+$prevArrayFood     = array();
+
+// auxiliary - temporary holding values between function calls
+$foodIDList        = array();
+
+// Extra messages
+$commentMsg_php = "";
+$commentInfoMsg_php = "";
+
+// LOGIC
+// 1) check whether the user is logged in
+$userLogged=checkUserLogon();
+
+	if($debuggingFlag){
+		echo "1) check user logged-in : ";
+		if($userLogged){
+			echo "TRUE<br>";
+		}else{
+			echo "FALSE<br>";
+		}
+	}
+
+// 2) check whether the user already commented on payed order
+if( $userLogged ){
+	// fetch user id
+	$nowUserID = isset($_SESSION['login_user_id']) ? $_SESSION['login_user_id'] : "";
+
+	// get last Order ID from Comment and Order db table
+	$orderIDComment = db_get_last_OrderID_from_Comment($nowUserID);
+	$orderIDOrder = db_get_last_OrderID_from_Order($nowUserID);
+
+	if($debuggingFlag){
+		echo "2) Compare current orderID with last orderID in Comment table : ";
+		echo "[orderIDComment = ".$orderIDComment."]   ";
+		echo "[orderIDOrder = ".$orderIDOrder."]<br>";
+		echo "if orderIDOrder != orderIDComment, then the OrderID is not yet in Comment table, therefore the user can post comment<br>";
+		echo "if orderIDOrder == orderIDComment, then the OrderID is in Comment table, commenting is disabled<br>";
+	}
+
+	// compare the OrderID from Comment and Order db table
+	// if( ($orderIDComment != NULL) && ($orderIDOrder != NULL) && ($orderIDOrder != $orderIDComment) ){
+      if( ($orderIDOrder != NULL) && ($orderIDOrder != $orderIDComment) ){
+      // OrderID in not yet in comment table = enable comment
+		$userNoComment = true;
+	}else{
+      // OrderID is already in comment table = disable comment
+      $userNoComment = false;
+   }
+
 }
-*/
+
+// 3) fetch previous comment form database
+$num_of_comment_sections = fetchComments($prevArrayUserID, $prevArrayOrderID, $prevArrayRatings, $prevArrayContent, $prevArrayDates, $num_of_comment_sections);
+// 4) get the food names
+for ($x = 0; $x < $num_of_comment_sections; $x++) {
+   // fetch foodID List/Array for specific order ID
+   $foodIDList=getFoodIDWithOrderID($prevArrayOrderID[$x], $num_of_food_entries);
+   // parse foodID names
+   for ($y = 0; $y < $num_of_food_entries; $y++) {
+      if( ($foodIDList[$y] != -1) || ($foodIDList[$y] != NULL) ){
+         $prevArrayFood[$x][$y] = getFoodNameWithFoodID($foodIDList[$y]);
+      }else{
+         $prevArrayFood[$x][$y] = '';
+      }
+   }
+}
+
+// TESTING
+//$userLogged=true;
+//$userNoComment=true;
+
+// 5) determine state of the website
+// 5.a) user is logged in and can comment
+if($userLogged && $userNoComment){
+	// display the user id
+	// nowUserID; ---> aleady determined
+	// fetch food list
+	$foodIDList=getFoodIDWithOrderID($orderIDOrder, $num_of_food_entries);
+	// fill in the 'nowArrayFood' with name of the meals
+	for ($x = 0; $x < $num_of_food_entries; $x++) {
+		if($foodIDList[$x] != -1 ){
+			$nowArrayFood[$x] = getFoodNameWithFoodID($foodIDList[$x]);
+		}else{
+			$nowArrayFood[$x] = '';
+		}
+	}
+
+	// current date
+	$nowDate = date("Y-m-d H:i:s");
+}
+
+
 ?>
 
 <html>
@@ -86,16 +159,14 @@ if (!empty($_POST["submitCom"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 					<!-- ******** [START] Navigation Body ******** -->
 					<div>
 						<div>
-							
-						
 							<!-- ******** [START] Alert Message Display ******** -->
 							<?php if(!$userLogged){ ?>
-								<div class="alert mt-4 alert-success">
-									<span class="badge badge-pill badge-success">Welcome!!</span> Please, log in and place an order to be able to post comment.							
+								<div class="alert mt-4 alert-info">
+									<span class="badge badge-pill badge-info">Welcome!!</span> Please, log in and place an order to be able to post comment.							
 								</div>
-							<?php }else if(!isset($userOrdered) || count($userOrdered) == 0) { ?>
-								<div class="alert mt-4 alert-success">
-									<span class="badge badge-pill badge-success">Welcome <?php echo $userID ?> !!</span> Please, place an order to be able to post comment.							
+							<?php }else if(!$userNoComment){ ?>
+								<div class="alert mt-4 alert-info">
+									<span class="badge badge-pill badge-info">Welcome <?php echo $nowUserID ?> !!</span> Please, place & pay for an order to comment on it.							
 								</div>
 							<?php }else if($commentMsg_php != "") { ?>
 								<div class="alert mt-4 alert-success">																											
@@ -107,7 +178,7 @@ if (!empty($_POST["submitCom"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 								</div>																
 							<?php }else{ ?>
 								<div class="alert mt-4 alert-success">
-									<span class="badge badge-pill badge-success">Welcome <?php echo $userID ?> !!</span> Let us know what you think about your last order.						
+									<span class="badge badge-pill badge-success">Welcome <?php echo $nowUserID ?> !!</span> Let us know what you think about your last order.						
 								</div>
 							<?php } ?>
 							
@@ -116,97 +187,138 @@ if (!empty($_POST["submitCom"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 
                             <!-- ******** [START] Food Comment Section ******** -->
 							<div class="comment-section">
-							
 								<!-- ******** User Logged In & New Order ******** -->
-								<?php if(isset($userOrdered) && count($userOrdered) > 0){ ?>
-	                        <!-- ******** COMMENT 0 - INPUT ******** -->
-									<form name="commentForm">
-										<!--comment section-->
-										<div class="comment-container">
-											<!--order + name + stars-->
-											<div class="comment-init">
-												<!--order-->
-												<div class="comment-order">
-													<p id="text-order">Your order</p>
-												</div>
-												<!--name-->
-												<div class="comment-name">
-													<p id="text-name"></p>
-												</div>
-												<!--stars-->
-												<div class="comment-star">
-													<div class="star-rating">
-														<input id="star-5" type="radio" name="rating" value="5">
-														<label for="star-5" title="5 stars">
-																<i class="active fa fa-star" aria-hidden="true"></i>
-														</label>
-														<input id="star-4" type="radio" name="rating" value="4">
-														<label for="star-4" title="4 stars">
-																<i class="active fa fa-star" aria-hidden="true"></i>
-														</label>
-														<input id="star-3" type="radio" name="rating" value="3" checked>
-														<label for="star-3" title="3 stars">
-																<i class="active fa fa-star" aria-hidden="true"></i>
-														</label>
-														<input id="star-2" type="radio" name="rating" value="2">
-														<label for="star-2" title="2 stars">
-																<i class="active fa fa-star" aria-hidden="true"></i>
-														</label>
-														<input id="star-1" type="radio" name="rating" value="1">
-														<label for="star-1" title="1 star">
-																<i class="active fa fa-star" aria-hidden="true"></i>
-														</label>
-													</div>
-												</div>
-											</div>
-											<!-- order contant + comment input -->
-											<div class="comment-body">
-												<!-- order contant -->
-												<div class="comment-order-list">
-												Order ID:
-                                					<select id="id_selectedOrder" name="selectedOrder" style="width:150px;">
-                                						<?php
-                                						for ($row = 0; $row < count($userOrdered); $row++) {
-                                						    $orderID = $userOrdered[$row]["order_id"];
-                                						    echo "<option value=" . $orderID . ">" . $orderID . "</option>";
-                                						}                                						                                						
-                                						?>                  
-                                    				</select> 			
-												</div>
-
-												<div class="comment-input"> 
-													<textarea id="id_commentDetail" name="commentDetail" placeholder="Your opinion ... " maxlength="1000" value=""></textarea>
-													<span class="comment_err" id="commentMsg" ><?php if(isset($commentMsg_php)){echo $commentMsg_php;} ?></span>
-												</div>
-											</div>
-
-											<div class="comment-footer">
-											<!--submit button-->
-												<div>
-													<input type="button" class="comment_button" id="id_submitCom" name="submitCom" value="Submit" onclick="addComment()">
-													<span class="comment_info" id="commentInfoMsg" ></span>
-													<span class="comment_err" id="commentMsg" ></span>
-												</div>
-											</div>
-										</div>
-									</form>
-								<?php } ?>
-								
-
-								<div id="commentDetail-section"></div>
-								<!-- ******** [END] Food Comment Section ******** -->	
-								
-
+                     
+								<?php if($userLogged && $userNoComment){
+									echo '<form action="send_comment.php" method="POST" name="comment">                                                                          ';
+									echo '	<!--hide values passed by form-->                                                                                                   ';
+									echo '	<!--userID-->                                                                                                                       ';
+									echo '	<input type="hidden" name="userID" value="'.$nowUserID.'" />                                                                        ';
+									echo '	<!--orderID-->                                                                                                                      ';
+									echo '	<input type="hidden" name="orderID" value="'.$orderIDOrder.'" />                                                                    ';
+									echo '	<!--createDate-->                                                                                                                   ';
+									echo '	<input type="hidden" name="createDate" value="'.$nowDate.'" />                                                                      ';
+									echo '	<!--comment section-->                                                                                                              ';
+                           echo '<div class="comment-container">                                                                                                        ';
+                           echo '      <div class="comment-init">                                                                                                       ';
+                           // previous order/comment
+                           echo '         <div class="comment-order">                                                                                                   ';
+                           echo '            <p id="text-order">Your order</p>                                                                                      ';
+                           echo '         </div>                                                                                                                        ';
+                           // user name
+                           echo '         <div class="comment-name">                                                                                                    ';
+                           echo '            <p id="text-name">'.$nowUserID.'</p>                                                                                       ';
+                           echo '         </div>                                                                                                                        ';
+                           // rating stars                                                                                                                              ';
+									echo '         <div class="comment-star">                                                                                                    ';
+									echo '   	      <div class="star-rating">                                                                                                  ';
+									echo '   		      <input id="star-5" type="radio" name="rating" value="5" checked="checked">                                              ';
+									echo '   		      <label for="star-5" title="5 stars">                                                                                    ';
+									echo '   				      <i class="active fa fa-star" aria-hidden="true"></i>                                                              ';
+									echo '   	      	</label>                                                                                                                ';
+									echo '   	      	<input id="star-4" type="radio" name="rating" value="4">                                                                ';
+									echo '   	      	<label for="star-4" title="4 stars">                                                                                    ';
+									echo '   	      			<i class="active fa fa-star" aria-hidden="true"></i>                                                              ';
+									echo '   	      	</label>                                                                                                                ';
+									echo '   	      	<input id="star-3" type="radio" name="rating" value="3">                                                                ';
+									echo '   	      	<label for="star-3" title="3 stars">                                                                                    ';
+									echo '							<i class="active fa fa-star" aria-hidden="true"></i>                                                              ';
+									echo '					</label>                                                                                                                ';
+									echo '					<input id="star-2" type="radio" name="rating" value="2">                                                                ';
+									echo '					<label for="star-2" title="2 stars">                                                                                    ';
+									echo '							<i class="active fa fa-star" aria-hidden="true"></i>                                                              ';
+									echo '					</label>                                                                                                                ';
+									echo '					<input id="star-1" type="radio" name="rating" value="1">                                                                ';
+									echo '					<label for="star-1" title="1 star">                                                                                     ';
+									echo '							<i class="active fa fa-star" aria-hidden="true"></i>                                                              ';
+									echo '					</label>                                                                                                                ';
+									echo '				</div>                                                                                                                     ';
+									echo '         </div>                                                                                                                        ';
+                           echo '      </div>                                                                                                                           ';
+                           echo '      <div class="comment-body">                                                                                                       ';
+                           // print food order/list
+                           echo '         <div class="comment-order-list">                                                                                              ';
+                           echo '            <ul>                                                                                                                       ';
+                           for ($f = 0; $f < $num_of_food_entries; $f++) {
+                              echo '               <li id="order-item-0">'.$nowArrayFood[$f].'</li>                                                                     ';
+                           }
+                           echo '            </ul>				                                                                                                            ';
+                           echo '         </div>                                                                                                                        ';
+                           // comment
+									echo '         <div class="comment-input">                                                                                                   ';
+									echo '         	<textarea name="comment" placeholder="Your opinion ... " maxlength="1000"></textarea>                                      ';
+									echo '         </div>                                                                                                                        ';
+                           echo '      </div>                                                                                                                           ';
+                           echo '      <div class="comment-footer">                                                                                                     ';
+                           echo '      <div class="button">                                                                                                             ';
+									echo '         <input type="submit" value="Post Comment">                                                                                    ';
+									echo '      </div>                                                                                                                           ';
+                           // date of comment                           
+                           echo '         <div class="time">                                                                                                            ';
+                           echo '            <p id="text-time">'.$nowDate.'</p>                                                                                         ';
+                           echo '         </div>                                                                                                                        ';
+                           echo '      </div>                                                                                                                           ';
+                           echo '   </div>                                                                                                                              ';
+                           echo '</form>                                                                                                                                ';
+                        }
+                        ?>
+		<!-- ******** Previous comments from the database ******** -->
+                     <?php 
+                        for ($c = 0; $c < $num_of_comment_sections; $c++) {
+                           echo '<div class="comment-container">                                                                                                        ';
+                           echo '      <div class="comment-init">                                                                                                       ';
+                           // previous order/comment
+                           echo '         <div class="comment-order">                                                                                                   ';
+                           echo '            <p id="text-order">Previous order</p>                                                                                      ';
+                           echo '         </div>                                                                                                                        ';
+                           // user name
+                           echo '         <div class="comment-name">                                                                                                    ';
+                           echo '            <p id="text-name">'.$prevArrayUserID[$c].'</p>                                                                             ';
+                           echo '         </div>                                                                                                                        ';
+                           // rating stars                                                                                                                              ';
+                           echo '         <div class="comment-star">                                                                                                    ';
+                           echo '            <div class="star-static">                                                                                                  ';
+                           // print 5 stars
+                           for ($r = 0; $r < $num_of_ratings; $r++) {
+                              if($prevArrayRatings[$c] > $r ):
+                                 echo '               <i class="active fa fa-star" style="color:f2b600;" aria-hidden="true"></i>                                        ';
+                              else:
+                                 echo '               <i class="active fa fa-star" style="color:bbb;" id="checked" aria-hidden="true"></i>                              ';
+                              endif;  
+                           }
+                           echo '            </div>                                                                                                                     ';
+                           echo '         </div>                                                                                                                        ';
+                           echo '      </div>                                                                                                                           ';
+                           echo '      <div class="comment-body">                                                                                                       ';
+                           echo '         <!-- order contant -->                                                                                                        ';
+                           echo '         <div class="comment-order-list">                                                                                              ';
+                           echo '            <ul>                                                                                                                       ';
+                           // print food order/list
+                           for ($f = 0; $f < $num_of_food_entries; $f++) {
+                              echo '               <li id="order-item-0">'.$prevArrayFood[$c][$f].'</li>                                                                ';
+                           }
+                           echo '            </ul>				                                                                                                            ';
+                           echo '         </div>                                                                                                                        ';
+                           echo '         <div class="comment-input">                                                                                                   ';
+                           // comment
+                           echo '            <p id="prev-comment-0">'.$prevArrayContent[$c].'</p>                                                                       ';
+                           echo '         </div>                                                                                                                        ';
+                           echo '      </div>                                                                                                                           ';
+                           echo '      <div class="comment-footer">                                                                                                     ';
+                           echo '         <div class="time">                                                                                                            ';
+                           // date of comment
+                           echo '            <p id="text-time">'.$prevArrayDates[$c].'</p>                                                                              ';
+                           echo '         </div>                                                                                                                        ';
+                           echo '      </div>                                                                                                                           ';
+                           echo '   </div>                                                                                                                              ';
+                        } 
+                     ?>
+                     <div>
+                     <!-- ******** Footer ******** -->
 							<?php include_once("../footer.php");?>
-							
-							
-							
 						</div>
 					</div>
 					<!-- ******** [END] Navigation Body ******** -->
-					
-					
-					
 				</div>
 				<!-- ******** [END] Right panel ******** -->
 				
