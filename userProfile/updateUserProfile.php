@@ -233,8 +233,14 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 		$imgPath = "../resources/userProfileImg/" . $userID . "." . $imageFileType;
 		
 		// Check if image file is a actual image or fake image
-		if(isset($_POST["submit"])) {
-			$check = getimagesize($_FILES["profileImg"]["tmp_name"]);
+		if(isset($_POST["saveProfile"])) {
+		    $check = true;
+		    if(isset($_FILES["profileImg"]["tmp_name"]) && $_FILES["profileImg"]["tmp_name"] != "" ){
+		        $check = getimagesize($_FILES["profileImg"]["tmp_name"]);
+		    }else{
+		        $check = false;
+		    }
+		    
 			if($check !== false) {
 				$uploadOk = 1;
 			} else {

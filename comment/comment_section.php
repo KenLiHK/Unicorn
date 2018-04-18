@@ -5,6 +5,10 @@ include_once("../common/functions.php");
 // custom functions
 include_once("./comment_function.php");
 
+healthCheckDB();
+healthCheckDBTables();
+check_session_timeout();
+
 // DEBUGGING
 $debuggingFlag = false; // enabled debug output
 
@@ -161,12 +165,12 @@ if($userLogged && $userNoComment){
 						<div>
 							<!-- ******** [START] Alert Message Display ******** -->
 							<?php if(!$userLogged){ ?>
-								<div class="alert mt-4 alert-info">
-									<span class="badge badge-pill badge-info">Welcome!!</span> Please, log in and place an order to be able to post comment.							
+								<div class="alert mt-4 alert-success">
+									<span class="badge badge-pill badge-success">Welcome!!</span> Please, log in and place an order to be able to post comment.							
 								</div>
 							<?php }else if(!$userNoComment){ ?>
-								<div class="alert mt-4 alert-info">
-									<span class="badge badge-pill badge-info">Welcome <?php echo $nowUserID ?> !!</span> Please, place & pay for an order to comment on it.							
+								<div class="alert mt-4 alert-success">
+									<span class="badge badge-pill badge-success">Welcome <?php echo $nowUserID ?> !!</span> Please, place & pay for an order to comment on it.							
 								</div>
 							<?php }else if($commentMsg_php != "") { ?>
 								<div class="alert mt-4 alert-success">																											
@@ -250,8 +254,8 @@ if($userLogged && $userNoComment){
 									echo '         </div>                                                                                                                        ';
                            echo '      </div>                                                                                                                           ';
                            echo '      <div class="comment-footer">                                                                                                     ';
-                           echo '      <div class="button">                                                                                                             ';
-									echo '         <input type="submit" value="Post Comment">                                                                                    ';
+                           echo '      <div >                                                                                                             ';
+									echo '         <input class="comment_button" type="submit" value="Post Comment">                                                                                    ';
 									echo '      </div>                                                                                                                           ';
                            // date of comment                           
                            echo '         <div class="time">                                                                                                            ';

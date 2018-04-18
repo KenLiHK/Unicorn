@@ -8,14 +8,7 @@ $(document).ready(function(){
 });
 
 function tagging(){
-	$("#tagBox").tagging({
-		"no-duplicate": true,
-		"no-duplicate-callback": window.alert,
-		"no-duplicate-text": "Duplicate tags!",
-		"type-zone-class": "type-zone",
-		"tag-box-class": "tagging",
-		"forbidden-chars": ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "[", "]", "\\", "|", ";", ":", "'", "\"", ",", "<", ".", ">", "\/", "?"]
-	});
+	$('#tagBox').tagging();
 }
 
 function prepareFoodCat(){
@@ -30,14 +23,7 @@ function prepareFoodCat(){
 	            },
 	            dataType:'json',
 	            success:function(result){
-	            	var _cateType 				= document.forms["addFoodForm"]["cateType"].value.trim();
-	            	var _disabled = "";
-	            	if(_cateType == "nw"){
-	            		_disabled = "disabled";
-	            	}else{
-	            		_disabled = "";
-	            	}
-	            	$foodCatSection += '<select class="admin_select" id="id_foodCatSel" name="foodCatSel" ' + _disabled + '>	            			 ';
+	            	$foodCatSection += '<select class="admin_select" id="id_foodCatSel" name="foodCatSel">	            			 ';
 	            	$foodCatSection += '       <option value=""></option>                                        ';
 
 	                if(result["code"] == 0){	                    
@@ -161,16 +147,6 @@ function addFoodFormValidate(){
 	//var _toDate 				= document.forms["addFoodForm"]["toDate"].value.trim();
 	var _remarks 				= document.forms["addFoodForm"]["remarks"].value.trim();
 
-	var rawTags 				= $(".tagging").text();
-	var tagsValues				= "";
-
-	if(rawTags != undefined || rawTags != null){
-		var tmp = rawTags.replace(/[^ -~]/g, " ");
-		tagsValues = tmp.replace(/[#]/g, " ");
-		if(tagsValues != null && tagsValues != ""){
-			document.getElementById("id_tagInput").value = tagsValues;
-		}
-	}
 	
 	// ******** [START] Food category validation ********	
     if (_cateType == "ex" && _foodCatSel == "") {

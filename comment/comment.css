@@ -234,7 +234,7 @@
     padding-left: 2em ;
 }
 
-.comment-footer .button input[type=submit]{
+.comment-footer .button{
 	background:#222;
     box-sizing: border-box;
     border: none;

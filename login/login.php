@@ -25,7 +25,7 @@ $pass = "";
 //define server side error message variables and set to empty values
 $userIDEmailMsg_php = "";
 $passMsg_php = "";
-$serverErrMsg_php = "<div class='alert mt-4 alert-success'><span></span></div>";
+$serverErrMsg_php = "<div class='alert mt-4 alert-success'><span>We promise to deliver the freshest foods to you as soon as possible.</span></div>";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$userIDEmail = optimizateInput($_POST["userIDEmail"]);	
@@ -150,13 +150,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 										<label class="login_label">User ID / Email : </label><label class="mandatory_field">*</label> 
 										<input class="login_input" type="text" id="userIDEmail" name="userIDEmail" maxlength="50" value="<?php if(isset($userIDEmail)){echo $userIDEmail;} ?>" >								
 										<span class="login_err" id="userIDEmailMsg" ><?php if(isset($userIDEmailMsg_php)){echo $userIDEmailMsg_php;} ?></span>
-									<div>
+									</div>
 									
 									<div>
 										<label class="login_label">Password : </label><label class="mandatory_field">*</label> 
 										<input class="login_input" type="password" id="pass" name="pass" maxlength="100" >
 										<span class="login_err" id="passMsg" ><?php if(isset($passMsg_php)){echo $passMsg_php;} ?></span>
-									<div>
+									</div>
 									<br><br>
 									<div>
 									  <input class="login_input4" type="reset" name="Reset" value="Reset" onclick="resetErrMsg();">

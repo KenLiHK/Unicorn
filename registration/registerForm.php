@@ -355,7 +355,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 							
 								<!-- ******** [START] Alert Message Display ******** -->
 								<div class="alert mt-4 alert-success">
-									<span></span>
+									<span>We promise to deliver the freshest foods to you as soon as possible.</span>
 								</div>
 								<!-- ******** [END] Alert Message Display ******** -->
 								

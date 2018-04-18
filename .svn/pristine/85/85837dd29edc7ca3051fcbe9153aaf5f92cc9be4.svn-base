@@ -44,7 +44,7 @@
 	    $servername = "localhost";
 	    $username = "root";
 	    $password = "";
-	    $dbname = "unicorn";
+	    $dbname = "unicorn2";
 		
 		$dbconnection=null;
 	

@@ -1,7 +1,6 @@
 @charset "UTF-8";
 
 /******** [START] Left panel style ********/
-
 @media ( min-width :768px) {
 	aside.left-panel {
 		padding: 0 25px
@@ -31,17 +30,20 @@
 	}
 }
 
+
 aside.left-panel {
 	background: #272c33;
 	display: table-cell;
 	height: 100%;
-	min-height: 100%;
+	min-height: 800px;
 	vertical-align: top;
 	width: 280px
 }
 
 aside.left-panel {
-	width: 230px !important
+	width: 230px !important;
+	min-height: 800px !important;
+	height: 1500px !important;
 }
 
 .open aside.left-panel {
@@ -530,12 +532,13 @@ small {
 
 /******** [START] Right panel style definition ********/
 .right-panel {
-	padding-left: 230px !important
+	padding-left: 230px !important;
+	width: 1300px !important;
+	min-height: 800px !important;
+	height: 1500px !important;
 }
 
 .right-panel {
-	/*width: 80% !important;*/
-	/*padding-right: 10% !important;*/
 	display: table-cell;
 	padding-left: 0 !important;
 	transition: all .35s ease
@@ -549,7 +552,6 @@ small {
 	padding: 15px 20px 13px;
 	width: 100%
 }
-
 
 .open .right-panel {
 	margin-left: -160px !important
@@ -599,7 +601,11 @@ small {
 }	
 	
 .font-weight-bold {
-	font-weight: 700
+	font-weight: 700;
+}
+
+.font-weight-bold-img {
+	font-weight: 700;
 }
 
 .bg-warning {
@@ -745,7 +751,7 @@ small {
 
 .card-header {
 	background-color: rgba(0, 0, 0, .03);
-	border-bottom: 1px solid rgba(0, 0, 0, .125)
+	border-bottom: 1px solid rgba(0, 0, 0, .125);
 }
 
 .card-header:first-child {
@@ -898,23 +904,23 @@ small {
 
 /*-- [START] card color --*/
 .bg-flat-color-1 {
-	background-color: #20a8d8 !important
+	background-color: #20a8d8 !important;
 }
 
 .bg-flat-color-2 {
-	background-color: #63c2de !important
+	background-color: #f86c6b !important;
 }
 
 .bg-flat-color-3 {
-	background-color: #ffc107 !important
+	background-color: #4dbd74 !important;
 }
 
 .bg-flat-color-4 {
-	background-color: #f86c6b !important
+	background-color: #ffc107 !important;
 }
 
 .bg-flat-color-5 {
-	background-color: #4dbd74 !important
+	background-color: #ffc107 !important;
 }
 /*-- [END] card color --*/
 
@@ -945,7 +951,7 @@ small {
 body {
 	background: #f1f2f7;
 	font-family: Open Sans, sans-serif;
-	font-size: 16px
+	font-size: 16px;
 }
 
 a {
@@ -1117,56 +1123,53 @@ img {
 }
 /******** [END] Common style definition ********/
 
-
-
-/******** [START] Account registration style ********/
-label.reg_label {
-	text-align: right;
-	margin-right: 0.5em;
-	font-weight:bold;
-}
-
-input.reg_input[type=text] {
-	display: inline-block;	
-	width: 30%;
-	text-align: left;
-}
-
-input.reg_input2[type=text] {
+/******** [START] Recommend home page style definition ********/
+.sale-charts {
 	display: inline-block;
-	width: 70%;
-	text-align: left;
+	width: 100%;
+	height: 50%;
 }
 
-span.reg_err {
-	color: red;
+.font-weight-bold-height{
+	display: inline-block;
+	width: 100%;
+	height: 10em;
 }
 
-input.reg_input3[type=checkbox] {
-	zoom: 1.5;
-	vertical-align: text-bottom;
+.font-weight-bold-height2{
+	display: inline-block;
+	width: 100%;
+	height: 4em;
 }
 
-input.reg_input4[type=reset] {
+.foodCategorySel{
+	margin-left: 1em;
+	width: 20%;
+	height: 2em;
+}
+
+.foodSearch{
+	width: 40%;
+	height: 2em;
+	margin-bottom: 1em;
+}
+
+input.recom_button {
 	width: 20%;
 	margin-right: 2.5em;
 	margin-bottom: 2.5em;
+	display: inline-block;
+	height: 2em;
+	text-align: center;
+	background-color: skyblue;
+	color: #fff;
+	border: none;
 }
+/******** [END] Recommend home page style definition ********/
 
-input.reg_input5[type=submit] {
-	width: 20%;
-	margin-bottom: 2.5em;
+******** [START] Exception page style definition ********/
+span.Exception page {
+	color: red;
 }
-
-h5.reg_success {
-	margin-bottom: 10.5em;
-}
-/******** [START] Account registration style ********/
-
-
-
-
-
-
-
+******** [END] Exception page style definition ********/
 

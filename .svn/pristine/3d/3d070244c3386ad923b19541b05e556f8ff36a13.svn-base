@@ -1,0 +1,285 @@
+@charset "UTF-8";
+/******** [START] Food Comment Section ********/
+/* comment layout */
+/*
+ *========================================================================================================================================================================= comment-section
+ *|                                                                                                                                                                       |
+ *|   ============================================================================================================================================ comment-container      |
+ *|   |                                                                                                                                          |                        |
+ *|   |  ================================================================================================= 1st horizontal = comment-init         |                        |
+ *|   |  | 1st vertical=comment-order       | 2nd vertical=comment-name    | 3rd vertical=comment-star   |                                       |                        |
+ *|   |  ================================================================================================= 2nd horizontal = comment-body         |                        |
+ *|   |  | 1st vertical=comment-order-list  | 2nd vertical=comment-input                                 |                                       |                        |
+ *|   |  |                                  |                                                            |                                       |                        |
+ *|   |  |                                  |                                                            |                                       |                        |
+ *|   |  ================================================================================================= 3rd horizontal=comment-footer         |                        |
+ *|   |  | 1st vertical=button              | 2nd vertical=comment-time                                  |                                       |                        |
+ *|   |  -------------------------------------------------------------------------------------------------                                       |                        |
+ *|   |                                                                                                                                          |                        |
+ *|   --------------------------------------------------------------------------------------------------------------------------------------------                        |
+ *|                                                                                                                                                                       |
+ *|                                                                                                                                                                       |
+ *|                                                                                                                                                                       |
+ *|   ============================================================================================================================================ comment-container      |
+ *|   |                                                                                                                                          |                        |
+ *|   |  ================================================================================================= 1st horizontal = comment-init         |                        |
+ *|   |  | 1st vertical=comment-order       | 2nd vertical=comment-name    | 3rd vertical=comment-star   |                                       |                        |
+ *|   |  ================================================================================================= 2nd horizontal = comment-body         |                        |
+ *|   |  | 1st vertical=comment-order-list  | 2nd vertical=comment-input                                 |                                       |                        |
+ *|   |  |                                  |                                                            |                                       |                        |
+ *|   |  |                                  |                                                            |                                       |                        |
+ *|   |  ================================================================================================= 3rd horizontal=comment-footer         |                        |  
+ *|   |  | 1st vertical=button              | 2nd vertical=comment-time                                  |                                       |                        |
+ *|   |  -------------------------------------------------------------------------------------------------                                       |                        |
+ *|   |                                                                                                                                          |                        |
+ *|   --------------------------------------------------------------------------------------------------------------------------------------------                        |
+ *|                                                                                                                                                                       |
+ *-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*/
+.comment-section{
+	/*sizing*/
+	width: 95%;
+	/*layout*/
+	margin: 2.5%;
+}
+
+.comment-container{
+	/*text*/
+	font-family: inherit;
+	font-style: normal;
+	font-size: inherit;
+	/*sizing*/
+    width: 100%;
+	height: 15em;
+	/*layout*/
+	margin: 1em 0em 1em 0em;
+	/*appearance*/
+	background: #f0f3f5;
+	box-shadow: 0 0 10px 5px #e7e7e7;
+	border: 1px solid #ccc;
+}
+
+/******** 1st horizontal part of comment-container ********/
+.comment-init{
+	/*positioning within comment-container*/
+    width: 100%;
+	height: 2.0em;
+	box-sizing: border-box;
+	border-bottom: 1px solid #ccc;
+}
+
+/******** 1st vertical part of comment-init ********/
+.comment-init .comment-order{
+	/*position within parent*/
+	display: inline-block;
+	float: left;
+	padding: 0.2em 1em 0.2em 1em ;
+	/*size*/
+	width: 30%; 
+	height: auto;
+}
+/******** 2nd vertical part of comment-init ********/
+.comment-init .comment-name{
+	/*position within parent*/
+    display: inline-block;
+	float: left;
+	padding: 0.2em 1em 0.2em 1em ;
+	vertical-align: middle; 
+	/*size*/
+    width: 15em;
+	height: auto;
+}
+/******** 3rd vertical part of comment-init ********/
+.comment-init .comment-star{
+	/*position within parent*/
+	display: inline-block;
+	float: right;
+	padding: 0.2em 1em 0.2em 1em ;
+	/*text*/
+	text-align: center;
+	/*size*/
+	width: 9em; 
+	height: auto;
+}
+
+/*star-rating https://codepen.io/muhammad_mabrouk/pen/bWybwX*/
+.star-rating {
+    direction: rtl;
+    display: inline-block;
+}
+
+.star-rating input[type=radio] {
+    display: none;
+}
+
+.star-rating label {
+    color: #bbb;
+    /*font-size: 1.5em;*/
+	font-size: inherit;
+    padding: 0;
+	margin-bottom: 0;
+    cursor: pointer;
+    -webkit-transition: all .3s ease-in-out;
+    transition: all .3s ease-in-out
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input[type=radio]:checked ~ label {
+    color: #f2b600
+}
+
+/******** 1st-3rd vertical part additional settings ********/
+.comment-init #text-order, .comment-init #text-name, .comment-init #text-stars{
+	/*over-riding "webkit-margin" */
+	margin: 0;
+	padding: 0;
+	white-space: nowrap
+}
+
+/******** 2nd horizontal part of comment-container ********/
+.comment-body{
+	/*positioning within comment-container*/
+    width: 100%;
+	height: 10.0em;
+}
+
+/******** 1st vertical part of comment-body ********/
+.comment-body .comment-order-list{
+	/*position within parent*/
+	display: inline-block;
+	float: left;
+	/*size*/
+	width: 30%;  
+	height: inherit;
+	/*scrolling*/
+	overflow-y:auto;
+	overflow-x:auto;
+	/*border*/
+	box-sizing: border-box;
+}
+
+.comment-body .comment-order-list ul{
+	/*padding:0;*/
+    margin:0;
+	list-style:none;
+}
+
+.comment-body .comment-order-list li{
+	margin:0.2em 1em 0.2em 1em;
+	white-space: nowrap;
+}
+
+/******** 2nd vertical part of comment-body ********/
+.comment-body .comment-input {
+	/*position within parent*/
+	display: inline-block;
+	float: left;
+	/*size*/
+	width: 70%;  
+	height: inherit;
+}
+
+.comment-body .comment-input textarea{
+  resize: none;
+  outline: none;
+  width: 100%;
+  padding: 0.2em 1em 0.2em 1em ;
+  box-sizing: border-box;
+  border: none;
+  height: inherit;
+  margin: 0px;
+  border-left: 1px solid #ccc;
+}
+
+.comment-body .comment-input p{
+  /*resize: none;*/
+  /*outline: none;*/
+  /*word-wrap: break-word;*/
+    /*text-overflow: ellipsis;*/
+  /*white-space: normal;*/
+  /*overflow: hidden;*/
+  max-width: inherit;
+  
+  display: inline-block;
+  word-wrap: break-word;
+  
+  width: 70%;
+  margin: 0px;
+  padding: 0.2em 1em 0.2em 1em ;
+  /*box-sizing: border-box;*/
+  height: inherit;
+  
+  border-left: 1px solid #ccc;
+}
+
+/******** 3rd horizontal part of comment-container ********/
+.comment-footer{
+	/*positioning within comment-container*/
+    width: 100%;
+	height: 2.0em;
+	/*layout*/
+	padding: 0.5em 1em 0.5em 1em;
+	/*border*/
+	box-sizing: border-box;
+	border-top: 1px solid #ccc;
+}
+
+/******** 1st vertical part of comment-footer ********/
+.comment-footer .button{
+    /*position within parent*/
+	display: inline-block;
+	float: left;
+    box-sizing: border-box;
+    padding-left: 2em ;
+}
+
+.comment-footer .button{
+	background:#222;
+    box-sizing: border-box;
+    border: none;
+    width: 12em;
+    color: white;
+}
+
+.comment-footer .button input[type=submit]:hover{
+	background:#ccc;
+	color: black;
+}
+
+/******** 2nd vertical part of comment-footer ********/
+.comment-footer .time{
+		/*position within parent*/
+	display: inline-block;
+	float: right;
+    box-sizing: border-box;
+    padding-right: 2em ;
+    
+}
+
+.comment-footer .time #text-time{
+	margin: 0;
+	padding: 0;
+	text-align: right;
+	white-space: nowrap;
+	color: #cccccc;
+    width: 12em;
+}
+
+span.comment_err {
+	color: red;
+}
+
+span.comment_info {
+	color: green;
+}
+
+input.comment_button {
+	text-align: center;
+	background-color: skyblue;
+	color: #fff;
+	border: none;
+}
+
+
+

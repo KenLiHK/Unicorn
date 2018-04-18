@@ -49,7 +49,7 @@ unset($_SESSION['emailValidateUrl']);
 							
 								<!-- ******** [START] Alert Message Display ******** -->
 								<div class="alert mt-4 alert-success">
-									<span></span>
+									<span>We promise to deliver the freshest foods to you as soon as possible.</span>
 								</div>
 								<!-- ******** [END] Alert Message Display ******** -->
 								
@@ -58,7 +58,7 @@ unset($_SESSION['emailValidateUrl']);
 								<!-- ******** [START] User Registration Division ******** -->
 								<div class="container">
 									<h5 class="reg_success">An activation email is sent to your email, please login your email and complete the activation process.</h5>
-									<span style="color:white"><?php if(isset($_emailValidateUrl)){echo $_emailValidateUrl;} ?></span>
+									<span style="color:#f1f2f7"><?php if(isset($_emailValidateUrl)){echo $_emailValidateUrl;} ?></span>
 									<hr>
 									
 								</div>	

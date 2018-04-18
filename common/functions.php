@@ -400,6 +400,10 @@
 	    
 	    return db_insert_food($foodObj);
 	}
+	
+	function add_food_tag($foodTag){
+	    return db_insert_food_tag($foodTag);
+	}
 	//[END] Admin function
 	
 	/*

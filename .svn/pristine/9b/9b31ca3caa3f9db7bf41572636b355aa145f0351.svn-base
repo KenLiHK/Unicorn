@@ -7,7 +7,7 @@ include_once("./comment_function.php");
 
 
 // prevent hacking
-//echo htmlspecialchars($_SERVER["PHP_SELF"]);
+echo htmlspecialchars($_SERVER["PHP_SELF"]);
 
 
 

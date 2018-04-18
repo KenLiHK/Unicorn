@@ -16,8 +16,8 @@ if(isset($_SESSION['login_user_id'])){
 
 $isFormDataValid = true;
 
-$imgPath	= "../resources/foodImg/defaultFood.jpg";
-$cateType        = "ex";
+$foodImgPath	= "../resources/foodImg/defaultFood.jpg";
+$catType        = "";
 $foodCatSel		= "";
 $foodCat		= "";
 $foodName		= "";
@@ -39,45 +39,37 @@ $foodNameMsg_php        = "";
 $priceMsg_php           = "";
 //$discountMsg_php        = "";
 //$effectDateMsg_php      = "";
-$newCat                 = "";
+
 
 if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
-    $cateType 			= isset($_POST["cateType"])        ? optimizateInput($_POST["cateType"])     : "";
-    $foodCatSel			= isset($_POST["foodCatSel"])      ? optimizateInput($_POST["foodCatSel"])  : "";
-    $foodCat 			= isset($_POST["foodCat"])         ? optimizateInput($_POST["foodCat"])     : "";
+    $catType 			= isset($_POST["catType"])         ? optimizateInput($_POST["catType"]) : "";
+    $foodCatSel			= isset($_POST["foodCatSel"])      ? optimizateInput($_POST["foodCatSel"]) : "";
+    $foodCat 			= isset($_POST["foodCat"])         ? optimizateInput($_POST["foodCat"]) : "";
     $fCat 			    = "";
     $fCatTmp		    = "";
-    $foodName 			= isset($_POST["foodName"])        ? optimizateInput($_POST["foodName"])    : "";
+    $foodName 			= isset($_POST["foodName"])        ? optimizateInput($_POST["foodName"]) : "";
     $fName              = "";
     $fNameTmp           = "";
-    $available 			= isset($_POST["available"])       ? optimizateInput($_POST["available"])   : "";
-    $price 		        = isset($_POST["price"])           ? optimizateInput($_POST["price"])       : "";
+    $available 			= isset($_POST["available"])       ? optimizateInput($_POST["available"]) : "";
+    $price 		        = isset($_POST["price"])           ? optimizateInput($_POST["price"]) : "";
     //$discount 		= optimizateInput($_POST["discount"]);
     //$effectDateFrom 	= optimizateInput($_POST["fromDate"]);
     //$effectDateTo 	= optimizateInput($_POST["toDate"]);	    
-    $remarks 	        = isset($_POST["remarks"])         ? optimizateInput($_POST["remarks"])     : "";
-    $tags 		        = isset($_POST["tagInput"])        ? optimizateInput($_POST["tagInput"])    : "";
-    $tags_array         = [];
+    $remarks 	        = isset($_POST["remarks"])         ? optimizateInput($_POST["remarks"]) : "";
+    //$tags 		        = isset($_POST["tag"])             ? optimizateInput($_POST["tag"]) : "";
     
-    if($tags != ""){
-        $tags_array = explode(" ", $tags);
-    }
-    
-    if($cateType == "ex" && empty($foodCatSel)) {
+    if($catType = "ex" && empty($foodCatSel)) {
         $foodCatMsg_php =                                                          "[E901] Food category must be selected!";
         $isFormDataValid = false;
     }else{
         $fCat = $foodCatSel;
     }
 	
-	if($cateType == "nw" && empty($foodCat)) {
+	if($catType = "nw" && empty($foodCat)) {
 	    $foodCatMsg_php =                                                          "[E902] Food category must be input!";
 	    $isFormDataValid = false;
 	}else{
-	    $newCat = $foodCat;
-	    if($fCat == ""){
-	       $fCat = $foodCat;
-	    }
+	    $fCat = $foodCat;
 	}
 	
 	if(empty($foodName)) {
@@ -86,7 +78,7 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 	}else{
 	    $fName = $foodName;
 	}
-	
+		
 	if($foodCatMsg_php == "" && $foodNameMsg_php == ""){
 	    $_foodCount = count_Food_By_Food_Cat_Name($foodCat, $foodName);
 	    if(!isset($_foodCount) || $_foodCount == 0)
@@ -95,7 +87,7 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 		}
 		else
 		{
-		    $foodNameMsg_php =                                                     "[E917] The food name is existing in the food category!";
+		    $foodNameMsg_php =                                                     "[E907] The food name is existing in the food category!";
 		    $isFormDataValid = false;
 		}
 	}
@@ -136,23 +128,15 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
     		$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
     		$save_file = $target_dir . $fCatTmp . "_" . $fNameTmp . "." . $imageFileType;
     		$foodImgSaveName = $fCatTmp . "_" . $fNameTmp . "." . $imageFileType;
-    		$imgPath = "../resources/foodImg/" . $foodImgSaveName;
+    		$imgPath = "/resources/foodImg/" . $foodImgSaveName;
     		
     		// Check if image file is a actual image or fake image
-    		if(isset($_POST["addFood"])) {
-    			$check = true; 
-    			if(isset($_FILES["foodImg"]["tmp_name"]) && $_FILES["foodImg"]["tmp_name"] != "" ){
-    			    $check = getimagesize($_FILES["foodImg"]["tmp_name"]);
-    			}else{
-    			    $check = false;    			    
-    			}
-
+    		if(isset($_POST["submit"])) {
+    			$check = getimagesize($_FILES["foodImg"]["tmp_name"]);
     			if($check !== false) {
     				$uploadOk = 1;
     			} else {
-    			    if($foodImgMsg_php == ""){
-    			     $foodImgMsg_php =                                              "[E908] Invalid file!";
-    			    }
+    			    $foodImgMsg_php =                                              "[E908] Invalid file!";
     				$uploadOk = 0;
     			}
     		}
@@ -206,37 +190,18 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 	{		
 		$now = date("Y-m-d h:i:sa");
 		
-		$food2Persist = new Food("", $fCat, $fName, $available, $price, NULL, NULL, NULL, $imgPath, $remarks, $now, $now);
+		$food2Persist = new Food("", $fCat, $fName, $available, $price, NULL, NULL, NULL, $imgPath, $remark, $now, $now);
 		
-		$addedFoodID = add_food($food2Persist);
-        	
-		if(isset($addedFoodID) && $addedFoodID > 0) {
-		    if(isset($tags_array) && count($tags_array) > 0){
-		        foreach ($tags_array as $_tmpTagDes){
-		            $_tagDes = isset($_tmpTagDes) ? trim($_tmpTagDes) : "";
-		            if(isset($_tagDes) && $_tagDes != ""){
-    		          $foodTag = new Food_tag("", $addedFoodID, $_tagDes, $now, $now);
-    		          add_food_tag($foodTag);
-		            }
-    		    }
-		    }
-		    
-		    $addFoodInfoMsg_php=                                                      "[I903] Add food successfully!";
-		    header('Location: ./addFood.php?successMsg='.$addFoodInfoMsg_php);
-		    unset($_POST);
+		$result = add_food($food2Persist);
+
+		if(isset($result) && $result > 0) {
+		    $addFoodInfoMsg_php=                                                           "[I903] Add food successfully!";
+			header('Location: ./addFood.php?successMsg='.$successMsg);
 			exit;
 		} else {
-		    $addFoodMsg_php =                                                         "[E912] Update user profile failed, please try again later!";
+		    $addFoodMsg_php =                                                      "[E912] Update user profile failed, please try again later!";
 		}
-	}else{
-	    $imgPath	= "../resources/foodImg/defaultFood.jpg";
-	    unset($_POST);
 	}
-}else{
-    if(isset($_GET["successMsg"])){
-        $addFoodInfoMsg_php = htmlspecialchars($_GET["successMsg"]);
-        unset($_GET);
-    }
 }
 ?>
 
@@ -282,9 +247,9 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 								<!-- ******** [START] Alert Message Display ******** -->								
 								<?php								
 								if(isset($userID_In_Session )){
-								    if($addFoodInfoMsg_php != "" || $addFoodMsg_php != ""){
+								    if($addFoodInfoMsg_php != "" || $addFoodMsg_php){
 								        if($addFoodInfoMsg_php != ""){
-								            echo "<div class='alert mt-4 alert-success'>$addFoodInfoMsg_php</div>";
+								            echo "<div class='alert mt-4 alert-success'>$addFoodMsg_php</div>";
 								        }else if($addFoodMsg_php != ""){
 								            echo "<div class='alert mt-4 alert-danger'>$addFoodMsg_php</div>";
 								        }else{
@@ -294,9 +259,9 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 									   echo "<div class='alert mt-4 alert-success'><span class='badge badge-pill badge-success'>Welcome ".$userID_In_Session."</span> We promise to deliver the freshest foods to you as soon as possible.</div>";
 								    }
 								}else{
-								    if($addFoodInfoMsg_php != "" || $addFoodMsg_php != ""){
+								    if($addFoodInfoMsg_php != "" || $addFoodMsg_php){
 								        if($addFoodInfoMsg_php != ""){
-								            echo "<div class='alert mt-4 alert-success'>$addFoodInfoMsg_php</div>";
+								            echo "<div class='alert mt-4 alert-success'>$addFoodMsg_php</div>";
 								        }else if($addFoodMsg_php != ""){
 								            echo "<div class='alert mt-4 alert-danger'>$addFoodMsg_php</div>";
 								        }else{
@@ -332,8 +297,8 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 										<hr>
 										<div>
 											<label class="admin_label">Food Category<label class="mandatory_field">*</label> : </label>
-											<input type="radio" name="cateType" id="id_type1" value="ex" onclick="clickExistedCat()" <?php if (isset($cateType) && $cateType=="ex") echo "checked";?>><div style="display: inline-block; width:15%" id="foodCat-section" ></div> 									
-											<input type="radio" name="cateType" id="id_type2" value="nw" onclick="clickNewCat()" <?php if (isset($cateType) && $cateType=="nw") echo "checked";?>><input class="admin_input ui-widget" type="text" id="id_foodCat" name="foodCat" maxlength="20" placeholder="New food category..." value="<?php if(isset($newCat)){echo $newCat;} ?>" <?php if (isset($cateType) && $cateType!="nw") echo "disabled";?> >					
+											<input type="radio" name="cateType" id="id_type1" value="ex" onclick="clickExistedCat()" checked ><div style="display: inline-block; width:15%" id="foodCat-section"></div> 									
+											<input type="radio" name="cateType" id="id_type2" value="nw" onclick="clickNewCat()"><input class="admin_input ui-widget" type="text" id="id_foodCat" name="foodCat" maxlength="20" placeholder="New food category..." value="<?php if(isset($newCat)){echo $newCat;} ?>" disabled >					
 											<span class="admin_err" id="foodCatMsg" ><?php if(isset($foodCatMsg_php)){echo $foodCatMsg_php;} ?></span>
 										<div>
 										
@@ -347,8 +312,8 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 										<div>
 											<label class="admin_label">Available : </label> 
 											<select id="id_available" name="available" style="width:150px;">
-												<option value="Y" <?php if (isset($available) && $available=="Y") echo "selected";?>> Y </option>
-												<option value="N" <?php if (isset($available) && $available=="N") echo "selected";?>> N </option>
+												<option value="Y"> Y </option>
+												<option value="N"> N </option>
 											</select>
 										<div>									
 										
@@ -376,7 +341,7 @@ if (!empty($_POST["addFood"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 										
 										<div>
 											<label class="admin_label">Remarks : </label> 
-											<textarea class="admin_textarea" id="id_remarks" name="remarks" maxlength="1000" style="width:50%"><?php if(isset($remarks)){echo $remarks;} ?></textarea>
+											<textarea class="admin_textarea" id="id_remarks" name="remarks" maxlength="1000" value="<?php if(isset($remarks)){echo $remarks;} ?>" style="width:50%"></textarea>
 										<div>
 	
 										<div style="display:inline;">

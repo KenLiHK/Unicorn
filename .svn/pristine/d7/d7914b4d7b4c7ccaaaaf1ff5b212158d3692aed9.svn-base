@@ -2,9 +2,9 @@
 
 include_once("../common/functions.php");
 
+healthCheckDB();
+healthCheckDBTables();
 checkLogon();
-checkAdmin();
-
 check_session_timeout();
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -50,10 +50,26 @@ $address2Msg_php = "";
 $address3Msg_php = "";
 $address4Msg_php = "";
 
+$currentPassInfoMsg_php = "";
+$currentPassMsg_php = "";
+
+$newPassInfoMsg_php = "";
+$newPassMsg_php = "";
+
+$repeatNewPassInfoMsg_php = "";
+$repeatNewPassMsg_php = "";
+
 
 if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
+    $isFormDataValid = true;
+
 	$userID			= optimizateInput($_POST["userID"]);
 	$email 			= optimizateInput($_POST["email"]);
+	
+	$currentPass    = optimizateInput($_POST["currentPass"]);
+	$newPass        = optimizateInput($_POST["newPass"]);
+	$repeatNewPass  = optimizateInput($_POST["repeatNewPass"]);	
+	
 	$engSurname 	= optimizateInput($_POST["engSurname"]);
 	$engMidName 	= optimizateInput($_POST["engMidName"]);
 	$engName 		= optimizateInput($_POST["engName"]);
@@ -70,7 +86,7 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 	}
 	
 	if($emailMsg_php == ""){
-		$_email = db_select_user_by_Email($email);
+		$_email = db_select_user_by_Email_UserID($email, $userID_In_Session);
 		if(!isset($_email))
 		{
 			$emailInfoMsg_php = "[I701] Email is acceptable!"; //NOT found Email in DB
@@ -91,7 +107,68 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 	}
 	// ******** [END] Email validation ********
 	
-	
+	// ******** [START] Password validation ********
+	if(!empty($currentPass) || !empty($newPass) || !empty($repeatNewPass)) {
+		if(empty($currentPass)) {
+			$currentPassMsg_php = "[E716] Current password must be input!";
+		}
+		
+		$_currentPassCorrect = db_select_user_by_UserID_or_Email_Password($userID_In_Session, $currentPass);	
+
+		if(!isset($_currentPassCorrect) || $_currentPassCorrect[0] == ""){
+			$currentPassMsg_php = "[E725] Current password is wrong!";
+		}
+		
+		if(empty($newPass)) {
+			$newPassMsg_php = "[E717] New password must be input!";
+		}
+		
+		if(empty($repeatNewPass)) {
+			$repeatNewPassMsg_php = "[E718] Repeat new password must be input!";
+		}
+		
+		/*
+		 Check password format and character combination
+		 rule 1 : Password length must be 8 - 20 characters
+		 rule 2 : Password must contain at least 2 upper case characters
+		 rule 3 : Password must contain at least 2 lower case characters
+		 rule 4 : Password must contain at least 2 numeric characters
+		 rule 5 : Password must contain at least 2 special characters
+		 */
+		if($newPassMsg_php == "" && !empty($newPass)) {
+			$anUpperCase = "#[A-Z]#";
+			$aLowerCase = "#[a-z]#";
+			$aNumber = "#[0-9]#";
+			$aSpecial =  "#(?=\S*[\W])#"; //"#[!|@|#|$|%|^|&|*|(|)|-|_]#";
+			
+			if (strlen($newPass) < 8 || strlen($newPass) > 20) {
+				$newPassMsg_php = "[E719] New password length must be 8 - 20 characters!";
+			}
+			else if (!preg_match($anUpperCase, $newPass)) {
+				$newPassMsg_php = "[E720] New password must contain at least 2 upper case characters!";
+			}
+			else if (!preg_match($aLowerCase, $newPass)) {
+				$newPassMsg_php = "[E721] New password must contain at least 2 lower case characters!";
+			}
+			else if (!preg_match($aNumber, $newPass)) {
+				$newPassMsg_php = "[E722] New password must contain at least 2 numeric characters!";
+			}
+			else if (!preg_match($aSpecial, $newPass)) {
+				$newPassMsg_php = "[E723] New password must contain at least 2 special characters!";
+			}
+		}
+		
+		//Check password equal to repeat password
+		if($repeatNewPassMsg_php == "" && !empty($newPass) && !empty($repeatNewPass) && $newPass != $repeatNewPass){
+			$repeatNewPassMsg_php = '[E724] Repeat new password must be equal to New password!';
+		}
+		
+		if($currentPassMsg_php != "" || $newPassMsg_php != "" || $repeatNewPassMsg_php!= ""){
+			$isFormDataValid = false;
+		}
+	}
+		
+	// ******** [END] Password validation ********
 	
 	if(empty($engSurname)) {
 		$engSurnameMsg_php = "[E703] English Surname must be input!";
@@ -143,18 +220,27 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 	}
 	
 	// ******** [START] Upload file ********
-	if(isset($_FILES["profileImg"])){
+	$isUploaded = false;
+	$hasExistedImg = false;
+	if(isset($_FILES["profileImg"]) && $_FILES['profileImg']['size'] != 0 && $_FILES['profileImg']['error'] == 0 && $_FILES["profileImg"]["name"] != ""){
+		$isUploaded = true;
 		$target_dir = UNICORN_DOC_ROOT."/resources/userProfileImg/";
 		$baseFileName = basename($_FILES["profileImg"]["name"]);
 		$target_file = $target_dir . $baseFileName;	
 		$uploadOk = 1;
 		$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 		$save_file = $target_dir . $userID . "." . $imageFileType;
-		$imgPath = "/resources/userProfileImg/" . $userID . "." . $imageFileType;
+		$imgPath = "../resources/userProfileImg/" . $userID . "." . $imageFileType;
 		
 		// Check if image file is a actual image or fake image
-		if(isset($_POST["submit"])) {
-			$check = getimagesize($_FILES["profileImg"]["tmp_name"]);
+		if(isset($_POST["saveProfile"])) {
+		    $check = true;
+		    if(isset($_FILES["profileImg"]["tmp_name"]) && $_FILES["profileImg"]["tmp_name"] != "" ){
+		        $check = getimagesize($_FILES["profileImg"]["tmp_name"]);
+		    }else{
+		        $check = false;
+		    }
+		    
 			if($check !== false) {
 				$uploadOk = 1;
 			} else {
@@ -195,7 +281,7 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 			
 			if (move_uploaded_file($_FILES["profileImg"]["tmp_name"], $save_file)) {
 				if($profileImgInfoMsg_php == ""){
-					$profileImgInfoMsg_php = "[I703] The file ". basename( $_FILES["profileImg"]["name"]). " has been uploaded!";
+					$profileImgInfoMsg_php = "[I703] The file ". basename( $_FILES["profileImg"]["name"]). " has been uploaded!";					
 				}
 			} else {
 				if($profileImgMsg_php == ""){
@@ -204,24 +290,73 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 				$isFormDataValid = false;
 			}
 		}
-	}
-	// ******** [END] Upload file ********
-			
-	if($isFormDataValid)
-	{		
-		//new an user object to keep form post information for passing to db_insert_user function in database.php
-		$user = new User($userID, $imgPath, $sex, $engSurname, $engMidName,
-				$engName, $email, $tel, $address1, $address2,
-				$address3, $address4, "", "");
+	}else{
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+		$userID = isset($_SESSION['login_user_id']) ? $_SESSION['login_user_id'] : "";
 		
-		$result = db_update_user_profile($user); //insert new user account information into database
+		$userInDB = select_user_all_info_by_UserID($userID);
+		if(isset($userInDB)){
+			if(isset($userInDB['img_path'])){
+				$imgPath 		= $userInDB['img_path'];
+				$hasExistedImg = true;
+			}
+		}
+	}
+	// ******** [END] Upload file ********	
+	if($isFormDataValid)
+	{	
+		$imgPath2Update = "";
+		if(!$isUploaded){
+			if(!$hasExistedImg){
+				$imgPath = "";
+			}
+		}else{			
+			$imgPath2Update = $imgPath;
+		}
+		
+		$encryptedNewPass = "";
+		
+		if($newPass != ""){
+			$encryptedNewPass = md5($newPass);
+		}
+		
+		//new an user object to keep form post information for passing to db_update_user_profile function in database.php
+		$user = new User($userID, $imgPath2Update, $sex, $engSurname, $engMidName,
+				$engName, $email, $tel, $address1, $address2,
+				$address3, $address4, $encryptedNewPass, "");
+		
+		$result = db_update_user_profile($user); //update user account information into database
 
-		if(isset($result) && $result > 0) {
+		if(isset($result)) {
 			$successMsg= "[I702] Update user profile successfully!";
 			header('Location: ./userProfile.php?successMsg='.$successMsg);
 			exit;
 		} else {
 			$userProfileMsg_php = "[E712] Update user profile failed, please try again later!";
+		}
+	}else{
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+		$userID = isset($_SESSION['login_user_id']) ? $_SESSION['login_user_id'] : "";
+		
+		$userInDB = select_user_all_info_by_UserID($userID);
+		if(isset($userInDB)){
+			if(isset($userInDB['img_path'])){
+				$imgPath 		= $userInDB['img_path'];
+			}
+			$sex 			= $userInDB['sex'];
+			$engSurname		= $userInDB['eng_surname'];
+			$engMidName 	= $userInDB['eng_middle_name'];
+			$engName		= $userInDB['eng_name'];
+			$email			= $userInDB['email'];
+			$tel 			= $userInDB['tel'];
+			$address1		= $userInDB['address_1'];
+			$address2		= $userInDB['address_2'];
+			$address3		= $userInDB['address_3'];
+			$address4		= $userInDB['address_4'];
 		}
 	}
 }else{
@@ -289,13 +424,22 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 							<div>
 							
 								<!-- ******** [START] Alert Message Display ******** -->
+								<?php
+								if(isset($userProfileMsg_php) && $userProfileMsg_php != ""){
+									echo "<div class='alert mt-4 alert-danger'>";
+									echo "". $userProfileMsg_php . "";
+									echo "</div>";
+								}else{
+								?>
 								<div class="alert mt-4 alert-success">
 								<?php
 											if(isset($userID_In_Session )){
 												echo "<span class='badge badge-pill badge-success'>Welcome ".$userID_In_Session."</span> We promise to deliver the freshest foods to you as soon as possible.";
 											}else{
 												echo "We promise to deliver the freshest foods to you as soon as possible.";
-											} 	
+											}
+											
+								}			
 								?>	
 								</div>
 								<!-- ******** [END] Alert Message Display ******** -->
@@ -307,19 +451,18 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 								
 								<!-- ******** [START] User Profile Division ******** -->
 								<div class="container">
-									<h5>Profile</h5>
+									<h3>User Profile</h3>
 									<hr>
 										<div>
 											<label class="update_user_profile_label">Profile Image : </label>
 											<label class="update_user_profile_label3">
-												<?php if(isset($imgPath) && $imgPath != ""){ ?>
+												<?php if($imgPath != ""){ ?>
 												<img class="profileIcon" src="<?php echo UNICORN_ROOT . $imgPath; ?>" alt="User Profile Icon">
-												<?php }else { $imgPath = "../resources/userProfileImg/default.jpg";?>
+												<?php }else { ?>
 												<img class="profileIcon" src="../resources/userProfileImg/default.jpg" alt="User Profile Icon">
 												<?php } ?>
 												<input type="file" id="profileImg" name="profileImg" />
 											</label>
-											<!--<input type="button" id="profileImgUpload" name="profileImgUpload" value="Upload" onclick="uploadProfileImg();" />-->
 											<span class="profile_info" id="profileImgInfoMsg" ><?php if(isset($profileImgInfoMsg_php)){echo $profileImgInfoMsg_php;} ?></span>								
 											<span class="profile_err" id="profileImgMsg" ><?php if(isset($profileImgMsg_php)){echo $profileImgMsg_php;} ?></span>
 											<br>											
@@ -338,10 +481,35 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 											<label class="update_user_profile_label">Email<label class="mandatory_field">*</label> : </label>
 											<input type="hidden" id="currentEmail", name="currentEmail" value="<?php if(isset($email)){echo $email;} ?>">  
 											<input class="profile_input" type="email" id="email" name="email" maxlength="100" value="<?php if(isset($email)){echo $email;} ?>" >
-											<span class="profile_info" id="emailInfoMsg" ><?php if(isset($emailInfoMsg_php)){echo $emailInfoMsg_php;} ?></span>										
-											<span class="profile_err" id="emailMsg" ><?php if(isset($emailMsg_php)){echo $emailMsg_php;} ?></span>
+											<span style="color:green;" id="emailInfoMsg" ><?php if(isset($emailInfoMsg_php)){echo $emailInfoMsg_php;} ?></span>										
+											<span style="color:red;" id="emailMsg" ><?php if(isset($emailMsg_php)){echo $emailMsg_php;} ?></span>
 										<div>
 						
+										<fieldset><legend>Change Password</legend>
+						
+										<div>
+											<label class="update_user_profile_label">Current password : </label> 
+											<input class="profile_input" type="password" id="currentPass" name="currentPass" maxlength="100" >
+											<span class="profile_info" id="currentPassInfoMsg" ><?php if(isset($currentPassInfoMsg_php)){echo $currentPassInfoMsg_php;} ?></span>										
+											<span class="profile_err" id="currentPassMsg" ><?php if(isset($currentPassMsg_php)){echo $currentPassMsg_php;} ?></span>
+										<div>
+										
+										<div>
+											<label class="update_user_profile_label">New password : </label> 
+											<input class="profile_input" type="password" id="newPass" name="newPass" maxlength="100" >
+											<span class="profile_info" id="newPassInfoMsg" ><?php if(isset($newPassInfoMsg_php)){echo $newPassInfoMsg_php;} ?></span>										
+											<span class="profile_err" id="newPassMsg" ><?php if(isset($newPassMsg_php)){echo $newPassMsg_php;} ?></span>
+										<div>
+																			
+										<div>
+											<label class="update_user_profile_label">Repeat password : </label> 
+											<input class="profile_input" type="password" id="repeatNewPass" name="repeatNewPass" maxlength="100" >
+											<span class="profile_info" id="repeatNewPassInfoMsg" ><?php if(isset($repeatNewPassInfoMsg_php)){echo $repeatNewPassInfoMsg_php;} ?></span>										
+											<span class="profile_err" id="repeatNewPassMsg" ><?php if(isset($repeatNewPassMsg_php)){echo $repeatNewPassMsg_php;} ?></span>
+										<div>
+									
+										</fieldset><br>
+									
 										<div>
 											<label class="update_user_profile_label">English Surname<label class="mandatory_field">*</label> : </label> 
 											<input class="profile_input" type="text" id="engSurname" name="engSurname" maxlength="50" value="<?php if(isset($engSurname)){echo $engSurname;} ?>" >
@@ -398,9 +566,9 @@ if (!empty($_POST["saveProfile"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 										<br>
 	
 										<hr>
-										<div class="button_alignment">
-											<input class="profile_button" type="submit" name="saveProfile" value="Save Profile">
-											<input class="profile_button" type="button" name="cancel2UpdateProfile" value="Cancel" onclick="goToUserProfile();">				
+										<div class="button_alignment">											
+											<input class="profile_button" type="button" name="cancel2UpdateProfile" value="Cancel" onclick="goToUserProfile();">	
+											<input class="profile_button" type="submit" name="saveProfile" value="Save Profile">			
 										</div>
 									</div>
 								<!-- ******** [END] User Profile Division ******** -->

@@ -27,7 +27,7 @@
 			// connect
 			$dbconnection = db_connect();
 			// query the last order_id for "user_id"
-			$sql = "select `order_id` from `comment` where `user_id`='$user_id' order by `create_date` desc limit 1";
+			$sql = "SELECT order_id FROM UNICORN.COMMENT WHERE user_id='$user_id' ORDER BY create_date DESC LIMIT 1";
 			$stmt = $dbconnection->query($sql);
 
 			// result
@@ -56,7 +56,7 @@
 			// connect
 			$dbconnection = db_connect();
 			// query the last order_id for "user_id"
-			$sql = "select `order_id` from `order` where `user_id`='$user_id' order by `create_date` desc limit 1";
+			$sql = "SELECT order_id FROM UNICORN.ORDER WHERE user_id='$user_id' ORDER BY create_date DESC LIMIT 1";
 			$stmt = $dbconnection->query($sql);
 
 			// result
@@ -70,7 +70,7 @@
 
 	    }catch(PDOException $e){
 			return -1;
-	        go_to_exception_page("db_get_last_OrderID_from_Order() -> get data -> ".$e);
+	        go_to_exception_page("db_get_last_OrderID_from_Comment() -> get data -> ".$e);
 	    }
 	}
 	
@@ -86,7 +86,7 @@
 			// connect
 			$dbconnection = db_connect();
 			// query
-			$sql = "select `order_id` from `order` where `user_id`='$user_id' order by `order_id` desc limit 1";
+			$sql = "SELECT order_id FROM UNICORN.ORDER WHERE user_id='$user_id' ORDER BY order_id DESC LIMIT 1";
 			$stmt = $dbconnection->query($sql);
 
 			// result
@@ -100,7 +100,7 @@
 
 	    }catch(PDOException $e){
 			return -1;
-	        go_to_exception_page("getOrderIDWithUserID() -> set data -> ".$e);
+	        go_to_exception_page("testComment() -> set data -> ".$e);
 	    }
 	}
 	
@@ -116,7 +116,7 @@
 			// connect
 			$dbconnection = db_connect();
 			// query
-			$sql = "select `food_id` from `order_detail` where `order_id`='$order_id' limit $max_count";
+			$sql = "SELECT food_id FROM order_detail WHERE order_id='$order_id' LIMIT $max_count";
 			$stmt = $dbconnection->query($sql);
 			
 			// return Array initialization
@@ -154,7 +154,7 @@
 			return $out;
 			
 	    }catch(PDOException $e){
-	        go_to_exception_page("getFoodIDWithOrderID() -> set data -> ".$e);
+	        go_to_exception_page("testComment() -> set data -> ".$e);
 	    }
 
 		return -1;
@@ -170,7 +170,7 @@
 			// connect
 			$dbconnection = db_connect();
 			// query
-			$sql = "select `food_name` from `food` where `food_id`='$food_id' limit 1";
+			$sql = "SELECT food_name FROM food WHERE food_id='$food_id' LIMIT 1";
 			$stmt = $dbconnection->query($sql);
 			
 			// fetch value
@@ -182,7 +182,7 @@
 			return $food_name['food_name'];
 			
 	    }catch(PDOException $e){
-	        go_to_exception_page("getFoodNameWithFoodID() -> set data -> ".$e);
+	        go_to_exception_page("testComment() -> set data -> ".$e);
 	    }
 
 		return -1;
@@ -205,8 +205,8 @@
 			$int_rating = (int)$rating;
 			
 	        //prepared SQL statement
-			$sql = "insert into `comment` (`user_id`, `order_id`, `rating`, `content`, `create_date`)
-			values ('$user_id', '$order_id', '$int_rating', '$content', '$create_date')";
+			$sql = "INSERT INTO comment (USER_ID, ORDER_ID, RATING, CONTENT, CREATE_DATE)
+			VALUES ('$user_id', '$order_id', '$int_rating', '$content', '$create_date')";
 	        $stmt = $dbconnection->prepare($sql);
 			// execute 
 			if ( $stmt->execute() === TRUE) {
@@ -215,7 +215,7 @@
 				echo "Error: " . $sql . "<br>";
 			}
 	    }catch(PDOException $e){
-	        go_to_exception_page("addComment() -> set data -> ".$e);
+	        go_to_exception_page("testComment() -> set data -> ".$e);
 	    }
 		
 		// disconnect
@@ -230,7 +230,7 @@
 	        $dbconnection = db_connect();
 
 			// query
-			$sql = "select `user_id`, `order_id`, `rating`, `content`, `create_date` from `comment` order by `create_date` DESC LIMIT $number_of_comments";
+			$sql = "SELECT user_id, order_id, rating, content, create_date FROM comment ORDER BY create_date DESC LIMIT $number_of_comments";
 			$stmt = $dbconnection->query($sql);
 			
 			// number of fetched rows

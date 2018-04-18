@@ -30,17 +30,20 @@
 	}
 }
 
+
 aside.left-panel {
 	background: #272c33;
 	display: table-cell;
 	height: 100%;
-	min-height: 100%;
+	min-height: 800px;
 	vertical-align: top;
 	width: 280px
 }
 
 aside.left-panel {
-	width: 230px !important
+	width: 230px !important;
+	min-height: 800px !important;
+	height: 1500px !important;
 }
 
 .open aside.left-panel {
@@ -529,7 +532,10 @@ small {
 
 /******** [START] Right panel style definition ********/
 .right-panel {
-	padding-left: 230px !important
+	padding-left: 230px !important;
+	width: 1300px !important;
+	min-height: 800px !important;
+	height: 1500px !important;
 }
 
 .right-panel {
@@ -546,7 +552,6 @@ small {
 	padding: 15px 20px 13px;
 	width: 100%
 }
-
 
 .open .right-panel {
 	margin-left: -160px !important
@@ -946,7 +951,7 @@ small {
 body {
 	background: #f1f2f7;
 	font-family: Open Sans, sans-serif;
-	font-size: 16px
+	font-size: 16px;
 }
 
 a {
