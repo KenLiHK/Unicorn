@@ -27,7 +27,7 @@ if(isset($_SESSION['login_user_id'])){
 	<link rel="stylesheet" href="../unicorn.css" type="text/css">
 </head>
 
-<body>
+<body style="line-height:1;">
 <div id="loading"></div>
 <div id="app"  style="display:none;" >
 	<div>

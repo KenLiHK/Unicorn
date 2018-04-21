@@ -135,6 +135,7 @@
 	}
 
 	function logout() {
+		    unset($_SESSION);
 			session_unset(); // clear all session variables
 			session_destroy();
 	}	

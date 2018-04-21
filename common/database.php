@@ -619,6 +619,26 @@
 	    $dbconnection = null;	
 	}
 	
+	function db_select_order_by_OrderID_UserID($orderID, $userID)
+	{
+		try {
+			$dbconnection = db_connect();
+			
+			//Prepared SQL statement
+			$sql = "select * from `order` where order_id = :orderID and user_id = :userID";
+			$stmt = $dbconnection->prepare($sql);
+			$paramArray = array(':orderID' => $orderID, ':userID' => $userID);
+			$stmt->execute($paramArray);
+			
+			return $stmt->rowCount();
+		}catch(PDOException $e){
+			go_to_exception_page("db_select_order_by_OrderID_UserID() -> ".$e);
+		}
+		
+		//close db connection to release memory
+		$dbconnection = null;
+	}
+	
 	function db_select_order_detail_by_OrderID($orderID)
 	{
 	    try {

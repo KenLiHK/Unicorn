@@ -72,6 +72,17 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
     }
+    
+    //Retrieve user contact information (address and contact no.)
+    if(isset($_SESSION['login_user_id'])){
+    	$userID = $_SESSION['login_user_id'];
+    	$count = db_select_order_by_OrderID_UserID($_placedOrderID, $userID);
+    	if(!isset($count) || $count <= 0){
+    		go_to_exception_page("You are not authorized to view the order!");
+    		exit;
+    	}
+    }
+
     unset($_SESSION['selected_food_map']);
     unset($_SESSION['delivery_timeslot']);
     unset($_SESSION['payment_method']);
@@ -85,10 +96,7 @@ if (!empty($_POST["okBtn"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
     $_orderInDB = get_order_info_by_orderID($_placedOrderID);
     $orderDetail4Display_array = prepare_placed_order_detail_for_display($_placedOrderID);
     
-	//Retrieve user contact information (address and contact no.)
-    if(isset($_SESSION['login_user_id'])){
-    	$userID = $_SESSION['login_user_id'];
-    }
+
 	
 	if(isset($userID)){
 		$_result = array();
